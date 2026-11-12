@@ -138,6 +138,7 @@ function viewHoje() {
     <div class="kpi"><span>Atendidos</span><strong class="num">${feitos}/${list.length}</strong></div></div>
   ${charges ? `<div class="cartao alerta alerta-cob" data-act="tab" data-id="cobrancas" style="cursor:pointer"><div><strong>${charges} cobrança${charges > 1 ? 's' : ''} em atraso</strong><div class="mini">Cobrar pelo WhatsApp</div></div><span class="seta">›</span></div>` : ''}
   ${(() => { const req = S().appointments.filter(a => a.status === 'requested').sort((a, b) => a.start.localeCompare(b.start)); return req.length ? `<h2>Pedidos de clientes <small>${req.length}</small></h2><div class="lista">${req.map(a => `<div class="mini">${esc(dataBR(parseLocal(a.start)))}</div>${apptItem(a)}`).join('')}</div>` : ''; })()}
+  <button class="bt leve cheio" style="margin-top:12px" data-act="shareFree">Divulgar horários livres de hoje</button>
   <h2>Agenda de hoje <small>${list.filter(a => a.status !== 'requested').length} horários</small></h2>
   ${proChips()}
   <div class="lista">${list.filter(a => a.status !== 'requested').length ? list.filter(a => a.status !== 'requested').map(a => apptItem(a)).join('') : '<div class="vazio">Nenhum horário hoje. Toque em + para marcar.</div>'}</div>
@@ -427,6 +428,13 @@ const A = {
     if (clash) return toast(`Conflito com ${client(clash.clientId).name} às ${hhmm(clash.start)}. Remarque ou recuse.`);
     a.status = 'confirmed'; openWA(c.phone, fill(S().settings.templates.accept, vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: hhmm(a.start), servico: service(a.serviceId).name }))); save(); toast('Pedido aceito'); },
   refuse: el => { const a = byId(S().appointments, el.dataset.id), c = client(a.clientId); a.status = 'canceled'; openWA(c.phone, fill(S().settings.templates.refuse, vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: hhmm(a.start), link: bookingURL() }))); save(); },
+  shareFree: () => {
+    const now = new Date(), day = ymd(now), dur = Math.min(...S().services.map(x => x.durationMin));
+    const lines = S().pros.map(p => { const f = freeSlots(S(), day, p.id, dur, now); return f.length ? (S().pros.length > 1 ? `${firstName(p.name.replace(/\s*\(.*\)/, ''))}: ` : '') + f.join(' · ') : null; }).filter(Boolean);
+    if (!lines.length) return toast('Hoje não sobrou horário livre');
+    const msg = `✂️ ${S().settings.shopName} — horários livres hoje:\n${lines.join('\n')}\n\nPede o seu por aqui: ${bookingURL()}`;
+    const a = document.createElement('a'); a.href = 'https://wa.me/?text=' + encodeURIComponent(msg); a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  },
   bookLink: () => copy(bookingURL(), 'Link de agendamento copiado'),
   bookPreview: () => { ui.preview = true; document.body.classList.add('cliente'); bookingPage(bookingURL().split('#agendar=')[1]); $('main').insertAdjacentHTML('beforebegin', '<div id="prevBar" class="faixa-demo" style="max-width:620px;margin:10px auto 0;display:flex;justify-content:space-between;align-items:center">Prévia: é isso que o cliente vê <button class="bt ouro" data-act="endPreview">Voltar ao painel</button></div>'); window.scrollTo(0, 0); },
   endPreview: () => { $('#prevBar')?.remove(); ui.preview = false; document.body.classList.remove('cliente'); $('main').onclick = null; $('main').oninput = null; render(); },
