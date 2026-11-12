@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1d1813">
+<meta name="theme-color" content="#f3f4f6">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GL Style">
 <title>GL Style · Agende seu horário</title>
@@ -198,12 +200,114 @@ h2 small{font:500 13px/1 var(--corpo);color:var(--mudo)}
 .mat{grid-template-columns:1fr 1fr 90px}
 .mat label:first-of-type{grid-column:auto}
 .mat .uso{grid-column:auto}
+
+/* ===== tema no estilo da Calculadora ANESTBOX (claro, cartões brancos, grupos coloridos) ===== */
+:root{
+  --couro:#f3f4f6; --sup:#ffffff; --sup2:#f6f7f9; --linha:#e4e6ea;
+  --creme:#17191d; --mudo:#6b7079; --latao:#b8862b; --latao2:#9a6f1f;
+  --ok:#1f8a4c; --mal:#c23b3b; --aviso:#b86b10; --warnbg:#fff4e8;
+  --cond:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --corpo:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --couro:#121417; --sup:#1b1e23; --sup2:#20242a; --linha:#2b2f36;
+  --creme:#eef0f3; --mudo:#9aa0aa; --latao:#d9a64a; --latao2:#e8bd6a;
+  --ok:#4cc283; --mal:#ef6b6b; --aviso:#e8a24a; --warnbg:#3a2a1a; color-scheme:dark;
+}}
+body{font-size:15px}
+h1{font-weight:800;letter-spacing:-.02em;font-size:28px}
+h2{font-weight:800;letter-spacing:-.01em;font-size:18px}
+.marca,.hora,.grande,.valor,.kpi strong,.dia b{font-weight:800;letter-spacing:-.02em}
+.top{background:var(--couro)}
+.item,.cartao,.kpi,.grupo{border:1px solid var(--linha);box-shadow:none;border-radius:18px}
+.kpi.dest{background:var(--creme);color:var(--sup)}.kpi.dest span{color:var(--sup);opacity:.75}
+.bt{border-radius:12px}
+.bt.leve{background:var(--sup2);border:1px solid var(--linha);color:var(--creme)}
+.bt.ok{background:var(--ok);color:#fff}
+.bt.ouro{background:var(--creme);color:var(--sup)}
+.bt.zap{background:#1f8a4c;color:#fff}
+.ib.zap{color:#1f8a4c;border-color:#bfe3cc}
+.ib.mal{color:var(--mal);border-color:#efc9c9}
+.tag.plano{background:#f6ecd8;color:#8a6116}.tag.ok{background:#e3f4ea;color:#1f8a4c}.tag.mal{background:#fbe5e5;color:#c23b3b}.tag.av{background:var(--warnbg);color:var(--aviso)}.tag.mudo{background:var(--sup2);color:var(--mudo)}
+@media (prefers-color-scheme:dark){.tag.plano{background:#3b3220;color:#e8bd6a}.tag.ok{background:#1e3326;color:#4cc283}.tag.mal{background:#3a2020;color:#ef6b6b}.ib.zap{border-color:#2a5a3e;color:#4cc283}.ib.mal{border-color:#5a2e28}}
+.chip.on,.seg button.on{background:var(--creme);color:var(--sup);border-color:var(--creme)}
+.dia.on{background:var(--creme);color:var(--sup)}.dia.on b{color:var(--sup)}
+.fab{background:var(--creme);color:var(--sup);box-shadow:0 6px 20px rgba(0,0,0,.18)}
+nav.abas{background:var(--sup);border-top:1px solid var(--linha)}
+nav.abas button.on{color:var(--creme);font-weight:700}
+.faixa-demo{background:var(--warnbg);color:var(--aviso)}
+.aviso{background:var(--creme);color:var(--sup)}
+.veu{background:rgba(10,12,15,.45)}
+.folha{background:var(--sup)}
+input,select,textarea{background:var(--sup2);border-color:var(--linha)}
+.item{border-left:3px solid var(--latao)}
+
+/* calculadora de lucro */
+.hero{display:grid;gap:14px}
+.hero .k{font-size:13px;color:var(--mudo);font-weight:600}
+.hero .big{font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1.05;color:var(--ok)}
+.hero.neg .big{color:var(--mal)}
+.hero .s{font-size:12.5px;color:var(--mudo)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border-top:1px solid var(--linha);padding-top:14px}
+.stats .v{font-size:21px;font-weight:800;letter-spacing:-.02em}
+.barra2{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--sup2)}
+.barra2 span{display:block;height:100%}
+.legenda{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mudo)}
+.legenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+details.grp{border-radius:18px;padding:4px 14px;margin:10px 0;border:1px solid var(--gbd);background:var(--gbg)}
+details.grp>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:42px 1fr auto 14px;align-items:center;gap:12px;padding:12px 0;min-height:44px}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary::after{content:"›";color:var(--mudo);font-size:18px;transition:transform .15s ease-out}
+details.grp[open]>summary::after{transform:rotate(90deg)}
+details.grp>summary b{font-size:16px}
+details.grp>summary small{display:block;color:var(--mudo);font-size:12.5px;font-weight:500}
+details.grp>summary .gt{font-weight:800;font-variant-numeric:tabular-nums}
+.gico{width:42px;height:42px;border-radius:12px;background:var(--gic);display:grid;place-items:center;font-size:21px}
+.gbody{background:rgba(255,255,255,.72);border-radius:14px;padding:2px 12px;margin:0 0 12px}
+@media (prefers-color-scheme:dark){.gbody{background:rgba(0,0,0,.22)}}
+.gbody>.gi{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:11px 0;border-top:1px solid var(--linha);width:100%;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;cursor:pointer}
+.gbody>.gi:first-child{border-top:0}
+.gi .n{font-weight:600}.gi small{color:var(--mudo);font-size:12px;display:block}.gi .t{font-weight:700;font-variant-numeric:tabular-nums}
+details.grp[data-g=mat]{--gbg:#ebf6f2;--gbd:#cbe7dc;--gic:#d3eee3}
+details.grp[data-g=cad]{--gbg:#eef2f7;--gbd:#d6dee9;--gic:#dbe4ef}
+details.grp[data-g=taxa]{--gbg:#fbf3e6;--gbd:#efdcbb;--gic:#f5e5c8}
+details.grp[data-g=contas]{--gbg:#eef2f7;--gbd:#d6dee9;--gic:#dbe4ef}
+details.grp[data-g=impostos]{--gbg:#f2effa;--gbd:#ddd5f1;--gic:#e4ddf6}
+details.grp[data-g=voce]{--gbg:#fbf3e6;--gbd:#efdcbb;--gic:#f5e5c8}
+details.grp[data-g=equip]{--gbg:#ecf4fb;--gbd:#cfe2f3;--gic:#d6e8f7}
+details.grp[data-g=outros]{--gbg:#ebf6f2;--gbd:#cbe7dc;--gic:#d3eee3}
+details.grp[data-g=extra]{--gbg:#f6f7f9;--gbd:#e4e6ea;--gic:#eceef1}
+@media (prefers-color-scheme:dark){
+ details.grp[data-g=mat],details.grp[data-g=outros]{--gbg:#1b2a25;--gbd:#2a4037;--gic:#24382f}
+ details.grp[data-g=cad],details.grp[data-g=contas]{--gbg:#1f2630;--gbd:#2e3947;--gic:#2a3442}
+ details.grp[data-g=taxa],details.grp[data-g=voce]{--gbg:#2e2618;--gbd:#4a3c22;--gic:#3d321f}
+ details.grp[data-g=impostos]{--gbg:#251f33;--gbd:#3a3150;--gic:#30293f}
+ details.grp[data-g=equip]{--gbg:#1a2632;--gbd:#2a3c4f;--gic:#243343}
+ details.grp[data-g=extra]{--gbg:#20242a;--gbd:#2b2f36;--gic:#2b2f36}
+}
+.conta table{width:100%;border-collapse:collapse}
+.conta td{padding:8px 0;border-top:1px solid var(--linha);vertical-align:top}
+.conta tr:first-child td{border-top:0}
+.conta td:last-child{text-align:right;font-weight:700;white-space:nowrap;padding-left:12px}
+.conta .f{display:block;color:var(--mudo);font-size:12.5px}
+.conta tr.t td{font-weight:800}
+.total-folha{display:flex;justify-content:space-between;align-items:baseline;background:var(--sup2);border-radius:14px;padding:12px 14px;margin:6px 0 10px}
+.total-folha b{font-size:24px;font-weight:800}
+.campo-linha{display:grid;grid-template-columns:1fr 112px;gap:4px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--linha)}
+.campo-linha:first-child{border-top:0}
+.campo-linha input{text-align:right;font-weight:700;min-height:42px}
+.campo-linha small{display:block;color:var(--mudo);font-size:12px}
+.campo-linha .venc{grid-column:1/-1;font-size:12px;color:var(--mudo)}
+.campo-linha .venc input{width:60px;min-height:32px;padding:4px 8px;display:inline;text-align:center}
+.campo-linha.cheio input{border-color:var(--ok)}
+@media (max-width:420px){.hero .big{font-size:38px}.stats .v{font-size:18px}}
 </style>
 </head>
 <body class="cliente">
 <header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
 <main></main>
-<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJ3IjoiNTU3NTk5OTMzMTk5MCIsIm8iOjgsImMiOjE5LCJzbCI6MzAsInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDM1LDQwXSxbInNfYmFyYmEiLCJCYXJiYSIsMjUsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDU1LDYwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwicHIiOltbInBfZ2wiLCJHdWlsaGVybWUiXV0sImQiOnsiMjAyNi0xMS0xMiI6eyJwX2dsIjpbWzU0MCw1ODBdLFs2MDAsNjQwXSxbNjYwLDcwMF0sWzg0MCw5MDBdLFs5MzAsOTkwXSxbOTkwLDEwMjBdXX0sIjIwMjYtMTEtMTMiOnsicF9nbCI6W1s1NDAsNTgwXSxbNjMwLDY3MF0sWzEwMjAsMTA4MF1dfSwiMjAyNi0xMS0xNCI6eyJwX2dsIjpbWzY2MCw3MDBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s5MDAsOTQwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltdfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbXX0sIjIwMjYtMTEtMTgiOnsicF9nbCI6W119fSwiZyI6MTc5NDQ4Nzc5NzQ2N30";</script>
+<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwicHIiOltbInBfZ2wiLCJHdWlsaGVybWUiXV0sImQiOnsiMjAyNi0xMS0xMiI6eyJwX2dsIjpbWzU0MCw1NzBdLFs2MDAsNjMwXSxbNjYwLDY5MF0sWzg0MCw5MDBdLFs5MzAsOTkwXSxbMTAyMCwxMTEwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdXX0sIjIwMjYtMTEtMTQiOnsicF9nbCI6W1s2NjAsNjkwXV19LCIyMDI2LTExLTE1Ijp7InBfZ2wiOltdfSwiMjAyNi0xMS0xNiI6eyJwX2dsIjpbXX0sIjIwMjYtMTEtMTciOnsicF9nbCI6W1s5MDAsOTMwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltdfX0sImciOjE3OTQ0OTI5OTczNTJ9";</script>
 <script>
 // GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
 
@@ -367,7 +471,7 @@ const toneFor = late => (late >= 2 ? 'firme' : 'leve');
 
 function billsStatus(state, month, today) {
   const [y, m] = month.split('-').map(Number);
-  return (state.fixedCosts || []).map(cost => {
+  return (state.fixedCosts || []).filter(c => c.bill !== false && Number(c.monthly) > 0).map(cost => {
     const due = dayIn(y, m - 1, cost.dueDay || 1);
     const paid = (state.billPayments || []).some(p => p.costId === cost.id && p.month === month);
     return { cost, due, paid, overdue: !paid && startOfDay(today) > due };
@@ -427,8 +531,14 @@ function monthSummary(state, month) {
 }
 
 // ---------- agendamento pelo cliente
+function isOpenDay(settings, dateStr) {
+  const wd = settings && settings.workDays;
+  if (!Array.isArray(wd)) return true;
+  return wd.includes(parseLocal(dateStr + 'T12:00').getDay());
+}
 function freeSlots(state, dateStr, proId, durationMin, now = null) {
   const st = state.settings, out = [];
+  if (!isOpenDay(st, dateStr)) return out;
   const busy = (state.appointments || []).filter(a => a.proId === proId && a.start.startsWith(dateStr) && !['canceled', 'noshow'].includes(a.status))
     .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; });
   const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() : -1;
@@ -451,6 +561,8 @@ function decodeAvailability(str) {
   if (!o.sv.length || !o.sv.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string' && typeof x[2] === 'number' && pos(x[3]))) return null;
   if (!o.pr.length || !o.pr.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string')) return null;
   if (!Object.keys(o.d).every(k => /^\d{4}-\d{2}-\d{2}$/.test(k))) return null;
+  if (o.wd !== undefined && !(Array.isArray(o.wd) && o.wd.every(x => Number.isInteger(x) && x >= 0 && x <= 6))) return null;
+  if (o.a !== undefined && typeof o.a !== 'string') return null;
   if (typeof o.w !== 'string' || !/^\d{10,13}$/.test(o.w) || typeof o.s !== 'string') return null;
   return o;
 }
@@ -476,6 +588,12 @@ function findClientForRequest(clients, name, phone) {
   return same.length === 1 ? same[0] : null; // sem telefone: só se o nome for único
 }
 
+const equipMonthly = (price, months) => (Number(months) > 0 ? round2(Number(price) / Number(months)) : 0);
+function costSummary(costs) {
+  const list = costs || [];
+  return { filled: list.filter(c => Number(c.monthly) > 0).length, total: list.length, monthly: round2(list.reduce((t, c) => t + (Number(c.monthly) || 0), 0)) };
+}
+
 // GL Style — página pública de agendamento (lê os dados do link).
 const bk = { sv: null, pr: null, day: null, time: null, name: '', phone: '' };
 function bookingPage(code) {
@@ -484,9 +602,10 @@ function bookingPage(code) {
   const main = document.querySelector('main');
   if (!D) { main.innerHTML = '<h1>Agendamento</h1><p class="sub">Este link está incompleto ou expirou. Peça ao salão o link de agendamento atualizado pelo WhatsApp.</p>'; return; }
   const days = Object.keys(D.d).filter(d => d >= ymd(new Date())).sort();
-  bk.sv = bk.sv || D.sv[0][0]; bk.pr = bk.pr || D.pr[0][0]; bk.day = days.includes(bk.day) ? bk.day : days[0];
+  const openD = d => !Array.isArray(D.wd) || D.wd.includes(parseLocal(d + 'T12:00').getDay());
+  bk.sv = bk.sv || D.sv[0][0]; bk.pr = bk.pr || D.pr[0][0]; bk.day = days.includes(bk.day) ? bk.day : (days.find(openD) || days[0]);
   const svc = D.sv.find(x => x[0] === bk.sv) || D.sv[0];
-  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl }, services: [], appointments: [] };
+  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl, workDays: D.wd }, services: [], appointments: [] };
   const slotsFor = (day, pr) => {
     const busy = (D.d[day] && D.d[day][pr]) || [];
     st.services = busy.map((b, i) => ({ id: 'b' + i, durationMin: b[1] - b[0] }));
@@ -496,11 +615,11 @@ function bookingPage(code) {
   const slots = bk.day ? slotsFor(bk.day, bk.pr) : [];
   if (!slots.includes(bk.time)) bk.time = null;
   const old = Math.round((Date.now() - (D.g || Date.now())) / 3600000);
-  main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<h1>Agende no ${esc(D.s)}</h1><p class="sub">Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
+  main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<h1>Agende no ${esc(D.s)}</h1><p class="sub">${D.a ? '📍 ' + esc(D.a) + '<br>' : ''}Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
   <h2>Serviço</h2><div class="chips" style="flex-wrap:wrap">${D.sv.map(x => `<button class="chip ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}">${esc(x[1])} · ${brl(x[2])}</button>`).join('')}</div>
   ${D.pr.length > 1 ? '<h2>Com quem</h2>' : ''}<div class="chips" ${D.pr.length > 1 ? '' : 'hidden'}>${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>
   <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${esc(d)}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
-  <h2>Horários livres</h2>${slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
+  <h2>Horários livres</h2>${!openD(bk.day) ? '<div class="vazio">Fechado nesse dia. Escolha outro.</div>' : slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
   <h2>Seu nome</h2><input data-bkin="name" value="${esc(bk.name)}" placeholder="Como o Guilherme te conhece" autocomplete="name">
   <p class="mini">Sem cadastro: o pedido sai do seu WhatsApp.</p>
   <button class="bt zap cheio" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled style="opacity:.5"'}>Pedir ${bk.time ? `${bk.time} de ${dataBR(parseLocal(bk.day + 'T00:00'))}` : 'horário'} pelo WhatsApp</button>
