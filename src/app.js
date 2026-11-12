@@ -134,9 +134,8 @@ function viewHoje() {
   return `<p class="data-topo">${esc(new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }))}</p><h1>Hoje</h1>
   ${store.persistent ? '' : '<div class="faixa-demo">Os dados ficam só nesta aba: o navegador não deixa guardar. Use Ajustes → Exportar backup antes de fechar.</div>'}
   ${isOpenDay(S().settings, tk) ? '' : '<div class="faixa-demo">Hoje o salão não abre. Bom descanso! ✂️</div>'}
-  <div class="resumo"><div class="kpi dest"><span>Recebido hoje</span><strong class="num">${brl(recebido)}</strong></div>
-    <div class="kpi"><span>A receber</span><strong class="num">${brl(aReceber)}</strong></div>
-    <div class="kpi"><span>Atendidos</span><strong class="num">${feitos}/${list.length}</strong></div></div>
+  <div class="cartao-preto"><span class="selo">${feitos}/${list.length} atendidos</span><div class="rot">Recebido hoje</div><div class="val num">${brl(recebido)}</div>
+    <div class="linha3"><div><span class="rot">A receber hoje</span><b class="num">${brl(aReceber)}</b></div><div><span class="rot">Próximo horário</span><b class="num">${(() => { const nx = list.find(a => ['scheduled', 'confirmed'].includes(a.status) && a.start.slice(11, 16) >= `${pad2(new Date().getHours())}:${pad2(new Date().getMinutes())}`); return nx ? hhmm(nx.start) + ' · ' + esc(firstName(client(nx.clientId).name)) : '—'; })()}</b></div></div></div>
   ${charges ? `<div class="cartao alerta alerta-cob" data-act="tab" data-id="cobrancas" style="cursor:pointer"><div><strong>${charges} cobrança${charges > 1 ? 's' : ''} em atraso</strong><div class="mini">Cobrar pelo WhatsApp</div></div><span class="seta">›</span></div>` : ''}
   ${(() => { const req = S().appointments.filter(a => a.status === 'requested').sort((a, b) => a.start.localeCompare(b.start)); return req.length ? `<h2>Pedidos de clientes <small>${req.length}</small></h2><div class="lista">${req.map(a => `<div class="mini">${esc(dataBR(parseLocal(a.start)))}</div>${apptItem(a)}`).join('')}</div>` : ''; })()}
   <button class="bt leve cheio" style="margin-top:12px" data-act="shareFree">Divulgar horários livres de hoje</button>
@@ -418,7 +417,7 @@ function render() {
   const late = openCharges().filter(c => c.late > 0).length;
   $('nav.abas .in').innerHTML = TABS.map(([k, l]) => `<button class="${ui.tab === k ? 'on' : ''}" data-act="tab" data-id="${k}" aria-label="${l}">${I[k]}${l}${k === 'cobrancas' && late ? `<span class="badge">${late}</span>` : ''}</button>`).join('');
   $('.fab').style.display = ui.tab === 'hoje' || ui.tab === 'agenda' ? '' : 'none';
-  $('.marca').innerHTML = esc(S().settings.shopName).replace(/^(\S+)/, '<b>$1</b>');
+  { const nm = S().settings.shopName || 'GL Style', ini = (nm.match(/\b\w/g) || ['G']).slice(0, 2).join('').toUpperCase(); $('.marca').innerHTML = `<span class="mono">${esc(nm.split(' ')[0].slice(0, 2).toUpperCase() === 'GL' ? 'GL' : ini)}</span><span>${esc(nm)}</span>`; }
   if (focus) { const el = document.querySelector(`[data-input="${focus}"]`); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} } }
 }
 
