@@ -439,7 +439,8 @@ const A = {
     if (S().appointments.some(a => a.clientId === c.id && a.start === r.start && a.status !== 'canceled')) return toast('Esse pedido já está na agenda');
     const covered = coveredFor(c, r.serviceId, r.start);
     S().appointments.push({ id: store.uid(), clientId: c.id, serviceId: r.serviceId, proId: r.proId, start: r.start, status: 'requested', covered, price: covered ? 0 : service(r.serviceId).price, paid: covered });
-    ui.req = ''; ui.tab = 'hoje'; save(); toast('Pedido adicionado: aceite ou recuse');
+    ui.req = ''; ui.tab = 'hoje'; save();
+    if (normPhone(c.phone).length < 12) { clientSheet(c.id); toast('Cliente novo: coloque o WhatsApp dele e salve'); } else toast('Pedido adicionado: aceite ou recuse');
   },
   addMat: () => { (S().materials = S().materials || []).push({ id: store.uid(), name: 'Novo material', price: 0, yield: 1 }); save(); },
   billPaid: el => { const f = byId(S().fixedCosts, el.dataset.id); S().billPayments.push({ id: store.uid(), costId: f.id, month: ui.month, amount: f.monthly, date: ymd(new Date()) }); save(); toast(`${f.name} paga`); },

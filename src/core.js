@@ -264,6 +264,7 @@ export function findClientForRequest(clients, name, phone) {
   const p = normPhone(phone);
   if (p.length >= 12) { const byPhone = clients.find(c => normPhone(c.phone) === p); if (byPhone) return byPhone; }
   const n = norm(name);
-  const byName = clients.find(c => norm(c.name) === n);
-  return byName && p.length >= 12 && normPhone(byName.phone) === p ? byName : null;
+  const same = clients.filter(c => norm(c.name) === n);
+  if (p.length >= 12) return same.find(c => normPhone(c.phone) === p) || null; // telefone diferente = outra pessoa
+  return same.length === 1 ? same[0] : null; // sem telefone: só se o nome for único
 }

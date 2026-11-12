@@ -214,7 +214,8 @@ test('R9 findClientForRequest prefere telefone e não junta homônimos', () => {
   assert.equal(C.findClientForRequest(clients, 'Joao Pedro', '(75) 98888-0000')?.id, 'jp');
   assert.equal(C.findClientForRequest(clients, 'Outro Nome', '75988880000')?.id, 'jp');
   assert.equal(C.findClientForRequest(clients, 'João Pedro', '75911112222'), null);
-  assert.equal(C.findClientForRequest(clients, 'João Pedro', ''), null);
+  assert.equal(C.findClientForRequest(clients, 'joão pedro', '')?.id, 'jp');
+  assert.equal(C.findClientForRequest([...clients, { id: 'jp2', name: 'João Pedro', phone: '' }], 'João Pedro', ''), null);
 });
 test('R3 cycleStartBefore dá o início certo do ciclo para dueDay 31', () => {
   const ymd2 = d => C.ymd(d);
