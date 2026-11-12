@@ -63,6 +63,11 @@
 - [ ] Step 1: testes: `crc16('123456789')`="29B1"; `pixCode` com key "petros@email.com", name "João Ângelo da Conceição Filho", city "Seabra", amount 80 → começa com "000201", contém "5303986", "540580.00", "5802BR", "5925JOAO ANGELO DA CONCEICA", termina com crc16 do resto; `normPhone('(75) 9 9999-0000')`="5575999990000"; `normPhone('5575999990000')` igual; `fill('Oi {nome}',{nome:'Lu'})`="Oi Lu"; `parseBankNotification('Você recebeu um Pix de JOAO SILVA no valor de R$ 1.050,00')` → {amount:1050,name:'JOAO SILVA'}; `parseBankNotification('Pix recebido: R$50 de Maria')` amount 50 name 'Maria'; matchPayment casa "joão" com "JOAO SILVA" valor 80.
 - [ ] Step 2–4: fail → implementar → pass. Commit `feat: pix, whatsapp, notificação`.
 
+### Task 2b: Caixa avançado (core)
+**Interfaces — Produces:** `rhythm(dates:Date[]):number|null`; `isMissing(dates, today, missingDays):boolean`; `toneFor(latePayments:number):'leve'|'firme'`; `forecast30(state, today):{inflow,outflow,net,items:[{date,label,amount}]}`; `billsStatus(state, month, today):[{cost,paid,overdue}]`.
+- [ ] Testes: rhythm de visitas a cada 15 dias = 15; isMissing com ritmo 15 e 30 dias sem vir = true, 20 dias = false (missingDays 25 → limite 25); toneFor(0)='leve', toneFor(2)='firme'; forecast30 inclui mensalidade que vence em 5 dias e conta de luz com dueDay em 10 dias; billsStatus marca vencida não paga.
+- [ ] fail → implementar → pass. Commit `feat: caixa avançado`.
+
 ### Task 3: Store e dados de exemplo
 
 **Files:** Create `src/store.js`, `tests/store.test.mjs`

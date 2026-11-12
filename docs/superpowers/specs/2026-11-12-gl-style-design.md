@@ -79,3 +79,10 @@ Nada pago (descartados Asaas/gateways e API paga do WhatsApp).
 
 ## 10. Fora do escopo
 Agendamento pelo cliente, robô de WhatsApp, login de associados, estoque, nota fiscal.
+
+## 11. Adições (ideias do plugin Small Business da Anthropic, adaptadas)
+- **Contas a pagar:** custos fixos têm `dueDay`; pagamento por mês em `billPayments` {id, costId, month, amount, date}. Caixa mostra pendentes/vencidas com botão "Paguei".
+- **Previsão 30 dias:** entradas previstas (mensalidades que vencem + repasses fixos de associados + média diária de avulsos × 30) − contas a vencer; alerta se negativo.
+- **Fechamento do mês:** resumo do mês (entradas, saídas, lucro, pendências a receber/pagar).
+- **Cobrança com tom:** cliente sem atraso anterior → mensagem leve; com ≥ 2 atrasos → firme.
+- **Sumidos pelo ritmo:** ritmo = média de dias entre visitas (≥ 2 visitas); sumido se dias desde a última > max(ritmo × 1,5, missingDays).
