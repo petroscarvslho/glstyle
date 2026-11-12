@@ -116,3 +116,19 @@ test('billsStatus e forecast30', () => {
   assert.ok(f.items.some(i => i.label.includes('Aluguel') && i.amount === -800)); // vencida entra como pendente
   near(f.net, f.inflow - f.outflow);
 });
+
+test('monthSummary: avulso de associado não entra como receita do salão', () => {
+  const state = {
+    pros: [{ id: 'o', owner: true }, { id: 'a', owner: false }],
+    payments: [
+      { kind: 'single', amount: 35, date: '2026-11-02T09:00', proId: 'o' },
+      { kind: 'single', amount: 35, date: '2026-11-02T10:00', proId: 'a' },
+      { kind: 'plan', amount: 100, date: '2026-11-05T10:00' },
+    ],
+    proPayments: [{ month: '2026-11', amount: 21 }],
+    billPayments: [{ month: '2026-11', amount: 900 }], expenses: [{ date: '2026-11-03', amount: 60 }],
+  };
+  const s = C.monthSummary(state, '2026-11');
+  assert.deepEqual(s.income, { own: 35, plans: 100, shares: 21 });
+  assert.equal(s.profit, 35 + 100 + 21 - 960);
+});

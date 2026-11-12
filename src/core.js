@@ -154,7 +154,8 @@ export function forecast30(state, today) {
   }
   // avulsos: média diária dos últimos 30 dias de pagamentos 'single'
   const from = addDays(t0, -30);
-  const singles = (state.payments || []).filter(p => p.kind === 'single' && parseLocal(p.date) >= from && parseLocal(p.date) < t0)
+  const owners = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
+  const singles = (state.payments || []).filter(p => p.kind === 'single' && (!p.proId || owners.has(p.proId)) && parseLocal(p.date) >= from && parseLocal(p.date) < t0)
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
   if (singles > 0) items.push({ date: t30, label: 'Avulsos (média 30 dias)', amount: round2(singles) });
   // contas: vencidas não pagas deste mês entram hoje; próximas dentro de 30 dias
@@ -175,7 +176,9 @@ export function forecast30(state, today) {
 // resumo do mês (fechamento)
 export function monthSummary(state, month) {
   const pays = (state.payments || []).filter(p => String(p.date).slice(0, 7) === month);
-  const own = pays.filter(p => p.kind === 'single').reduce((s, p) => s + p.amount, 0);
+  const ownerIds = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
+  const isSalon = p => !p.proId || ownerIds.has(p.proId);
+  const own = pays.filter(p => p.kind === 'single' && isSalon(p)).reduce((s, p) => s + p.amount, 0);
   const plans = pays.filter(p => p.kind === 'plan').reduce((s, p) => s + p.amount, 0);
   const shares = (state.proPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
   const fixed = (state.billPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
