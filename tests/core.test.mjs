@@ -132,3 +132,35 @@ test('monthSummary: avulso de associado não entra como receita do salão', () =
   assert.deepEqual(s.income, { own: 35, plans: 100, shares: 21 });
   assert.equal(s.profit, 35 + 100 + 21 - 960);
 });
+
+test('materialCostOf: preço ÷ rendimento × quantidade', () => {
+  const materials = [{ id: 'lam', price: 30, yield: 100 }, { id: 'pom', price: 40, yield: 40 }, { id: 'zero', price: 10, yield: 0 }];
+  const svc = { materials: [{ id: 'lam', qty: 1 }, { id: 'pom', qty: 0.5 }, { id: 'zero', qty: 1 }, { id: 'sumiu', qty: 2 }] };
+  near(C.materialCostOf(svc, materials), 0.3 + 0.5, 1e-9);
+  assert.equal(C.materialCostOf({}, materials), 0);
+});
+test('apptCost usa materiais quando existem', () => {
+  const materials = [{ id: 'lam', price: 30, yield: 100 }];
+  near(C.apptCost({ durationMin: 10, materialCost: 99, materials: [{ id: 'lam', qty: 2 }] }, 0.1, 0, 0, materials), 1 + 0.6);
+});
+
+test('freeSlots respeita duração e ocupação', () => {
+  const state = { settings: { openHour: 9, closeHour: 12, slotMin: 30 }, services: [{ id: 's', durationMin: 40 }],
+    appointments: [{ proId: 'p', serviceId: 's', start: '2026-11-13T10:00', status: 'scheduled' }, { proId: 'p', serviceId: 's', start: '2026-11-13T11:30', status: 'canceled' }] };
+  // 09:00 ok (termina 9:40) · 09:30 colide com 10:00 · 10:00/10:30 ocupado · 11:00 ok (termina 11:40) · 11:30 passa do fechamento
+  assert.deepEqual(C.freeSlots(state, '2026-11-13', 'p', 40), ['09:00', '11:00']);
+});
+test('freeSlots ignora horários que já passaram hoje', () => {
+  const state = { settings: { openHour: 9, closeHour: 11, slotMin: 30 }, services: [], appointments: [] };
+  assert.deepEqual(C.freeSlots(state, '2026-11-13', 'p', 30, new Date(2026, 10, 13, 9, 45)), ['10:00', '10:30']);
+});
+test('encode/decode disponibilidade', () => {
+  const data = { s: 'GL Style', w: '5575999331990', sv: [['s', 'Corte', 35, 40]], pr: [['p', 'Guilherme']], d: { '2026-11-13': { p: ['09:00', '11:00'] } } };
+  assert.deepEqual(C.decodeAvailability(C.encodeAvailability(data)), data);
+  assert.equal(C.decodeAvailability('lixo%%'), null);
+});
+test('parseBookingRequest', () => {
+  const msg = 'Olá! Quero marcar Corte com Guilherme sex 13/11 às 15:00.\n#GL[2026-11-13T15:00|s_corte|p_gl|Zé da Silva]';
+  assert.deepEqual(C.parseBookingRequest(msg), { start: '2026-11-13T15:00', serviceId: 's_corte', proId: 'p_gl', name: 'Zé da Silva' });
+  assert.equal(C.parseBookingRequest('oi tudo bem'), null);
+});

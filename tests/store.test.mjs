@@ -38,11 +38,10 @@ test('import inválido lança e não altera', () => {
   assert.throws(() => a.importJSON('{"x":1}'));
   assert.equal(a.state.clients.length, n);
 });
-test('seed tem dono + associados e dados coerentes', () => {
+test('seed começa só com o dono e dados coerentes', () => {
   const s = seed(new Date(2026, 10, 12));
-  assert.equal(s.pros.filter(p => p.owner).length, 1);
-  assert.ok(s.pros.some(p => p.shareType === 'percent'));
-  assert.ok(s.pros.some(p => p.shareType === 'fixed'));
+  assert.equal(s.pros.length, 1);
+  assert.equal(s.pros[0].owner, true);
   for (const a of s.appointments) {
     assert.ok(s.clients.some(c => c.id === a.clientId));
     assert.ok(s.services.some(x => x.id === a.serviceId));
@@ -50,4 +49,6 @@ test('seed tem dono + associados e dados coerentes', () => {
   }
   assert.ok(s.appointments.some(a => a.start.startsWith('2026-11-12')));
   assert.ok(s.fixedCosts.every(c => c.dueDay >= 1));
+  for (const sv of s.services) for (const m of sv.materials) assert.ok(s.materials.some(x => x.id === m.id), m.id);
+  assert.ok(s.settings.templates.renew.includes('{inicio}'));
 });

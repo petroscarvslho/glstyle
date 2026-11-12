@@ -9,10 +9,14 @@ export function seed(today = new Date()) {
   const t = startOfDay(today);
   const at = (d, h, m = 0) => `${ymd(d)}T${pad2(h)}:${pad2(m)}`;
   const settings = {
-    shopName: 'GL Style', pixKey: 'glstyle@email.com', pixName: 'GL Style', pixCity: 'Seabra',
+    shopName: 'GL Style', pixKey: '+5575999331990', pixName: 'Guilherme Mendes', pixCity: 'Seabra',
     openHour: 8, closeHour: 19, slotMin: 30, missingDays: 25, hoursPerMonth: 176, paymentFeePct: 0,
     templates: {
-      confirm: 'Fala, {nome}! Passando pra confirmar seu horário no {salao}: {data} às {hora} ({servico}). Posso confirmar? ✂️',
+      confirm: '{nome}, boa noite! Tudo certo para amanhã às {hora}?',
+      renew: 'Bom dia, {nome}! Tudo bem?\n\nPassando para te avisar que seu plano chegou ao fim do ciclo. Ele teve início em {inicio} e encerra {fim}.\n\nAgradeço pela confiança e por continuar contando com o nosso trabalho! 🤝\nJá estamos iniciando um novo ciclo e gostaria de saber se podemos confirmar a renovação do seu plano ({plano} — {valor}) para que você continue aproveitando todos os benefícios.\nPosso deixar sua renovação confirmada?\n\nPix: {chave}\n\nUm abraço!',
+      accept: '{nome}, confirmado! {data} às {hora} ({servico}) no {salao}. Te espero ✂️',
+      refuse: '{nome}, esse horário ({data} às {hora}) não vai dar. Olha os outros livres aqui e me pede de novo: {link}',
+      reschedule: '{nome}, seu horário mudou para {data} às {hora}. Tudo certo?',
       remindLeve: 'Oi, {nome}! Sua mensalidade do {salao} ({plano}) de {valor} vence {data}. Segue o Pix copia e cola:\n{pix}',
       remindFirme: '{nome}, sua mensalidade do {salao} ({plano}) de {valor} está em aberto desde {data}. Pra continuar usando o plano, faz o Pix por aqui:\n{pix}',
       charge: 'Oi, {nome}! Ficou {valor} do atendimento no {salao}. Pix copia e cola:\n{pix}',
@@ -22,15 +26,24 @@ export function seed(today = new Date()) {
     },
   };
   const pros = [
-    { id: 'p_gl', name: 'GL (dono)', phone: '75999990001', color: '#d4a64a', owner: true, shareType: 'percent', shareValue: 0 },
-    { id: 'p_ra', name: 'Rafa', phone: '75999990002', color: '#5aa9e6', owner: false, shareType: 'percent', shareValue: 30, dueDay: 5 },
-    { id: 'p_th', name: 'Thiago', phone: '75999990003', color: '#7bd389', owner: false, shareType: 'fixed', shareValue: 400, dueDay: 5 },
+    { id: 'p_gl', name: 'Guilherme (dono)', phone: '75999331990', color: '#d4a64a', owner: true, shareType: 'percent', shareValue: 0 },
   ];
+  const materials = [
+    { id: 'm_lam', name: 'Lâmina (caixa c/ 100)', price: 35, yield: 100 },
+    { id: 'm_pom', name: 'Pomada modeladora', price: 45, yield: 40 },
+    { id: 'm_gel', name: 'Gel de barbear', price: 30, yield: 50 },
+    { id: 'm_oleo', name: 'Óleo/balm de barba', price: 40, yield: 60 },
+    { id: 'm_toalha', name: 'Toalha (lavagem por uso)', price: 2, yield: 1 },
+    { id: 'm_talco', name: 'Talco / pós-barba', price: 25, yield: 80 },
+    { id: 'm_desc', name: 'Descartáveis (capa, gola, papel)', price: 30, yield: 100 },
+    { id: 'm_maq', name: 'Manutenção de máquina (rateio)', price: 120, yield: 300 },
+  ];
+  const svc = (id, name, durationMin, price, mats) => ({ id, name, durationMin, price, materialCost: 0, materials: mats.map(([m, qty]) => ({ id: m, qty })) });
   const services = [
-    { id: 's_corte', name: 'Corte', durationMin: 40, price: 35, materialCost: 2.5 },
-    { id: 's_barba', name: 'Barba', durationMin: 30, price: 25, materialCost: 3 },
-    { id: 's_cb', name: 'Corte + Barba', durationMin: 60, price: 55, materialCost: 5 },
-    { id: 's_pez', name: 'Pezinho', durationMin: 15, price: 15, materialCost: 1 },
+    svc('s_corte', 'Corte', 40, 35, [['m_lam', 1], ['m_pom', 1], ['m_toalha', 1], ['m_talco', 1], ['m_desc', 1], ['m_maq', 1]]),
+    svc('s_barba', 'Barba', 30, 25, [['m_lam', 1], ['m_gel', 1], ['m_oleo', 1], ['m_toalha', 1], ['m_desc', 1]]),
+    svc('s_cb', 'Corte + Barba', 60, 55, [['m_lam', 2], ['m_pom', 1], ['m_gel', 1], ['m_oleo', 1], ['m_toalha', 1], ['m_talco', 1], ['m_desc', 1], ['m_maq', 1]]),
+    svc('s_pez', 'Pezinho', 15, 15, [['m_lam', 1], ['m_desc', 1], ['m_maq', 1]]),
   ];
   const plans = [
     { id: 'pl_ilim', name: 'Corte Ilimitado', type: 'unlimited', visitsPerCycle: 0, price: 100, serviceIds: ['s_corte', 's_pez'] },
@@ -57,13 +70,26 @@ export function seed(today = new Date()) {
   // histórico (últimos 60 dias) para ritmo, lucro e sumidos
   const hist = [[0, 's_corte', [-56, -42, -28, -14]], [1, 's_corte', [-60, -30]], [2, 's_corte', [-21, -12, -4]], [3, 's_corte', [-27, -20, -13, -9, -6, -3, -1]],
     [4, 's_cb', [-25, -18, -11, -4]], [5, 's_barba', [-58, -44]], [6, 's_corte', [-30, -16]], [7, 's_cb', [-9]], [8, 's_corte', [-15, -8, -2]], [9, 's_corte', [-70, -55, -40]], [10, 's_pez', [-3]], [11, 's_cb', [-12, -5]]];
-  hist.forEach(([ci, si, ds], k) => ds.forEach((dd, j) => add(ci, si, addDays(t, dd), 9 + ((k + j) % 9), j % 2 ? 30 : 0, 'done', ['p_gl', 'p_ra', 'p_th'][(k + j) % 3])));
+  hist.forEach(([ci, si, ds], k) => ds.forEach((dd, j) => add(ci, si, addDays(t, dd), 9 + ((k + j) % 9), j % 2 ? 30 : 0, 'done')));
+  // movimento avulso dos últimos 35 dias (seg–sáb), determinístico
+  const extra = ['André Luiz', 'Paulo Henrique', 'Mateus Brito', 'Caio Nunes', 'Renan Oliveira', 'Samuel Pires', 'Otávio Lopes', 'Wesley Prado', 'Davi Moura', 'Leandro Sá'];
+  extra.forEach((n, i) => clients.push({ id: 'cx' + i, name: n, phone: `7597777${pad2(i)}${pad2(i)}`, notes: '', planId: null, dueDay: 1, createdAt: ymd(addDays(t, -90)), lateCount: 0 }));
+  let rnd = 7; const next = () => (rnd = (rnd * 9301 + 49297) % 233280) / 233280;
+  for (let dd = -35; dd <= -1; dd++) {
+    const d = addDays(t, dd); if (d.getDay() === 0) continue;
+    const n = 4 + Math.floor(next() * 4);
+    for (let k = 0; k < n; k++) {
+      const ci = clients.length - extra.length + Math.floor(next() * extra.length);
+      const si = ['s_corte', 's_corte', 's_cb', 's_barba', 's_pez'][Math.floor(next() * 5)];
+      add(ci, si, d, 8 + k + (k > 3 ? 1 : 0), next() > 0.5 ? 30 : 0, 'done');
+    }
+  }
   // hoje
   add(0, 's_corte', t, 9, 0, 'done'); add(10, 's_corte', t, 10, 0, 'confirmed'); add(2, 's_corte', t, 11, 0, 'scheduled');
-  add(7, 's_cb', t, 14, 0, 'scheduled'); add(4, 's_cb', t, 15, 30, 'scheduled', 'p_ra'); add(5, 's_barba', t, 16, 0, 'scheduled', 'p_th');
+  add(7, 's_cb', t, 14, 0, 'scheduled'); add(4, 's_cb', t, 15, 30, 'scheduled'); add(5, 's_barba', t, 16, 30, 'scheduled');
   // amanhã e semana
-  add(3, 's_corte', addDays(t, 1), 9, 0, 'scheduled'); add(8, 's_corte', addDays(t, 1), 10, 30, 'scheduled'); add(11, 's_cb', addDays(t, 1), 17, 0, 'scheduled', 'p_ra');
-  add(1, 's_corte', addDays(t, 2), 11, 0, 'scheduled', 'p_th'); add(6, 's_corte', addDays(t, 3), 15, 0, 'scheduled');
+  add(3, 's_corte', addDays(t, 1), 9, 0, 'scheduled'); add(8, 's_corte', addDays(t, 1), 10, 30, 'scheduled'); add(11, 's_cb', addDays(t, 1), 17, 0, 'scheduled');
+  add(1, 's_corte', addDays(t, 2), 11, 0, 'scheduled'); add(6, 's_corte', addDays(t, 3), 15, 0, 'scheduled');
   // um avulso atendido e não pago (saldo devedor)
   const fiado = add(7, 's_barba', addDays(t, -2), 18, 0, 'done'); fiado.paid = false;
   payments.splice(payments.findIndex(p => p.ref === fiado.id), 1);
@@ -76,13 +102,13 @@ export function seed(today = new Date()) {
   const fixedCosts = [
     { id: 'f_alug', name: 'Aluguel', monthly: 900, dueDay: 5 }, { id: 'f_luz', name: 'Energia', monthly: 280, dueDay: 18 },
     { id: 'f_agua', name: 'Água', monthly: 70, dueDay: 20 }, { id: 'f_net', name: 'Internet', monthly: 100, dueDay: 10 },
-    { id: 'f_mei', name: 'MEI (DAS)', monthly: 80, dueDay: 20 }, { id: 'f_prod', name: 'Produtos/lâminas', monthly: 150, dueDay: 25 },
+    { id: 'f_mei', name: 'MEI (DAS)', monthly: 80, dueDay: 20 }, 
   ];
   const m = monthKey(t);
   const billPayments = [{ id: uid(), costId: 'f_alug', month: m, amount: 900, date: `${m}-05` }, { id: uid(), costId: 'f_net', month: m, amount: 100, date: `${m}-10` }];
   const expenses = [{ id: uid(), date: `${m}-03`, name: 'Toalhas novas', amount: 60 }, { id: uid(), date: `${m}-08`, name: 'Pomada (estoque)', amount: 85 }];
-  const proPayments = [{ id: uid(), proId: 'p_th', month: monthKey(new Date(t.getFullYear(), t.getMonth() - 1, 1)), amount: 400, date: `${m}-05` }];
-  return { version: 1, settings, pros, services, plans, clients, appointments, payments, fixedCosts, billPayments, expenses, proPayments };
+  const proPayments = [];
+  return { version: 1, settings, pros, materials, services, plans, clients, appointments, payments, fixedCosts, billPayments, expenses, proPayments };
 }
 
 export function createStore(storage, today = new Date()) {
@@ -96,6 +122,8 @@ export function createStore(storage, today = new Date()) {
     }
   } catch { persistent = false; }
   if (!state || !REQUIRED.every(k => k in state)) state = seed(today);
+  const fresh = seed(today).settings.templates;
+  state.settings.templates = { ...fresh, ...state.settings.templates };
   const api = {
     get state() { return state; }, set state(v) { state = v; },
     persistent, uid,
@@ -105,7 +133,7 @@ export function createStore(storage, today = new Date()) {
     importJSON(s) {
       const obj = JSON.parse(s);
       if (!obj || !REQUIRED.every(k => k in obj)) throw new Error('Arquivo de backup inválido');
-      for (const k of ['billPayments', 'expenses', 'proPayments']) obj[k] = obj[k] || [];
+      for (const k of ['billPayments', 'expenses', 'proPayments', 'materials']) obj[k] = obj[k] || [];
       state = obj; api.save();
     },
   };

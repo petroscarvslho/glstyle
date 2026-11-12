@@ -86,3 +86,8 @@ Agendamento pelo cliente, robô de WhatsApp, login de associados, estoque, nota 
 - **Fechamento do mês:** resumo do mês (entradas, saídas, lucro, pendências a receber/pagar).
 - **Cobrança com tom:** cliente sem atraso anterior → mensagem leve; com ≥ 2 atrasos → firme.
 - **Sumidos pelo ritmo:** ritmo = média de dias entre visitas (≥ 2 visitas); sumido se dias desde a última > max(ritmo × 1,5, missingDays).
+
+## 12. Página de agendamento do cliente (pedido + confirmação do dono)
+- Fase 1 (grátis, sem servidor): o app gera um link `…#agendar=<dados>` com os horários livres dos próximos 7 dias por profissional, serviços e preços, nome do salão e WhatsApp do dono. O cliente escolhe serviço/profissional/horário, digita o nome e toca em "Pedir horário" → abre o WhatsApp do salão com o pedido + código `#GL[AAAA-MM-DDTHH:MM|serviço|profissional|nome]`.
+- No app (Agenda → "Colar pedido"), o dono cola a mensagem: vira horário com status `requested`, com botões Aceitar (→ confirmado + mensagem de confirmação) e Recusar (→ mensagem sugerindo outro horário).
+- Link é um retrato do momento; o dono gera de novo quando a agenda muda. Fase 2 (Supabase): página ao vivo e pedido entra sozinho.

@@ -27,8 +27,16 @@ export function costPerMinute(fixedCosts, hoursPerMonth) {
   const min = (Number(hoursPerMonth) || 0) * 60;
   return min > 0 ? total / min : 0;
 }
-export function apptCost(service, cpm, price, feePct) {
-  return (Number(service?.durationMin) || 0) * cpm + (Number(service?.materialCost) || 0) + (Number(price) || 0) * (Number(feePct) || 0) / 100;
+// custo de material por atendimento: Σ qty × (preço pago ÷ quantos usos rende)
+export function materialCostOf(service, materials) {
+  return (service?.materials || []).reduce((t, u) => {
+    const m = (materials || []).find(x => x.id === u.id);
+    return m && Number(m.yield) > 0 ? t + (Number(u.qty) || 0) * Number(m.price) / Number(m.yield) : t;
+  }, 0);
+}
+export function apptCost(service, cpm, price, feePct, materials) {
+  const mat = materials && service?.materials?.length ? materialCostOf(service, materials) : (Number(service?.materialCost) || 0);
+  return (Number(service?.durationMin) || 0) * cpm + mat + (Number(price) || 0) * (Number(feePct) || 0) / 100;
 }
 
 // Ciclo da assinatura: do último vencimento <= ref até a véspera do próximo.
@@ -44,11 +52,11 @@ export function cycleRange(dueDay, refDate) {
 }
 const inRange = (iso, { start, end }) => { const d = startOfDay(parseLocal(iso)); return d >= start && d <= end; };
 
-export function subscriberStats(client, plan, appts, services, cpm, feePct, refDate) {
+export function subscriberStats(client, plan, appts, services, cpm, feePct, refDate, materials) {
   const cyc = cycleRange(client.dueDay || 1, refDate);
   const svc = id => services.find(s => s.id === id);
   const mine = appts.filter(a => a.clientId === client.id && a.status === 'done' && a.covered && inRange(a.start, cyc));
-  const cost = mine.reduce((t, a) => t + apptCost(svc(a.serviceId), cpm, 0, 0), 0) + (plan?.price || 0) * (feePct || 0) / 100;
+  const cost = mine.reduce((t, a) => t + apptCost(svc(a.serviceId), cpm, 0, 0, materials), 0) + (plan?.price || 0) * (feePct || 0) / 100;
   return { visits: mine.length, cost, profit: (plan?.price || 0) - cost, cycle: cyc };
 }
 export const breakEven = (price, avg) => (avg > 0 ? Math.floor(price / avg) : Infinity);
@@ -186,4 +194,28 @@ export function monthSummary(state, month) {
   const income = { own: round2(own), plans: round2(plans), shares: round2(shares) };
   const out = { fixed: round2(fixed), expenses: round2(expenses) };
   return { income, out, totalIn: round2(own + plans + shares), totalOut: round2(fixed + expenses), profit: round2(own + plans + shares - fixed - expenses) };
+}
+
+// ---------- agendamento pelo cliente
+export function freeSlots(state, dateStr, proId, durationMin, now = null) {
+  const st = state.settings, out = [];
+  const busy = (state.appointments || []).filter(a => a.proId === proId && a.start.startsWith(dateStr) && !['canceled', 'noshow'].includes(a.status))
+    .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; });
+  const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() : -1;
+  for (let m = st.openHour * 60; m + durationMin <= st.closeHour * 60; m += st.slotMin) {
+    if (isToday && m <= nowM) continue;
+    if (busy.some(([a, b]) => m < b && a < m + durationMin)) continue;
+    out.push(`${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`);
+  }
+  return out;
+}
+const b64e = s => (typeof btoa === 'function' ? btoa(unescape(encodeURIComponent(s))) : Buffer.from(s, 'utf8').toString('base64'));
+const b64d = s => (typeof atob === 'function' ? decodeURIComponent(escape(atob(s))) : Buffer.from(s, 'base64').toString('utf8'));
+export const encodeAvailability = data => b64e(JSON.stringify(data)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+export function decodeAvailability(str) {
+  try { const o = JSON.parse(b64d(String(str).replace(/-/g, '+').replace(/_/g, '/'))); return o && o.d && o.sv ? o : null; } catch { return null; }
+}
+export function parseBookingRequest(text) {
+  const m = String(text || '').match(/#GL\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
+  return m ? { start: m[1], serviceId: m[2], proId: m[3], name: m[4].trim() } : null;
 }
