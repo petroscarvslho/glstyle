@@ -304,3 +304,44 @@ test('decodeAvailability valida avisos e textos da página', () => {
   assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, n: [{ x: 1 }] })), null);
   assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, ma: -1 })), null);
 });
+
+// ---------- relatórios e economia
+const rstate = () => ({
+  settings: { openHour: 9, closeHour: 13, slotMin: 30, workDays: [2, 3, 4, 5, 6] },
+  pros: [{ id: 'o', owner: true }],
+  services: [{ id: 's', name: 'Corte', durationMin: 30, price: 50 }],
+  appointments: [
+    { id: 'a1', proId: 'o', serviceId: 's', start: '2026-11-13T09:00', status: 'done', covered: false, paid: true, price: 50 },
+    { id: 'a2', proId: 'o', serviceId: 's', start: '2026-11-13T10:00', status: 'done', covered: true, paid: true, price: 0 },
+    { id: 'a3', proId: 'o', serviceId: 's', start: '2026-11-13T11:00', status: 'noshow', covered: false, paid: false, price: 50 },
+    { id: 'a4', proId: 'o', serviceId: 's', start: '2026-11-13T12:00', status: 'done', covered: false, paid: false, price: 50 },
+  ],
+  payments: [
+    { kind: 'single', amount: 50, date: '2026-11-13T09:30', method: 'pix', proId: 'o' },
+    { kind: 'product', amount: 45, cost: 20, date: '2026-11-13T09:40', method: 'dinheiro', proId: 'o' },
+    { kind: 'plan', amount: 100, date: '2026-11-13T10:30', method: 'pix' },
+  ],
+  expenses: [{ date: '2026-11-13', amount: 30 }],
+  fixedCosts: [{ id: 'a', name: 'Aluguel', monthly: 900 }, { id: 'l', name: 'Energia', monthly: 300 }, { id: 'z', name: 'Nada', monthly: 0 }],
+  billPayments: [{ costId: 'l', month: '2026-10', amount: 250 }, { costId: 'l', month: '2026-11', amount: 300 }], proPayments: [],
+});
+test('dayReport resume o dia', () => {
+  const r = C.dayReport(rstate(), '2026-11-13');
+  assert.equal(r.done, 3); assert.equal(r.noshow, 1); assert.equal(r.covered, 1);
+  assert.equal(r.received, 195); assert.deepEqual(r.byMethod, { pix: 150, dinheiro: 45 });
+  assert.equal(r.products, 45); assert.equal(r.toReceive, 50); assert.equal(r.expenses, 30);
+  assert.equal(r.busyMin, 90); assert.equal(r.openMin, 240); assert.equal(Math.round(r.occupancy * 100), 38);
+  assert.equal(r.ticket, 50);
+});
+test('costRanking ordena e dá a fatia de cada custo', () => {
+  const r = C.costRanking(rstate().fixedCosts);
+  assert.deepEqual(r.map(x => x.id), ['a', 'l']); near(r[0].share, 0.75);
+});
+test('billTrend compara conta paga mês a mês', () => {
+  const t = C.billTrend(rstate(), 'l', '2026-11');
+  assert.deepEqual(t, { now: 300, before: 250, diff: 50, pct: 0.2 });
+});
+test('savingWhatIf: cortar 10% do aluguel', () => {
+  const w = C.savingWhatIf(900, 10, 242 * 60, 30, 42);
+  near(w.month, 90); near(w.perService, 90 / (242 * 60) * 30, 1e-6); near(w.cutsEq, 90 / 42, 1e-6);
+});

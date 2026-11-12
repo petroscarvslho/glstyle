@@ -267,6 +267,8 @@ function viewCaixa() {
   <div class="mini" style="margin-top:6px">${S().pros.length} cadeira(s) × ${S().settings.hoursPerMonth} h/mês. Cada cadeira custa ${brl(totalFix / Math.max(1, S().pros.length))} por mês. Compare com o repasse de cada associado.</div>
   <button class="bt ouro cheio" style="margin-top:10px" data-act="costs">Preencher custos do salão · ${costSummary(S().fixedCosts).filled} de ${costSummary(S().fixedCosts).total}</button></div>
 `,
+    dia: () => viewDia(),
+    economia: () => viewEconomia(),
     material: () => `  <h2>Material <small>custo por uso</small></h2><p class="sub">Coloque o preço que pagou e quantos atendimentos rende. O custo entra sozinho em cada serviço (Ajustes → Serviços).</p>
   <div class="grupo">${mats().map(m => `<div class="linha mat"><input class="nome-mat" value="${esc(m.name)}" data-mt="${m.id}" data-k="name" aria-label="Nome do material"><label>R$<input inputmode="decimal" value="${m.price}" data-mt="${m.id}" data-k="price" aria-label="Preço pago"></label><label>rende<input inputmode="numeric" value="${m.yield}" data-mt="${m.id}" data-k="yield" aria-label="Rende quantos usos"></label><span class="uso num">${brl(m.yield > 0 ? m.price / m.yield : 0)} <button class="icone" data-act="del" data-kind="mat" data-id="${m.id}" aria-label="Apagar">✕</button></span></div>`).join('')}</div>
   <button class="bt leve" style="margin-top:6px" data-act="addMat">Adicionar material</button>
@@ -275,11 +277,57 @@ function viewCaixa() {
   <h2>Lucro por pacote <small>ciclo atual</small></h2>${planRows}`,
   };
   return `<h1>Caixa</h1>
-  <div class="seg" role="tablist">${[['resumo', 'Resumo'], ['contas', 'Contas'], ['material', 'Material'], ['lucro', 'Lucro']].map(([k, l]) => `<button role="tab" aria-selected="${ui.cx === k}" class="${ui.cx === k ? 'on' : ''}" data-act="cx" data-id="${k}">${l}</button>`).join('')}</div>
+  <div class="seg" role="tablist">${[['resumo', 'Resumo'], ['dia', 'Dia'], ['contas', 'Contas'], ['economia', 'Economia'], ['lucro', 'Lucro'], ['material', 'Material']].map(([k, l]) => `<button role="tab" aria-selected="${ui.cx === k}" class="${ui.cx === k ? 'on' : ''}" data-act="cx" data-id="${k}">${l}</button>`).join('')}</div>
   ${ui.cx === 'resumo' || ui.cx === 'contas' ? `<div class="chips"><button class="chip" data-act="month" data-id="-1">‹ Anterior</button><button class="chip on">${esc(mesNome(mk))}</button><button class="chip" data-act="month" data-id="1">Próximo ›</button></div>` : ''}
 ${(ui.cx === 'resumo' || ui.cx === 'contas') ? '' : ''}${sec[ui.cx]()}`;
 }
 
+
+// ---------- relatório do dia
+function viewDia() {
+  if (!ui.rDay) ui.rDay = ymd(new Date());
+  const d = parseLocal(ui.rDay + 'T12:00'), r = dayReport(S(), ui.rDay), w = dayReport(S(), ymd(addDays(d, -7)));
+  const cmp = (a, b, money = true) => { const df = a - b; if (!b && !a) return ''; return `<span class="mini" style="color:${df >= 0 ? 'var(--ok)' : 'var(--mal)'}">${df >= 0 ? '▲' : '▼'} ${money ? brl(Math.abs(df)) : Math.abs(df)} vs. ${d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')} passada</span>`; };
+  const met = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
+  const lista = S().appointments.filter(a => a.start.startsWith(ui.rDay) && a.status !== 'canceled').sort((a, b) => a.start.localeCompare(b.start));
+  return `<div class="chips"><button class="chip" data-act="rDay" data-id="-1">‹</button><button class="chip on" style="flex:1">${esc(d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }))}</button><button class="chip" data-act="rDay" data-id="1">›</button></div>
+  <div class="cartao-preto"><div class="rot">Entrou no dia</div><div class="val num">${brl(r.received)}</div><div>${cmp(r.received, w.received)}</div>
+    <div class="linha3"><div><span class="rot">Atendidos</span><b class="num">${r.done}</b><span class="mini">${r.covered ? r.covered + ' do plano · ' : ''}${r.noshow} falta${r.noshow !== 1 ? 's' : ''}</span></div><div><span class="rot">Agenda ocupada</span><b class="num">${Math.round(r.occupancy * 100)}%</b><span class="mini">${Math.round(r.busyMin / 60 * 10) / 10} h de ${Math.round(r.openMin / 60)} h</span></div></div></div>
+  <div class="grupo" style="margin-top:12px">
+    ${Object.entries(r.byMethod).map(([k, v]) => `<div class="linha"><div class="cresce">${met[k] || k}</div><div class="valor num">${brl(v)}</div></div>`).join('') || '<div class="linha"><div class="cresce mini">Nenhum pagamento nesse dia</div></div>'}
+    <div class="linha"><div class="cresce">Produtos vendidos</div><div class="valor num">${brl(r.products)}</div></div>
+    <div class="linha"><div class="cresce">Mensalidades recebidas</div><div class="valor num">${brl(r.plans)}</div></div>
+    <div class="linha"><div class="cresce">Ticket médio (avulso)</div><div class="valor num">${brl(r.ticket)}</div></div>
+    <div class="linha"><div class="cresce">Ficou a receber</div><div class="valor num ${r.toReceive ? 'neg' : ''}">${brl(r.toReceive)}</div></div>
+    <div class="linha"><div class="cresce">Despesas do dia</div><div class="valor num">${brl(r.expenses)}</div></div>
+  </div>
+  <h2>Atendimentos <small>${lista.length}</small></h2>
+  <div class="grupo">${lista.map(a => `<div class="linha"><div class="cresce"><strong>${hhmm(a.start)} ${esc(client(a.clientId).name)}</strong><div class="meta">${esc(service(a.serviceId).name)}</div></div>${statusTag(a)}</div>`).join('') || '<div class="linha"><div class="cresce mini">Sem atendimentos</div></div>'}</div>
+  <button class="bt leve cheio" style="margin-top:12px" data-act="sendDay">Mandar este resumo no meu WhatsApp</button>`;
+}
+
+// ---------- economia: onde cortar e comparação
+function viewEconomia() {
+  const st = S(), rk = costRanking(st.fixedCosts), tot = rk.reduce((t, c) => t + c.monthly, 0);
+  const mk = ui.month, [y, m] = mk.split('-').map(Number), prev = monthKey(new Date(y, m - 2, 1));
+  const a = monthSummary(st, mk), b = monthSummary(st, prev);
+  const minMes = (st.settings.hoursPerMonth || 176) * 60 * Math.max(1, st.pros.length);
+  const corte = st.services[0], lc = lucroServico(corte).lucro;
+  const sel = byId(st.fixedCosts, ui.ecoCost) || rk[0], pct = ui.ecoPct || 10;
+  const w = sel ? savingWhatIf(sel.monthly, pct, minMes, corte.durationMin, lc) : null;
+  const linha = (n, va, vb, bomSubir) => { const df = va - vb, bom = bomSubir ? df >= 0 : df <= 0; return `<div class="linha"><div class="cresce">${n}<div class="meta">antes ${brl(vb)}</div></div><div style="text-align:right"><div class="valor num">${brl(va)}</div>${vb || va ? `<span class="mini" style="color:${df === 0 ? 'var(--mudo)' : bom ? 'var(--ok)' : 'var(--mal)'}">${df > 0 ? '▲' : df < 0 ? '▼' : '='} ${brl(Math.abs(df))}</span>` : ''}</div></div>`; };
+  const matTop = (corte.materials || []).map(u => { const mt = byId(mats(), u.id); return mt && mt.yield > 0 ? { n: mt.name, v: u.qty * mt.price / mt.yield } : null; }).filter(Boolean).sort((x, y2) => y2.v - x.v).slice(0, 3);
+  return `<h2>Onde está o seu custo <small>${brl(tot)}/mês</small></h2>
+  <div class="grupo">${rk.map(c => { const tr = billTrend(st, c.id, mk); return `<button class="linha eco-row" data-act="ecoPick" data-id="${c.id}" style="width:100%;text-align:left;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;background:${sel && sel.id === c.id ? 'var(--sup2)' : 'none'};cursor:pointer"><div class="cresce"><strong>${esc(c.name)}</strong><div class="barra" style="margin-top:6px"><i style="width:${Math.round(c.share * 100)}%;background:var(--verde)"></i></div><div class="meta">${Math.round(c.share * 100)}% dos custos${tr.pct !== null ? ` · ${tr.diff >= 0 ? 'subiu' : 'caiu'} ${Math.abs(Math.round(tr.pct * 100))}% vs. mês passado` : ''}</div></div><div class="valor num">${brl(c.monthly)}</div></button>`; }).join('') || '<div class="linha"><div class="cresce mini">Preencha os custos em Contas.</div></div>'}</div>
+  ${w ? `<h2>E se reduzir?</h2><div class="cartao"><div class="mini">${esc(sel.name)} · ${brl(sel.monthly)}/mês</div>
+    <div class="chips" style="margin-top:8px">${[5, 10, 20, 30].map(p => `<button class="chip ${pct === p ? 'on' : ''}" data-act="ecoPct" data-id="${p}">−${p}%</button>`).join('')}</div>
+    <div class="stats" style="margin-top:6px"><div><div class="k">Economia/mês</div><div class="v num pos">${brl(w.month)}</div></div><div><div class="k">Por ano</div><div class="v num">${brl(w.month * 12)}</div></div><div><div class="k">Igual a</div><div class="v num">${w.cutsEq === null ? '—' : (Math.round(w.cutsEq * 10) / 10).toLocaleString('pt-BR')} cortes</div></div></div>
+    <p class="mini" style="margin:8px 0 0">Cada ${esc(corte.name.toLowerCase())} ficaria ${brl(w.perService)} mais barato de fazer.</p></div>` : ''}
+  <h2>Este mês x mês passado</h2>
+  <div class="grupo">${linha('Entradas', a.totalIn, b.totalIn, true)}${linha('Contas pagas', a.out.fixed, b.out.fixed, false)}${linha('Despesas avulsas', a.out.expenses, b.out.expenses, false)}${linha('Custo dos produtos', a.out.productCost, b.out.productCost, false)}${linha('Lucro', a.profit, b.profit, true)}</div>
+  ${matTop.length ? `<h2>Material que mais pesa no ${esc(corte.name.toLowerCase())}</h2><div class="grupo">${matTop.map(x => `<div class="linha"><div class="cresce">${esc(x.n)}<div class="meta">Comprar em quantidade maior ou outra marca reduz aqui</div></div><div class="valor num">${brl(x.v)}</div></div>`).join('')}</div>` : ''}
+  <p class="sub" style="margin-top:12px">Dica: compare as contas mês a mês. Se uma subiu sem motivo (luz, internet), vale renegociar ou trocar de plano.</p>`;
+}
 
 // ---------- calculadora de lucro por serviço (estilo Calculadora ANESTBOX)
 function lucroServico(sv) {
@@ -641,6 +689,12 @@ const A = {
     if (!covered && paid) S().payments.push({ id: store.uid(), clientId: c.id, amount: sv.price, date: start, kind: 'single', ref: a.id, method: w.pay, proId: a.proId });
     closeSheet(); save(); toast(covered ? `${firstName(c.name)}: coberto pelo plano` : paid ? `Registrado: ${sv.name} · ${brl(sv.price)}` : `Registrado: ${brl(sv.price)} a receber`);
   },
+  rDay: el => { const d = parseLocal((ui.rDay || ymd(new Date())) + 'T12:00'); ui.rDay = ymd(addDays(d, Number(el.dataset.id))); render(); },
+  ecoPick: el => { ui.ecoCost = el.dataset.id; render(); },
+  ecoPct: el => { ui.ecoPct = Number(el.dataset.id); render(); },
+  sendDay: () => { const r = dayReport(S(), ui.rDay || ymd(new Date())), d = parseLocal((ui.rDay || ymd(new Date())) + 'T12:00');
+    const txt = `📊 ${S().settings.shopName} · ${d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' })}\nEntrou: ${brl(r.received)}\n${Object.entries(r.byMethod).map(([k, v]) => `• ${k}: ${brl(v)}`).join('\n')}\nAtendidos: ${r.done} (faltas: ${r.noshow})\nProdutos: ${brl(r.products)}\nA receber: ${brl(r.toReceive)}\nAgenda ocupada: ${Math.round(r.occupancy * 100)}%`;
+    openWA(owner().phone, txt); },
   wday: el => { const st = S().settings, i = Number(el.dataset.id); const w = new Set(st.workDays || [0, 1, 2, 3, 4, 5, 6]); w.has(i) ? w.delete(i) : w.add(i); st.workDays = [...w].sort(); store.save(); settingsSheet(); render(); },
   addMat: () => { (S().materials = S().materials || []).push({ id: store.uid(), name: 'Novo material', price: 0, yield: 1 }); save(); },
   billPaid: el => { const f = byId(S().fixedCosts, el.dataset.id); S().billPayments.push({ id: store.uid(), costId: f.id, month: ui.month, amount: f.monthly, date: ymd(new Date()) }); save(); toast(`${f.name} paga`); },

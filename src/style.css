@@ -530,3 +530,6 @@ body.cliente{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .barra-pedido .res b{color:var(--creme);display:block;font-size:14.5px}
 .barra-pedido .bt{background:var(--verde);color:#fff;border:0;padding:12px 18px;font-size:15px}
 .barra-pedido .bt[disabled]{opacity:.45}
+.cartao-preto .linha3 .mini{display:block;margin-top:2px}
+.seg{overflow-x:auto}
+.seg button{flex:0 0 auto;padding:9px 14px}

@@ -319,3 +319,44 @@ export function activeNotices(notices, today) {
   const t = ymd(today);
   return (notices || []).filter(n => n && n.on !== false && String(n.text || '').trim() && (!n.until || n.until >= t)).map(n => String(n.text).trim());
 }
+
+// ---------- relatórios e economia
+export function dayReport(state, dateStr) {
+  const ap = (state.appointments || []).filter(a => String(a.start).startsWith(dateStr));
+  const svc = id => (state.services || []).find(s => s.id === id);
+  const done = ap.filter(a => a.status === 'done');
+  const pays = (state.payments || []).filter(p => String(p.date).startsWith(dateStr));
+  const byMethod = {};
+  for (const p of pays) { const m = p.method || 'pix'; byMethod[m] = round2((byMethod[m] || 0) + p.amount); }
+  const singles = pays.filter(p => p.kind === 'single');
+  const st = state.settings || {};
+  const brk = st.breakStart && Number(st.breakMin) > 0 ? Number(st.breakMin) : 0;
+  const openMin = isOpenDay(st, dateStr) ? Math.max(0, ((st.closeHour || 0) - (st.openHour || 0)) * 60 - brk) * Math.max(1, (state.pros || []).length) : 0;
+  const busyMin = done.reduce((t, a) => t + (svc(a.serviceId)?.durationMin || 30), 0);
+  return {
+    done: done.length, noshow: ap.filter(a => a.status === 'noshow').length, canceled: ap.filter(a => a.status === 'canceled').length,
+    covered: done.filter(a => a.covered).length,
+    received: round2(pays.reduce((t, p) => t + p.amount, 0)), byMethod,
+    products: round2(pays.filter(p => p.kind === 'product').reduce((t, p) => t + p.amount, 0)),
+    plans: round2(pays.filter(p => p.kind === 'plan').reduce((t, p) => t + p.amount, 0)),
+    toReceive: round2(done.filter(a => !a.paid && !a.covered).reduce((t, a) => t + (Number(a.price) || 0), 0)),
+    expenses: round2((state.expenses || []).filter(e => String(e.date).startsWith(dateStr)).reduce((t, e) => t + e.amount, 0)),
+    busyMin, openMin, occupancy: openMin ? busyMin / openMin : 0,
+    ticket: singles.length ? round2(singles.reduce((t, p) => t + p.amount, 0) / singles.length) : 0,
+  };
+}
+export function costRanking(costs) {
+  const list = (costs || []).filter(c => Number(c.monthly) > 0);
+  const tot = list.reduce((t, c) => t + Number(c.monthly), 0) || 1;
+  return list.map(c => ({ ...c, share: Number(c.monthly) / tot })).sort((a, b) => b.monthly - a.monthly);
+}
+export function billTrend(state, costId, month) {
+  const [y, m] = month.split('-').map(Number), prev = monthKey(new Date(y, m - 2, 1));
+  const sum = mk => round2((state.billPayments || []).filter(p => p.costId === costId && p.month === mk).reduce((t, p) => t + p.amount, 0));
+  const now = sum(month), before = sum(prev);
+  return { now, before, diff: round2(now - before), pct: before ? round2((now - before) / before) : null };
+}
+export function savingWhatIf(monthly, pct, minutesMonth, durationMin, profitPerCut) {
+  const month = Number(monthly) * Number(pct) / 100;
+  return { month, perService: minutesMonth ? month / minutesMonth * durationMin : 0, cutsEq: profitPerCut > 0 ? month / profitPerCut : null };
+}
