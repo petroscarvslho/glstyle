@@ -681,12 +681,27 @@ body:not(.cliente) input,body:not(.cliente) select,body:not(.cliente) textarea{f
   body:not(.cliente) .fab{top:auto;bottom:auto;position:fixed;top:300px}
 }
 @media (min-width:900px){ body:not(.cliente) .fab{top:312px} }
+/* resumo do dia compacto */
+.hoje-topo{display:flex;align-items:baseline;gap:8px;margin:12px 0 10px}
+.hoje-topo h1{margin:0!important}
+.hoje-topo .data-topo{margin:0!important;font-size:13px}
+.hoje-topo .data-topo::first-letter{text-transform:none}
+.selo-mini{margin-left:auto;font-size:12px;font-weight:600;color:var(--verde);background:color-mix(in srgb,var(--verde) 9%,var(--sup));border-radius:999px;padding:3px 9px}
+.resumo-dia{display:grid;grid-template-columns:repeat(3,1fr);background:var(--sup);border:1px solid var(--linha);border-radius:14px}
+.resumo-dia>div{padding:10px 12px;min-width:0}
+.resumo-dia>div+div{border-left:1px solid var(--linha)}
+.resumo-dia span{display:block;font-size:11.5px;color:var(--mudo)}
+.resumo-dia b{display:block;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+body:not(.cliente) .marca{font-size:16px}
+body:not(.cliente) #ajustes{padding:6px 11px;font-size:13px}
+body:not(.cliente) .alerta-cob{padding:9px 14px}
+body:not(.cliente) .alerta-cob>div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
 </style>
 </head>
 <body class="cliente">
 <header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
 <main></main>
-<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTYxMjg2ODJ9";</script>
+<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTgxNjkwMDh9";</script>
 <script>
 // GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
 
