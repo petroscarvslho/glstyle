@@ -763,6 +763,8 @@ body:not(.cliente) .dias .dia.on{background:var(--verde)}
 .ag-ocup.eh-avulso{box-shadow:inset 3px 0 0 color-mix(in srgb,var(--mudo) 45%,transparent)}
 body:not(.cliente) .lista .item{position:relative}
 @media (prefers-color-scheme:dark){.tp-plano{color:#e3b866}}
+.campo-valor{display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:center;margin-top:10px}
+.campo-valor input{margin:0}
 </style>
 </head>
 <body>
@@ -1516,22 +1518,22 @@ function apptItem(a, actions = true, main = true) {
   }
   const cls = a.status === 'requested' ? 'pedido' : (a.status === 'done' || a.status === 'noshow' ? 'feito' : '');
   if (actions && ((a.status === 'done' && (a.paid || a.covered)) || a.status === 'noshow')) return `<div class="item compacto feito">
-    <div class="hora">${hhmm(a.start)}</div>
-    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div><div class="meta">${esc(s.name)} · ${a.status === 'noshow' ? '<span style="color:var(--mal)">faltou</span>' : `<span style="color:var(--ok)">atendido</span>${(a.extras || []).length ? ` · +${a.extras.length} produto` : ''}`}</div></div>
+    <div class="hora" data-act="appt" data-id="${a.id}" style="cursor:pointer">${hhmm(a.start)}</div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div><div class="meta" data-act="appt" data-id="${a.id}" style="cursor:pointer">${esc(s.name)} · ${a.status === 'noshow' ? '<span style="color:var(--mal)">faltou</span>' : `<span style="color:var(--ok)">atendido</span>${(a.extras || []).length ? ` · +${a.extras.length} produto` : ''}`}</div></div>
     <div class="acoes-lado">${a.status === 'done' ? `<button class="ib" data-act="prod" data-id="${a.id}" aria-label="Vender produto">${I.plus}</button>` : ''}<button class="ib" data-act="undo" data-id="${a.id}" aria-label="Desfazer">${I.undo}</button></div></div>`;
   if (actions && !main && (a.status === 'scheduled' || a.status === 'confirmed')) return `<div class="item compacto">
-    <div class="hora">${hhmm(a.start)}</div>
-    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div><div class="meta">${esc(s.name)}${a.covered ? '' : ' · ' + brl(a.price)}${a.status === 'confirmed' ? ' · <span style="color:var(--ok)">confirmado</span>' : ''}</div></div>
+    <div class="hora" data-act="appt" data-id="${a.id}" style="cursor:pointer">${hhmm(a.start)}</div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div><div class="meta" data-act="appt" data-id="${a.id}" style="cursor:pointer">${esc(s.name)}${a.covered ? '' : ' · ' + brl(a.price)}${a.status === 'confirmed' ? ' · <span style="color:var(--ok)">confirmado</span>' : ''}</div></div>
     <div class="acoes-lado"><button class="ib ok" data-act="done" data-id="${a.id}" aria-label="Marcar atendido">${I.check}</button><button class="ib zap" data-act="confirm" data-id="${a.id}" aria-label="Confirmar no WhatsApp">${I.zap}</button><button class="ib mal" data-act="noshow" data-id="${a.id}" aria-label="Marcar falta">${I.x}</button></div></div>`;
   return `<div class="item ${cls}">
-    <div class="hora">${hhmm(a.start)}</div>
+    <div class="hora" data-act="appt" data-id="${a.id}" style="cursor:pointer">${hhmm(a.start)}</div>
     <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div>
       <div class="meta">${S().pros.length > 1 ? `<span class="dot" style="background:${p.color}"></span>${esc(firstName(p.name))} · ` : ''}${esc(s.name)} · ${s.durationMin} min</div></div>
     <div style="text-align:right">${statusTag(a)}${['done', 'noshow'].includes(a.status) && (a.covered || a.paid) ? '' : `<div style="margin-top:4px">${pago}</div>`}</div>
     ${bts ? `<div class="acoes" style="display:flex">${bts}</div>` : ''}</div>`;
 }
 
-const tipoTag = a => a.covered ? `<span class="tp tp-plano">Plano</span>` : `<span class="tp tp-avulso">Convencional</span>`;
+const tipoTag = a => a.covered ? `<span class="tp tp-plano">Plano</span>` : a.planDiff ? `<span class="tp tp-plano">Plano + extra</span>` : `<span class="tp tp-avulso">Convencional</span>`;
 function viewHoje() {
   const t = today(), tk = ymd(t);
   const list = S().appointments.filter(a => a.start.startsWith(tk) && a.status !== 'canceled' && fPro(a)).sort((a, b) => a.start.localeCompare(b.start));
@@ -1818,7 +1820,11 @@ function clientSheet(id) {
 
 function apptSheet(id) {
   const a = byId(S().appointments, id); if (!a) return;
+  const sv = service(a.serviceId);
   sheet(`<h2>${esc(client(a.clientId).name)}</h2><div class="lista">${apptItem(a)}</div>
+  ${a.status === 'canceled' || a.status === 'noshow' ? '' : `<h2>O que foi feito <small>toque para trocar</small></h2>
+  <div class="chips" style="flex-wrap:wrap">${S().services.map(x => `<button class="chip ${x.id === a.serviceId ? 'on' : ''}" data-act="svcSwap" data-id="${a.id}" data-sv="${x.id}">${esc(x.name)}</button>`).join('')}</div>
+  ${a.covered ? '<div class="mini" style="margin-top:6px"><span class="tp tp-plano" style="margin:0">Plano</span> coberto, não cobra nada.</div>' : `<div class="campo-valor"><span class="mini">Valor a cobrar${a.planDiff ? ' (diferença do plano)' : ''}</span><input inputmode="decimal" id="apPrice" value="${String(a.price).replace('.', ',')}"><button class="bt leve" data-act="priceSet" data-id="${a.id}">Salvar</button></div>${a.price !== sv.price && !a.planDiff ? `<div class="mini">Preço de tabela: ${brl(sv.price)}</div>` : ''}`}`}
   ${['scheduled', 'confirmed'].includes(a.status) ? `<h2>Remarcar</h2><div class="duas"><input type="date" value="${a.start.slice(0, 10)}" id="rmD"><input type="time" value="${hhmm(a.start)}" step="${S().settings.slotMin * 60}" id="rmT"></div><button class="bt zap cheio" style="margin-top:8px" data-act="reschedule" data-id="${a.id}">Remarcar e avisar no WhatsApp</button>` : ''}
   <div style="display:flex;gap:6px;margin-top:12px"><button class="bt leve" data-act="client" data-id="${a.clientId}">Ver cliente</button><button class="bt mal" data-act="cancel" data-id="${a.id}">Cancelar horário</button></div>`);
 }
@@ -1829,7 +1835,7 @@ function walkinSheet() {
   const sugs = q.length >= 2 ? S().clients.filter(x => stripAccents(x.name).toLowerCase().includes(q)).slice(0, 4) : [];
   sheet(`<h2>Chegou alguém agora</h2>
   <div class="mini">Serviço</div><div class="svc-cards" style="margin-bottom:12px">${S().services.map(x => `<button class="svc-card ${w.sv === x.id ? 'on' : ''}" data-act="wkSvc" data-id="${x.id}"><b>${esc(x.name)}</b><div class="p num">${brl(x.price)}</div></button>`).join('')}</div>
-  <div class="mini">Nome (opcional)</div><input data-wk="name" value="${esc(w.name)}" placeholder="Deixe em branco: entra como Avulso" autocomplete="off">
+  <div class="mini">Nome (opcional)</div><input data-wk="name" value="${esc(w.name)}" placeholder="Deixe em branco: entra como Convencional" autocomplete="off">
   <div id="wkSugs">${sugs.length ? `<div class="sugs">${sugs.map(x => `<button data-act="wkPick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}</div>` : ''}</div>
   ${w.clientId ? `<div class="mini" style="margin-top:6px">Cliente: <strong>${esc(client(w.clientId).name)}</strong>${coveredFor(client(w.clientId), w.sv, `${ymd(new Date())}T12:00`) ? ' · <span class="tag plano">coberto pelo plano</span>' : ''}</div>` : ''}
   <div class="mini" style="margin-top:12px">Pagou como</div><div class="chips">${[['pix', 'Pix'], ['dinheiro', 'Dinheiro'], ['cartao', 'Cartão'], ['depois', 'Paga depois']].map(([k, l]) => `<button class="chip ${w.pay === k ? 'on' : ''}" data-act="wkPay" data-id="${k}">${l}</button>`).join('')}</div>
@@ -1946,6 +1952,26 @@ const A = {
   chargeAppt: el => { const ch = findCharge('appt:' + el.dataset.id); ch && openWA(ch.client.phone, chargeText(ch)); },
   cancel: el => { byId(S().appointments, el.dataset.id).status = 'canceled'; closeSheet(); save(); toast('Horário cancelado'); },
   client: el => clientSheet(el.dataset.id),
+  svcSwap: el => {
+    const a = byId(S().appointments, el.dataset.id), novo = el.dataset.sv; if (!a || novo === a.serviceId) return;
+    const c = client(a.clientId), antes = service(a.serviceId), eraPlano = a.covered;
+    a.covered = false;
+    const cobre = c && coveredFor(c, novo, a.start);
+    a.serviceId = novo; a.covered = !!cobre; a.planDiff = false;
+    if (cobre) a.price = 0;
+    else if (eraPlano || (c && c.planId && plan(c.planId)?.serviceIds.includes(antes.id))) { a.price = Math.max(0, round2(service(novo).price - antes.price)); a.planDiff = true; }
+    else a.price = service(novo).price;
+    const pg = S().payments.find(p => p.ref === a.id);
+    if (a.covered) { if (a.status === 'done') a.paid = true; if (pg) S().payments = S().payments.filter(p => p !== pg); }
+    else if (pg) { pg.amount = a.price; } else if (a.price > 0) a.paid = false;
+    save(); apptSheet(a.id); toast(a.covered ? `Trocado: ${service(novo).name} (plano)` : `Trocado: ${service(novo).name} · ${brl(a.price)}`);
+  },
+  priceSet: el => {
+    const a = byId(S().appointments, el.dataset.id), v = parseMoney(document.getElementById('apPrice').value);
+    if (!(v >= 0)) return toast('Valor inválido');
+    a.price = round2(v); const pg = S().payments.find(p => p.ref === a.id); if (pg) pg.amount = a.price;
+    save(); apptSheet(a.id); toast(`Valor: ${brl(a.price)}`);
+  },
   appt: el => apptSheet(el.dataset.id),
   comeback: el => { const c = client(el.dataset.id), v = visitsOf(c.id); const d = v.length ? daysBetween(v.reduce((a, b) => (a > b ? a : b)), today()) : ''; openWA(c.phone, fill(S().settings.templates.comeback, vars({ nome: firstName(c.name), dias: d }))); },
   waOpen: el => openWA(client(el.dataset.id).phone, ''),
