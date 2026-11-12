@@ -365,12 +365,57 @@ body.cliente .top-in{justify-content:center}
 .svc-card:active{transform:scale(.98)}
 .data-topo::first-letter{text-transform:uppercase}
 body.cliente .top-in{display:none}
+
+/* ===== leve + premium ===== */
+.cartao-preto{background:var(--sup);color:var(--creme);box-shadow:var(--sombra);border:1px solid color-mix(in srgb,var(--latao) 28%,transparent)}
+.cartao-preto::after{border-color:color-mix(in srgb,var(--latao) 22%,transparent)}
+.cartao-preto .rot{color:var(--mudo)}
+.cartao-preto .linha3{border-top-color:var(--linha)}
+.cartao-preto .linha3 b{color:var(--creme)}
+.cartao-preto .selo{color:var(--latao2);border-color:color-mix(in srgb,var(--latao) 40%,transparent)}
+:root{--sombra:0 1px 2px rgba(16,18,22,.04),0 4px 14px -8px rgba(16,18,22,.10)}
+.item .acoes .bt.ok{background:var(--creme);color:var(--sup)}
+.tag{background:none!important;padding:0;margin-left:0;font-weight:600}
+.tag::before{content:"• "}
+.item .tag.mudo,.item .mini{color:var(--mudo)}
+.poste{height:2px;opacity:.75}
+.alerta-cob{background:var(--sup)!important;box-shadow:var(--sombra)!important;border-left:3px solid var(--aviso)!important}
+h2{font-size:17px}
+.secao,h2{margin-top:28px}
+.bloq{border-radius:12px;padding:9px 12px;background:repeating-linear-gradient(-45deg,var(--sup2) 0 8px,transparent 8px 16px);border:1px dashed var(--linha);color:var(--mudo);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+
+/* ===== computador (celular continua sendo o principal) ===== */
+@media (min-width:900px){
+  body:not(.cliente){padding-bottom:40px;padding-left:220px}
+  body:not(.cliente) nav.abas{left:16px;top:84px;bottom:auto;right:auto;width:188px;border-radius:20px;padding:8px}
+  body:not(.cliente) nav.abas .in{display:flex;flex-direction:column;gap:2px}
+  body:not(.cliente) nav.abas button{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;font-size:14.5px;border-radius:14px}
+  body:not(.cliente) nav.abas button.on{background:var(--sup2)}
+  body:not(.cliente) nav.abas .badge{position:static;margin-left:auto}
+  body:not(.cliente) main,body:not(.cliente) .top-in{max-width:880px}
+  body:not(.cliente) .fab{right:calc(50% - 440px + 110px);bottom:32px}
+  .veu{align-items:center}
+  .folha{border-radius:24px;max-width:560px;max-height:86vh}
+  .lista{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .lista>.mini{grid-column:1/-1}
+  .resumo{grid-template-columns:repeat(3,1fr)}
+}
+@media (min-width:700px){
+  body.cliente main{max-width:600px}
+  .svc-cards{grid-template-columns:repeat(3,1fr)}
+}
+@media (hover:hover){
+  .bt:hover,.chip:hover,.svc-card:hover,.livre:hover{filter:brightness(.97)}
+  nav.abas button:hover{color:var(--creme)}
+}
+.aviso-cli{background:color-mix(in srgb,var(--latao) 10%,var(--sup));border:1px solid color-mix(in srgb,var(--latao) 30%,transparent);border-radius:14px;padding:11px 14px;margin:10px 0 0;font-weight:600;font-size:14px}
+@media (min-width:900px){ body:not(.cliente) .fab{left:16px;right:auto;top:360px;bottom:auto;width:188px;height:48px;border-radius:16px;font-size:15px;font-family:var(--corpo);font-weight:700} body:not(.cliente) .fab::after{content:" Novo horário";} }
 </style>
 </head>
 <body class="cliente">
 <header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
 <main></main>
-<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwicHIiOltbInBfZ2wiLCJHdWlsaGVybWUiXV0sImQiOnsiMjAyNi0xMS0xMiI6eyJwX2dsIjpbWzU0MCw1NzBdLFs2MDAsNjMwXSxbNjYwLDY5MF0sWzg0MCw5MDBdLFs5MzAsOTkwXSxbMTAyMCwxMTEwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdXX0sIjIwMjYtMTEtMTQiOnsicF9nbCI6W1s2NjAsNjkwXV19LCIyMDI2LTExLTE1Ijp7InBfZ2wiOltdfSwiMjAyNi0xMS0xNiI6eyJwX2dsIjpbXX0sIjIwMjYtMTEtMTciOnsicF9nbCI6W1s5MDAsOTMwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltdfX0sImciOjE3OTQ0OTM4MzM1OTR9";</script>
+<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTQyMDM2Nzh9";</script>
 <script>
 // GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
 
@@ -584,13 +629,16 @@ function monthSummary(state, month) {
   const ownerIds = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
   const isSalon = p => !p.proId || ownerIds.has(p.proId);
   const own = pays.filter(p => p.kind === 'single' && isSalon(p)).reduce((s, p) => s + p.amount, 0);
+  const prodPays = pays.filter(p => p.kind === 'product' && isSalon(p));
+  const products = prodPays.reduce((s, p) => s + p.amount, 0), productCost = prodPays.reduce((s, p) => s + (Number(p.cost) || 0), 0);
   const plans = pays.filter(p => p.kind === 'plan').reduce((s, p) => s + p.amount, 0);
   const shares = (state.proPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
   const fixed = (state.billPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
   const expenses = (state.expenses || []).filter(e => String(e.date).slice(0, 7) === month).reduce((s, e) => s + e.amount, 0);
-  const income = { own: round2(own), plans: round2(plans), shares: round2(shares) };
-  const out = { fixed: round2(fixed), expenses: round2(expenses) };
-  return { income, out, totalIn: round2(own + plans + shares), totalOut: round2(fixed + expenses), profit: round2(own + plans + shares - fixed - expenses) };
+  const income = { own: round2(own), plans: round2(plans), shares: round2(shares), products: round2(products) };
+  const out = { fixed: round2(fixed), expenses: round2(expenses), productCost: round2(productCost) };
+  const tin = own + plans + shares + products, tout = fixed + expenses + productCost;
+  return { income, out, totalIn: round2(tin), totalOut: round2(tout), profit: round2(tin - tout) };
 }
 
 // ---------- agendamento pelo cliente
@@ -603,8 +651,13 @@ function freeSlots(state, dateStr, proId, durationMin, now = null) {
   const st = state.settings, out = [];
   if (!isOpenDay(st, dateStr)) return out;
   const busy = (state.appointments || []).filter(a => a.proId === proId && a.start.startsWith(dateStr) && !['canceled', 'noshow'].includes(a.status))
-    .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; });
-  const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() : -1;
+    .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; })
+    .concat(st.breakStart && Number(st.breakMin) > 0 ? [(() => { const [h, m] = st.breakStart.split(':').map(Number); return [h * 60 + m, h * 60 + m + Number(st.breakMin)]; })()] : [])
+    .concat((state.blocks || []).filter(b => b.proId === proId && b.start.startsWith(dateStr)).map(b => { const s = parseLocal(b.start); const m = s.getHours() * 60 + s.getMinutes(); return [m, m + (Number(b.durationMin) || st.slotMin)]; }));
+  const adv = (Number(st.minAdvanceH) || 0) * 60;
+  const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() + adv : -1;
+  const limitDay = now && adv ? ymd(new Date(now.getTime() + adv * 60000)) : null;
+  if (limitDay && dateStr < limitDay) return out;
   for (let m = st.openHour * 60; m + durationMin <= st.closeHour * 60; m += st.slotMin) {
     if (isToday && m <= nowM) continue;
     if (busy.some(([a, b]) => m < b && a < m + durationMin)) continue;
@@ -626,6 +679,9 @@ function decodeAvailability(str) {
   if (!Object.keys(o.d).every(k => /^\d{4}-\d{2}-\d{2}$/.test(k))) return null;
   if (o.wd !== undefined && !(Array.isArray(o.wd) && o.wd.every(x => Number.isInteger(x) && x >= 0 && x <= 6))) return null;
   if (o.a !== undefined && typeof o.a !== 'string') return null;
+  if (o.n !== undefined && !(Array.isArray(o.n) && o.n.every(x => typeof x === 'string' && x.length <= 300))) return null;
+  for (const k of ['ig', 'pol']) if (o[k] !== undefined && typeof o[k] !== 'string') return null;
+  if (o.ma !== undefined && !(typeof o.ma === 'number' && o.ma >= 0 && o.ma <= 72)) return null;
   if (typeof o.w !== 'string' || !/^\d{10,13}$/.test(o.w) || typeof o.s !== 'string') return null;
   return o;
 }
@@ -640,6 +696,9 @@ function findClash(state, proId, startIso, durationMin, ignoreId = null) {
     const a0 = parseLocal(a.start), sv = (state.services || []).find(x => x.id === a.serviceId);
     const a1 = new Date(a0.getTime() + (sv ? sv.durationMin : 30) * 60000);
     return a0 < e0 && s0 < a1;
+  })()) || (state.blocks || []).find(b => b.proId === proId && (() => {
+    const b0 = parseLocal(b.start), b1 = new Date(b0.getTime() + (Number(b.durationMin) || 30) * 60000);
+    return b0 < e0 && s0 < b1;
   })()) || null;
 }
 function findClientForRequest(clients, name, phone) {
@@ -657,6 +716,29 @@ function costSummary(costs) {
   return { filled: list.filter(c => Number(c.monthly) > 0).length, total: list.length, monthly: round2(list.reduce((t, c) => t + (Number(c.monthly) || 0), 0)) };
 }
 
+// dias de atraso para o cliente voltar (negativo = ainda não chegou a hora); null se o serviço não tem retorno
+function returnDue(lastDate, returnDays, today) {
+  if (!(Number(returnDays) > 0) || !lastDate) return null;
+  return daysBetween(addDays(startOfDay(lastDate), Number(returnDays)), today);
+}
+// aniversários nos próximos 7 dias (aceita 'AAAA-MM-DD' ou 'MM-DD')
+function birthdaysSoon(clients, today, days = 7) {
+  const t = startOfDay(today), out = [];
+  for (const c of clients || []) {
+    const m = String(c.birthday || '').match(/(\d{2})-(\d{2})$/); if (!m) continue;
+    let d = new Date(t.getFullYear(), Number(m[1]) - 1, Number(m[2]));
+    if (d < t) d = new Date(t.getFullYear() + 1, Number(m[1]) - 1, Number(m[2]));
+    const inDays = daysBetween(t, d);
+    if (inDays <= days) out.push({ client: c, inDays, date: d });
+  }
+  return out.sort((a, b) => a.inDays - b.inDays);
+}
+
+function activeNotices(notices, today) {
+  const t = ymd(today);
+  return (notices || []).filter(n => n && n.on !== false && String(n.text || '').trim() && (!n.until || n.until >= t)).map(n => String(n.text).trim());
+}
+
 // GL Style — página pública de agendamento (lê os dados do link).
 const bk = { sv: null, pr: null, day: null, time: null, name: '', phone: '' };
 function bookingPage(code) {
@@ -668,7 +750,7 @@ function bookingPage(code) {
   const openD = d => !Array.isArray(D.wd) || D.wd.includes(parseLocal(d + 'T12:00').getDay());
   bk.sv = bk.sv || D.sv[0][0]; bk.pr = bk.pr || D.pr[0][0]; bk.day = days.includes(bk.day) ? bk.day : (days.find(openD) || days[0]);
   const svc = D.sv.find(x => x[0] === bk.sv) || D.sv[0];
-  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl, workDays: D.wd }, services: [], appointments: [] };
+  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl, workDays: D.wd, minAdvanceH: D.ma || 0 }, services: [], appointments: [] };
   const slotsFor = (day, pr) => {
     const busy = (D.d[day] && D.d[day][pr]) || [];
     st.services = busy.map((b, i) => ({ id: 'b' + i, durationMin: b[1] - b[0] }));
@@ -679,7 +761,8 @@ function bookingPage(code) {
   if (!slots.includes(bk.time)) bk.time = null;
   const old = Math.round((Date.now() - (D.g || Date.now())) / 3600000);
   main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<div class="cli-hero"><div class="mono-g">${esc((D.s || 'GL').split(' ')[0].slice(0, 2).toUpperCase())}</div><h1>${esc(D.s)}</h1><p>${D.a ? '📍 ' + esc(D.a) + '<br>' : ''}Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
-  </p></div><h2>Serviço</h2><div class="svc-cards">${D.sv.map(x => `<button class="svc-card ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}"><b>${esc(x[1])}</b><small>${x[3]} min</small><div class="p num">${brl(x[2])}</div></button>`).join('')}</div>
+  </p>${D.ig ? `<p><a href="https://instagram.com/${encodeURIComponent(D.ig)}" target="_blank" rel="noopener" style="color:var(--latao2);font-weight:600">@${esc(D.ig)}</a></p>` : ''}</div>
+  ${(D.n || []).map(t => `<div class="aviso-cli">📣 ${esc(t)}</div>`).join('')}<h2>Serviço</h2><div class="svc-cards">${D.sv.map(x => `<button class="svc-card ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}"><b>${esc(x[1])}</b><small>${x[3]} min</small><div class="p num">${brl(x[2])}</div></button>`).join('')}</div>
   ${D.pr.length > 1 ? '<h2>Com quem</h2>' : ''}<div class="chips" ${D.pr.length > 1 ? '' : 'hidden'}>${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>
   <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${esc(d)}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
   <h2>Horários livres</h2>${!openD(bk.day) ? '<div class="vazio">Fechado nesse dia. Escolha outro.</div>' : slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
@@ -687,6 +770,7 @@ function bookingPage(code) {
   <p class="mini">Sem cadastro: o pedido sai do seu WhatsApp.</p>
   <button class="bt zap cheio" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled style="opacity:.5"'}>Pedir ${bk.time ? `${bk.time} de ${dataBR(parseLocal(bk.day + 'T00:00'))}` : 'horário'} pelo WhatsApp</button>
   <p class="mini" style="text-align:center;margin-top:10px">O horário só fica garantido quando o ${esc(D.s)} confirmar.</p>
+  ${D.pol ? `<div class="cartao" style="margin-top:14px"><strong>Regras do salão</strong><p class="mini" style="white-space:pre-line;margin:6px 0 0">${esc(D.pol)}</p></div>` : ''}
 `;
   main.onclick = e => {
     const el = e.target.closest('[data-bk]'); if (!el || el.disabled) return;
