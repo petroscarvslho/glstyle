@@ -1531,7 +1531,7 @@ function apptItem(a, actions = true, main = true) {
     ${bts ? `<div class="acoes" style="display:flex">${bts}</div>` : ''}</div>`;
 }
 
-const tipoTag = a => a.covered ? `<span class="tp tp-plano">Plano</span>` : `<span class="tp tp-avulso">Avulso</span>`;
+const tipoTag = a => a.covered ? `<span class="tp tp-plano">Plano</span>` : `<span class="tp tp-avulso">Convencional</span>`;
 function viewHoje() {
   const t = today(), tk = ymd(t);
   const list = S().appointments.filter(a => a.start.startsWith(tk) && a.status !== 'canceled' && fPro(a)).sort((a, b) => a.start.localeCompare(b.start));
