@@ -410,12 +410,63 @@ h2{font-size:17px}
 }
 .aviso-cli{background:color-mix(in srgb,var(--latao) 10%,var(--sup));border:1px solid color-mix(in srgb,var(--latao) 30%,transparent);border-radius:14px;padding:11px 14px;margin:10px 0 0;font-weight:600;font-size:14px}
 @media (min-width:900px){ body:not(.cliente) .fab{left:16px;right:auto;top:360px;bottom:auto;width:188px;height:48px;border-radius:16px;font-size:15px;font-family:var(--corpo);font-weight:700} body:not(.cliente) .fab::after{content:" Novo horário";} }
+
+/* ===== mais claro e menos carregado ===== */
+:root{--couro:#f8f8f9;--sup:#ffffff;--sup2:#f3f3f5;--linha:#ebebee;--sombra:none}
+@media (prefers-color-scheme:dark){:root{--couro:#111214;--sup:#18191c;--sup2:#1f2024;--linha:#2a2b30}}
+.poste{display:none}
+h1{font-size:28px;margin-top:10px}
+h2{font-size:16px;font-weight:700;margin:24px 0 8px}
+h2 small{font-weight:500}
+.item,.cartao,.kpi,.grupo,.seg,.svc-card,#ajustes,.alerta-cob{box-shadow:none!important;border:1px solid var(--linha)!important}
+.item{border-radius:16px;padding:12px 14px}
+.item::before{width:2px;top:16px;bottom:16px}
+.item.feito{padding:9px 14px;background:transparent;border-style:dashed!important}
+.item.feito::before{display:none}
+.item.feito .acoes{margin-top:2px}
+.item.feito .acoes .bt{min-height:34px;padding:6px 10px;font-size:13px}
+.item.feito .nome{font-size:15px;font-weight:600}
+.item.feito .hora{font-size:16px}
+.cartao-preto{border:1px solid var(--linha)!important;box-shadow:none;padding:16px}
+.cartao-preto::after{display:none}
+.cartao-preto .val{font-size:34px}
+.cartao-preto .linha3 b{font-size:18px}
+.alerta-cob{border-left:3px solid var(--aviso)!important;padding:12px 14px}
+.lista{gap:8px}
+.grupo>.linha{min-height:52px;padding:11px 14px}
+.bt{font-weight:600}
+.bt.leve{background:var(--sup)}
+nav.abas{background:color-mix(in srgb,var(--sup) 92%,transparent);box-shadow:0 0 0 1px var(--linha),0 8px 24px -16px rgba(0,0,0,.25)}
+.fab{box-shadow:0 8px 20px -10px rgba(0,0,0,.35),inset 0 0 0 1.5px rgba(217,181,106,.5)}
+.data-topo{font-size:13px}
+.marca .mono{width:32px;height:32px;font-size:13px}
+.marca{font-size:19px}
+/* cliente */
+.cli-hero{padding:22px 6px 2px}
+.cli-hero .mono-g{width:60px;height:60px;font-size:21px;box-shadow:inset 0 0 0 2px #b8862b,inset 0 0 0 6px var(--ink2),inset 0 0 0 7px rgba(217,181,106,.5)}
+.cli-hero h1{font-size:28px}
+.svc-card{padding:12px 14px;border-radius:16px}
+.svc-card .p{font-size:19px;margin-top:4px}
+.svc-card.on{border-color:var(--creme)!important;background:var(--sup)}
+.aviso-cli{background:var(--sup);border:1px solid var(--linha);font-weight:500}
+.faixa-demo{background:transparent;border:1px dashed var(--linha);color:var(--mudo)}
+.dia{background:var(--sup);border:1px solid var(--linha)}
+.chip{background:var(--sup)}
+.chip.on,.dia.on{border-color:var(--creme)}
+.ib.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.item .acoes .ib{width:40px;height:40px}
+.item.compacto{grid-template-columns:52px 1fr auto;align-items:center;padding:10px 12px}
+.item.compacto .nome{font-size:16px}
+.item.compacto .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acoes-lado{display:flex;gap:6px}
+.acoes-lado .ib{width:38px;height:38px;border-radius:11px}
+@media (max-width:360px){.acoes-lado .ib{width:34px;height:34px}}
 </style>
 </head>
 <body class="cliente">
 <header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
 <main></main>
-<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTQyMDM2Nzh9";</script>
+<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTQ3MDQ1NzN9";</script>
 <script>
 // GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
 
