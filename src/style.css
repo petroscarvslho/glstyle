@@ -751,3 +751,5 @@ body:not(.cliente) .dias .dia.on{background:var(--verde)}
 .ag-ocup.eh-avulso{box-shadow:inset 3px 0 0 color-mix(in srgb,var(--mudo) 45%,transparent)}
 body:not(.cliente) .lista .item{position:relative}
 @media (prefers-color-scheme:dark){.tp-plano{color:#e3b866}}
+.campo-valor{display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:center;margin-top:10px}
+.campo-valor input{margin:0}
