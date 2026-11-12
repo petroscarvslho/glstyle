@@ -4,7 +4,7 @@ function bookingPage(code) {
   const D = decodeAvailability(code);
   document.body.classList.add('cliente');
   const main = document.querySelector('main');
-  if (!D) { main.innerHTML = '<h1>Link inválido</h1><p class="sub">Peça um link novo ao salão.</p>'; return; }
+  if (!D) { main.innerHTML = '<h1>Agendamento</h1><p class="sub">Este link está incompleto ou expirou. Peça ao salão o link de agendamento atualizado pelo WhatsApp.</p>'; return; }
   const days = Object.keys(D.d).filter(d => d >= ymd(new Date())).sort();
   bk.sv = bk.sv || D.sv[0][0]; bk.pr = bk.pr || D.pr[0][0]; bk.day = days.includes(bk.day) ? bk.day : days[0];
   const svc = D.sv.find(x => x[0] === bk.sv) || D.sv[0];
@@ -21,13 +21,13 @@ function bookingPage(code) {
   main.innerHTML = `<h1>Agende no ${esc(D.s)}</h1><p class="sub">Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
   <h2>Serviço</h2><div class="chips" style="flex-wrap:wrap">${D.sv.map(x => `<button class="chip ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}">${esc(x[1])} · ${brl(x[2])}</button>`).join('')}</div>
   ${D.pr.length > 1 ? '<h2>Com quem</h2>' : ''}<div class="chips" ${D.pr.length > 1 ? '' : 'hidden'}>${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>
-  <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${d}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
+  <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${esc(d)}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
   <h2>Horários livres</h2>${slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
   <h2>Seu nome</h2><input data-bkin="name" value="${esc(bk.name)}" placeholder="Nome e sobrenome" autocomplete="name">
   <label class="campo"><span>WhatsApp (opcional)</span><input data-bkin="phone" value="${esc(bk.phone)}" inputmode="tel" placeholder="(75) 9 9999-9999" autocomplete="tel"></label>
   <button class="bt zap cheio" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled style="opacity:.5"'}>Pedir ${bk.time ? `${bk.time} de ${dataBR(parseLocal(bk.day + 'T00:00'))}` : 'horário'} pelo WhatsApp</button>
   <p class="mini" style="text-align:center;margin-top:10px">O horário só fica garantido quando o ${esc(D.s)} confirmar.</p>
-  ${typeof store !== 'undefined' && store ? '<button class="bt leve cheio" style="margin-top:14px" data-bk="back">Voltar ao app do salão</button>' : ''}`;
+`;
   main.onclick = e => {
     const el = e.target.closest('[data-bk]'); if (!el || el.disabled) return;
     const k = el.dataset.bk;
@@ -36,8 +36,11 @@ function bookingPage(code) {
       const msg = `Olá! Quero marcar ${svc[1]}${D.pr.length > 1 ? ` com ${pr[1]}` : ''} ${dataBR(dt)} às ${bk.time}.\nNome: ${bk.name.trim()}${bk.phone ? `\nTel: ${bk.phone}` : ''}\n#GL[${bk.day}T${bk.time}|${svc[0]}|${pr[0]}|${bk.name.trim()}]`;
       window.open(waLink(D.w, msg), '_blank', 'noopener'); return;
     }
-    if (k === 'back') { location.hash = ''; return; }
     bk[k] = el.dataset.id; bookingPage(code);
   };
   main.oninput = e => { const k = e.target.dataset.bkin; if (k) { bk[k] = e.target.value; const b = main.querySelector('[data-bk="send"]'); const ok = bk.time && bk.name.trim().length > 1; b.disabled = !ok; b.style.opacity = ok ? '' : '.5'; } };
 }
+
+function bootBooking() { const h = location.hash.replace(/^#(agendar=)?/, ''); bookingPage(h); }
+window.addEventListener('hashchange', bootBooking);
+bootBooking();

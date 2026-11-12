@@ -16,6 +16,8 @@ export const daysBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) 
 const lastDay = (y, m) => new Date(y, m + 1, 0).getDate();
 const dayIn = (y, m, day) => new Date(y, m, Math.min(day, lastDay(y, m)));
 
+export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const dataBR = d => d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
 export const brl = n => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 export const round2 = n => Math.round((Number(n) || 0) * 100) / 100;
 export const stripAccents = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -92,17 +94,39 @@ export function pixCode({ key, name, city, amount, txid = '***' }) {
 // ---------- WhatsApp
 export function normPhone(raw) {
   let d = String(raw || '').replace(/\D/g, '');
-  if (d.length === 10 || d.length === 11) d = '55' + d;
+  if (d.startsWith('55') && (d.length === 12 || d.length === 13)) return d;
+  d = d.replace(/^0+/, '');
+  if (d.length === 10 || d.length === 11) return '55' + d;
   return d;
+}
+// chave Pix no formato que os bancos aceitam
+export function normPixKey(key, type) {
+  const k = String(key || '').trim();
+  if (type === 'phone') { const d = normPhone(k); return d ? '+' + d : ''; }
+  if (type === 'cpf' || type === 'cnpj') return k.replace(/\D/g, '');
+  if (type === 'email') return k.toLowerCase();
+  return k.toLowerCase();
 }
 export const waLink = (phone, text) => `https://wa.me/${normPhone(phone)}?text=${encodeURIComponent(text)}`;
 export const fill = (tpl, vars) => String(tpl).replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
 
+// dinheiro digitado: "12.50", "12,50", "1.234,56", "1,234.56", "1.050", "R$100.00"
+export function parseMoney(v) {
+  let t = String(v ?? '').replace(/[^\d.,-]/g, '');
+  if (!/\d/.test(t)) return NaN;
+  const lc = t.lastIndexOf(','), ld = t.lastIndexOf('.');
+  if (lc >= 0 && ld >= 0) { const dec = lc > ld ? ',' : '.'; t = t.split(dec === ',' ? '.' : ',').join('').replace(dec, '.'); }
+  else if (lc >= 0) t = t.split(',').length > 2 ? t.replace(/,/g, '') : t.replace(',', '.');
+  else if (ld >= 0 && (t.split('.').length > 2 || /^\d{1,3}\.\d{3}$/.test(t))) t = t.replace(/\./g, '');
+  const n = Number(t);
+  return Number.isFinite(n) ? n : NaN;
+}
+
 // ---------- notificação do banco
 export function parseBankNotification(text) {
   const t = String(text || '');
-  const mv = t.match(/R\$\s*([\d.]+(?:,\d{1,2})?)/i);
-  const amount = mv ? Number(mv[1].replace(/\./g, '').replace(',', '.')) : null;
+  const mv = t.match(/R\$\s*([\d.,]*\d)/i);
+  const amount = mv ? parseMoney(mv[1]) : null;
   const mn = t.match(/\bde\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\s]*?)(?=\s+(?:no valor|valor|R\$)|[.,!;:\n]|$)/);
   let name = mn ? mn[1].trim() : null;
   if (name && /^(r\$|valor)/i.test(name)) name = null;
@@ -111,12 +135,11 @@ export function parseBankNotification(text) {
 export function matchPayment(parsed, open) {
   if (!parsed || parsed.amount == null) return null;
   const sameVal = open.filter(o => Math.abs(Number(o.amount) - parsed.amount) <= 0.01);
-  if (parsed.name) {
-    const first = norm(parsed.name).split(/\s+/)[0];
-    const hit = sameVal.filter(o => norm(o.clientName).split(/\s+/)[0] === first);
-    return hit.length === 1 ? hit[0].id : null;
-  }
-  return sameVal.length === 1 ? sameVal[0].id : null;
+  if (!parsed.name) return null; // sem nome: vai para "Pix a conferir"
+  const words = s => norm(s).split(/\s+/).filter(w => w.length > 2 && !['das', 'dos', 'de', 'da', 'do', 'e'].includes(w));
+  const payer = new Set(words(parsed.name));
+  const hit = sameVal.filter(o => { const w = words(o.clientName); return w.length > 0 && w.every(x => payer.has(x)); });
+  return hit.length === 1 ? hit[0].id : null;
 }
 
 // ---------- caixa avançado
@@ -213,9 +236,34 @@ const b64e = s => (typeof btoa === 'function' ? btoa(unescape(encodeURIComponent
 const b64d = s => (typeof atob === 'function' ? decodeURIComponent(escape(atob(s))) : Buffer.from(s, 'base64').toString('utf8'));
 export const encodeAvailability = data => b64e(JSON.stringify(data)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 export function decodeAvailability(str) {
-  try { const o = JSON.parse(b64d(String(str).replace(/-/g, '+').replace(/_/g, '/'))); return o && o.d && o.sv ? o : null; } catch { return null; }
+  let o; try { o = JSON.parse(b64d(String(str).replace(/-/g, '+').replace(/_/g, '/'))); } catch { return null; }
+  const pos = v => typeof v === 'number' && Number.isFinite(v) && v > 0;
+  const hr = v => typeof v === 'number' && v >= 0 && v <= 24;
+  if (!o || typeof o !== 'object' || !o.d || typeof o.d !== 'object' || !Array.isArray(o.sv) || !Array.isArray(o.pr)) return null;
+  if (!hr(o.o) || !hr(o.c) || o.c <= o.o || !pos(o.sl) || o.sl < 5) return null;
+  if (!o.sv.length || !o.sv.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string' && typeof x[2] === 'number' && pos(x[3]))) return null;
+  if (!o.pr.length || !o.pr.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string')) return null;
+  if (!Object.keys(o.d).every(k => /^\d{4}-\d{2}-\d{2}$/.test(k))) return null;
+  if (typeof o.w !== 'string' || !/^\d{10,13}$/.test(o.w) || typeof o.s !== 'string') return null;
+  return o;
 }
 export function parseBookingRequest(text) {
   const m = String(text || '').match(/#GL\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
   return m ? { start: m[1], serviceId: m[2], proId: m[3], name: m[4].trim() } : null;
+}
+
+export function findClash(state, proId, startIso, durationMin, ignoreId = null) {
+  const s0 = parseLocal(startIso), e0 = new Date(s0.getTime() + durationMin * 60000);
+  return (state.appointments || []).find(a => a.id !== ignoreId && a.proId === proId && !['canceled', 'noshow'].includes(a.status) && (() => {
+    const a0 = parseLocal(a.start), sv = (state.services || []).find(x => x.id === a.serviceId);
+    const a1 = new Date(a0.getTime() + (sv ? sv.durationMin : 30) * 60000);
+    return a0 < e0 && s0 < a1;
+  })()) || null;
+}
+export function findClientForRequest(clients, name, phone) {
+  const p = normPhone(phone);
+  if (p.length >= 12) { const byPhone = clients.find(c => normPhone(c.phone) === p); if (byPhone) return byPhone; }
+  const n = norm(name);
+  const byName = clients.find(c => norm(c.name) === n);
+  return byName && p.length >= 12 && normPhone(byName.phone) === p ? byName : null;
 }

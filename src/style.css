@@ -122,3 +122,69 @@ body.cliente nav.abas,body.cliente .fab,body.cliente #ajustes{display:none!impor
 body.cliente{padding-bottom:30px}
 .bt[disabled]{cursor:not-allowed}
 [hidden]{display:none!important}
+
+/* ===== passada de polimento: organização e separação ===== */
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+h1,h2,.marca{text-wrap:balance}
+.sub,.mini,.meta,.vazio{text-wrap:pretty}
+.valor,.grande,.kpi strong,.hora,.dia b{font-variant-numeric:tabular-nums}
+h1{font-size:30px;margin:14px 0 2px}
+.data-topo{color:var(--mudo);font-size:14px;margin:14px 0 0}
+.data-topo+h1{margin-top:0}
+h2{margin:30px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+h2 small{font:500 13px/1 var(--corpo);color:var(--mudo)}
+.secao{margin-top:26px}
+
+/* superfícies: borda fina + sombra discreta em vez de blocos chapados */
+.item,.cartao,.kpi,.grupo{border:1px solid rgba(255,255,255,.06);box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 6px 16px -10px rgba(0,0,0,.6)}
+.kpi.dest{border-color:transparent}
+
+/* lista agrupada (uma superfície, linhas separadas por filete) */
+.grupo{background:var(--sup);border-radius:16px;overflow:hidden}
+.grupo>.linha{background:none;border-radius:0;padding:13px 14px;min-height:56px}
+.grupo>.linha+.linha{border-top:1px solid var(--linha)}
+.grupo>.linha[data-act]:active{background:var(--sup2)}
+.seta{color:var(--linha);font-size:20px;line-height:1}
+
+/* cartões de horário: hierarquia clara e uma ação principal */
+.item{grid-template-columns:58px 1fr auto;padding:14px;gap:2px 12px;border-left:3px solid var(--latao)}
+.item.feito{border-left-color:var(--linha)}
+.item.pedido{border-left-color:var(--aviso)}
+.item .nome{font-size:17px}
+.item .acoes{grid-column:2/-1;margin-top:10px;gap:8px;align-items:center}
+.item .acoes .bt:first-child{flex:1}
+.ib{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--linha);background:none;color:var(--mudo);display:grid;place-items:center;cursor:pointer;transition-property:transform,background-color,color;transition-duration:150ms;transition-timing-function:ease-out}
+.ib svg{width:20px;height:20px}
+.ib.zap{color:#5fd08f;border-color:#2a5a3e}
+.ib.mal{color:var(--mal);border-color:#5a2e28}
+.ib:active{transform:scale(.96);background:var(--sup2)}
+.desfazer{background:none;border:0;color:var(--mudo);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:10px 4px;min-height:40px}
+.bt{transition-property:transform,background-color,opacity;transition-duration:150ms;transition-timing-function:ease-out}
+.bt:active{transform:scale(.96)}
+
+/* controle segmentado para sub-seções */
+.seg{display:flex;gap:4px;background:var(--sup);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:4px;margin:12px 0 4px;overflow-x:auto;scrollbar-width:none}
+.seg button{flex:1 0 auto;border:0;background:none;color:var(--mudo);border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600;cursor:pointer;min-height:40px;transition-property:background-color,color;transition-duration:150ms}
+.seg button.on{background:var(--creme);color:var(--couro)}
+
+/* cartões de cobrança: valor em destaque e ações numa linha */
+.cob{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:start}
+.cob .acoes{grid-column:1/-1;display:flex;gap:8px;margin-top:12px}
+.cob .acoes .bt:first-child{flex:1}
+
+.kpi{padding:12px}
+.kpi strong{font-size:21px}
+.alerta-cob{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.folha{border-top:1px solid rgba(255,255,255,.08)}
+.folha h2{margin-top:6px}
+.sugs button{min-height:44px}
+@media (prefers-reduced-motion:reduce){.bt:active,.ib:active{transform:none}}
+.mat{display:grid!important;grid-template-columns:1fr 92px 96px 64px;gap:8px;align-items:center}
+.mat input{min-height:40px;padding:8px 10px}
+.mat .nome-mat{grid-column:1/-1;background:none;border:0;padding:0;font-weight:600;min-height:28px}
+.mat label{display:flex;align-items:center;gap:6px;color:var(--mudo);font-size:13px;grid-column:span 1}
+.mat label:first-of-type{grid-column:1/2}
+.mat .uso{text-align:right;color:var(--latao2);font-size:14px;grid-column:3/5}
+.mat{grid-template-columns:1fr 1fr 90px}
+.mat label:first-of-type{grid-column:auto}
+.mat .uso{grid-column:auto}

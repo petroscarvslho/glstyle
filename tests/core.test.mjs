@@ -80,10 +80,9 @@ test('parseBankNotification 2', () => assert.deepEqual(C.parseBankNotification('
 test('parseBankNotification 3', () => assert.deepEqual(C.parseBankNotification('Transferência recebida! R$ 90,00 de Carlos Souza.'), { amount: 90, name: 'Carlos Souza' }));
 test('matchPayment', () => {
   const open = [{ id: 'x', clientName: 'Maria Lima', amount: 80 }, { id: 'y', clientName: 'João Pedro', amount: 80 }];
-  assert.equal(C.matchPayment({ amount: 80, name: 'JOAO SILVA' }, open), 'y');
-  assert.equal(C.matchPayment({ amount: 81, name: 'JOAO' }, open), null);
-  assert.equal(C.matchPayment({ amount: 80, name: null }, [open[0]]), 'x');
-  assert.equal(C.matchPayment({ amount: 80, name: null }, open), null);
+  assert.equal(C.matchPayment({ amount: 80, name: 'JOAO PEDRO DA SILVA' }, open), 'y');
+  assert.equal(C.matchPayment({ amount: 81, name: 'JOAO PEDRO' }, open), null);
+  assert.equal(C.matchPayment({ amount: 80, name: null }, [open[0]]), null);
 });
 
 // ---------- Task 2b: caixa avançado
@@ -155,7 +154,7 @@ test('freeSlots ignora horários que já passaram hoje', () => {
   assert.deepEqual(C.freeSlots(state, '2026-11-13', 'p', 30, new Date(2026, 10, 13, 9, 45)), ['10:00', '10:30']);
 });
 test('encode/decode disponibilidade', () => {
-  const data = { s: 'GL Style', w: '5575999331990', sv: [['s', 'Corte', 35, 40]], pr: [['p', 'Guilherme']], d: { '2026-11-13': { p: ['09:00', '11:00'] } } };
+  const data = { s: 'GL Style', w: '5575999331990', o: 9, c: 18, sl: 30, sv: [['s', 'Corte', 35, 40]], pr: [['p', 'Guilherme']], d: { '2026-11-13': { p: ['09:00', '11:00'] } } };
   assert.deepEqual(C.decodeAvailability(C.encodeAvailability(data)), data);
   assert.equal(C.decodeAvailability('lixo%%'), null);
 });
@@ -163,4 +162,62 @@ test('parseBookingRequest', () => {
   const msg = 'Olá! Quero marcar Corte com Guilherme sex 13/11 às 15:00.\n#GL[2026-11-13T15:00|s_corte|p_gl|Zé da Silva]';
   assert.deepEqual(C.parseBookingRequest(msg), { start: '2026-11-13T15:00', serviceId: 's_corte', proId: 'p_gl', name: 'Zé da Silva' });
   assert.equal(C.parseBookingRequest('oi tudo bem'), null);
+});
+
+
+// ---------- correções da revisão final
+test('R2 matchPayment não marca a pessoa errada com mesmo primeiro nome', () => {
+  assert.equal(C.matchPayment({ amount: 100, name: 'MARIA LIMA' }, [{ id: 'souza', clientName: 'Maria Souza', amount: 100 }]), null);
+  assert.equal(C.matchPayment({ amount: 300, name: 'GUILHERME DE OLIVEIRA MENDES TEIXEIRA' }, [{ id: 'g', clientName: 'Guilherme Mendes', amount: 300 }]), 'g');
+});
+test('R1 decodeAvailability rejeita dados maliciosos ou inválidos', () => {
+  const ok = { s: 'GL', w: '5575999331990', o: 9, c: 18, sl: 30, sv: [['s', 'Corte', 35, 40]], pr: [['p', 'G']], d: { '2026-11-13': { p: [] } } };
+  assert.ok(C.decodeAvailability(C.encodeAvailability(ok)));
+  assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, d: { '9"><img src=x onerror=alert(1)>': { p: [] } } })), null);
+  assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, sl: 0 })), null);
+  assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, sv: [['s', 'Corte', 35, 'x']] })), null);
+});
+test('R4 normPhone remove zero de operadora/DDD', () => {
+  assert.equal(C.normPhone('075 99933-1990'), '5575999331990');
+  assert.equal(C.normPhone('0xx75 99933-1990'), '5575999331990');
+  assert.equal(C.normPhone('+55 (75) 99933-1990'), '5575999331990');
+});
+test('R5 normPixKey por tipo', () => {
+  assert.equal(C.normPixKey('75 99933-1990', 'phone'), '+5575999331990');
+  assert.equal(C.normPixKey('+55 75 99933-1990', 'phone'), '+5575999331990');
+  assert.equal(C.normPixKey('123.456.789-00', 'cpf'), '12345678900');
+  assert.equal(C.normPixKey('12.345.678/0001-90', 'cnpj'), '12345678000190');
+  assert.equal(C.normPixKey(' Fulano@Email.com ', 'email'), 'fulano@email.com');
+  assert.equal(C.normPixKey(' 123e4567-e89b-12d3-a456-426614174000 ', 'evp'), '123e4567-e89b-12d3-a456-426614174000');
+});
+test('R6 findClash detecta conflito e ignora o próprio horário', () => {
+  const state = { services: [{ id: 's', durationMin: 40 }], appointments: [{ id: 'a', proId: 'p', serviceId: 's', start: '2026-11-13T10:00', status: 'confirmed' }, { id: 'b', proId: 'p', serviceId: 's', start: '2026-11-13T12:00', status: 'canceled' }] };
+  assert.equal(C.findClash(state, 'p', '2026-11-13T10:30', 30)?.id, 'a');
+  assert.equal(C.findClash(state, 'p', '2026-11-13T10:40', 30), null);
+  assert.equal(C.findClash(state, 'p', '2026-11-13T10:00', 40, 'a'), null);
+  assert.equal(C.findClash(state, 'p', '2026-11-13T12:00', 40), null);
+  assert.equal(C.findClash(state, 'q', '2026-11-13T10:00', 40), null);
+});
+test('R7 parseMoney entende vírgula, ponto e milhar', () => {
+  assert.equal(C.parseMoney('12.50'), 12.5);
+  assert.equal(C.parseMoney('12,50'), 12.5);
+  assert.equal(C.parseMoney('1.234,56'), 1234.56);
+  assert.equal(C.parseMoney('1,234.56'), 1234.56);
+  assert.equal(C.parseMoney('1.050'), 1050);
+  assert.equal(C.parseMoney('R$100.00'), 100);
+  assert.equal(C.parseMoney('35'), 35);
+  assert.ok(Number.isNaN(C.parseMoney('abc')));
+  assert.deepEqual(C.parseBankNotification('Pix recebido R$100.00 de Ana Paula'), { amount: 100, name: 'Ana Paula' });
+});
+test('R9 findClientForRequest prefere telefone e não junta homônimos', () => {
+  const clients = [{ id: 'jp', name: 'João Pedro', phone: '75988880000' }];
+  assert.equal(C.findClientForRequest(clients, 'Joao Pedro', '(75) 98888-0000')?.id, 'jp');
+  assert.equal(C.findClientForRequest(clients, 'Outro Nome', '75988880000')?.id, 'jp');
+  assert.equal(C.findClientForRequest(clients, 'João Pedro', '75911112222'), null);
+  assert.equal(C.findClientForRequest(clients, 'João Pedro', ''), null);
+});
+test('R3 cycleStartBefore dá o início certo do ciclo para dueDay 31', () => {
+  const ymd2 = d => C.ymd(d);
+  assert.equal(ymd2(C.cycleRange(31, new Date(2026, 2, 30)).start), '2026-02-28');
+  assert.equal(ymd2(C.cycleRange(31, C.addDays(new Date(2026, 2, 31), -1)).start), '2026-02-28');
 });
