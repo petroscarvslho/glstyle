@@ -684,3 +684,24 @@ body:not(.cliente) .marca{font-size:16px}
 body:not(.cliente) #ajustes{padding:6px 11px;font-size:13px}
 body:not(.cliente) .alerta-cob{padding:9px 14px}
 body:not(.cliente) .alerta-cob>div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+/* menos poluição */
+.cob-l{gap:8px}
+.cob-v{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-right:2px}
+.cob-v b{font-size:15px;font-weight:700}
+.link-mini{background:none;border:0;padding:0;font:600 11.5px var(--corpo);color:var(--verde);cursor:pointer}
+details.mais{margin-top:10px}
+details.mais>summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--verde);list-style:none;padding:6px 0}
+details.mais>summary::-webkit-details-marker{display:none}
+details.mais>summary::after{content:" ›";display:inline-block;transition:transform 150ms}
+details.mais[open]>summary::after{transform:rotate(90deg)}
+details.mais.cartao{padding:10px 16px}
+details.mais .mini+textarea,details.mais textarea{margin-top:8px}
+.linha-mini{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-top:1px solid var(--linha);color:var(--mudo)}
+.linha-mini:first-of-type{border-top:0}
+.linha-mini .num{color:var(--creme);font-weight:600}
+.linha-mini .num.neg{color:var(--mal)}
+body:not(.cliente) .slot .ib{width:30px;height:auto;min-height:30px;opacity:.55}
+body:not(.cliente) .slot .ib svg{width:14px;height:14px}
+body:not(.cliente) .livre{color:color-mix(in srgb,var(--mudo) 75%,transparent)}
+body:not(.cliente) .seg button{font-size:13px;padding:8px 11px}
+body:not(.cliente) .seg{display:flex;justify-content:space-between}
