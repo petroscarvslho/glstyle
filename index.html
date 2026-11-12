@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d1813">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GL Style">
+<title>GL Style · Agende seu horário</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d1813'/%3E%3Ctext x='32' y='42' font-family='Arial Narrow,Arial' font-weight='700' font-size='28' text-anchor='middle' fill='%23c99a3b'%3EGL%3C/text%3E%3C/svg%3E">
+<style>:root{
+  --couro:#1d1813; --sup:#2a221b; --sup2:#332a21; --linha:#43372b;
+  --latao:#c99a3b; --latao2:#e2b65a; --creme:#f1e7d6; --mudo:#a99a85;
+  --ok:#74c27a; --mal:#e06b5b; --aviso:#e0a64b;
+  --cond:"Avenir Next Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue",sans-serif;
+  --corpo:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--couro);color:var(--creme);font:16px/1.45 var(--corpo)}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--latao2);outline-offset:2px}
+
+/* barra do topo com a faixa de barbearia */
+.top{position:sticky;top:0;z-index:5;background:var(--couro)}
+.poste{height:5px;background:repeating-linear-gradient(-45deg,#b8332a 0 10px,var(--creme) 10px 20px,#2c5aa0 20px 30px,var(--creme) 30px 40px)}
+.top-in{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:620px;margin:auto}
+.marca{font:700 22px/1 var(--cond);letter-spacing:.02em}
+.marca b{color:var(--latao)}
+.icone{background:none;border:0;padding:8px;border-radius:10px;color:var(--mudo);font-size:20px;cursor:pointer}
+.icone:active{background:var(--sup)}
+
+main{max-width:620px;margin:auto;padding:4px 14px 20px}
+h1{font:700 34px/1.05 var(--cond);margin:8px 0 2px}
+h2{font:700 21px/1.2 var(--cond);margin:22px 0 8px;color:var(--creme)}
+.sub{color:var(--mudo);font-size:14px;margin:0 0 12px}
+
+.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.kpi{background:var(--sup);border-radius:12px;padding:10px 12px}
+.kpi span{display:block;color:var(--mudo);font-size:12px}
+.kpi strong{font:700 20px/1.2 var(--cond)}
+.kpi.dest{background:var(--latao);color:#21180c}.kpi.dest span{color:#3d2c10}
+
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--linha);background:none;border-radius:999px;padding:7px 13px;font-size:14px;cursor:pointer;color:var(--mudo)}
+.chip.on{background:var(--creme);color:var(--couro);border-color:var(--creme)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+
+.lista{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--sup);border-radius:var(--r);padding:12px;display:grid;grid-template-columns:54px 1fr;gap:4px 10px;align-items:start}
+.item .hora{font:700 19px/1.1 var(--cond);color:var(--latao2)}
+.item .nome{font-weight:600;cursor:pointer}
+.item .meta{color:var(--mudo);font-size:13px}
+.item .acoes{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.item.feito{opacity:.62}
+.linha{background:var(--sup);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:10px}
+.linha .cresce{flex:1;min-width:0}
+.linha .cresce .meta{color:var(--mudo);font-size:13px}
+.valor{font:700 18px/1 var(--cond);white-space:nowrap}
+.pos{color:var(--ok)}.neg{color:var(--mal)}
+
+.bt{border:0;border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600;cursor:pointer;background:var(--sup2);color:var(--creme);min-height:40px}
+.bt:active{transform:scale(.97)}
+.bt.zap{background:#1f7a46;color:#fff}
+.bt.ok{background:var(--ok);color:#10240f}
+.bt.ouro{background:var(--latao);color:#21180c}
+.bt.mal{background:none;border:1px solid var(--linha);color:var(--mal)}
+.bt.leve{background:none;border:1px solid var(--linha);color:var(--mudo)}
+.bt.cheio{width:100%;padding:13px;font-size:16px}
+
+.tag{display:inline-block;font-size:12px;border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.tag.plano{background:#3b3220;color:var(--latao2)}
+.tag.ok{background:#24371f;color:var(--ok)}
+.tag.mal{background:#3e2220;color:var(--mal)}
+.tag.av{background:#3d3020;color:var(--aviso)}
+.tag.mudo{background:var(--sup2);color:var(--mudo)}
+
+.cartao{background:var(--sup);border-radius:var(--r);padding:14px;margin:8px 0}
+.cartao.alerta{border:1px solid #6b3a2e}
+.vazio{color:var(--mudo);text-align:center;padding:22px 10px;border:1px dashed var(--linha);border-radius:var(--r)}
+.mini{font-size:13px;color:var(--mudo)}
+.grande{font:700 40px/1 var(--cond)}
+
+/* agenda */
+.dias{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.dia{flex:none;width:52px;border-radius:12px;background:var(--sup);border:0;padding:8px 0;text-align:center;cursor:pointer;color:var(--mudo)}
+.dia b{display:block;font:700 20px/1.1 var(--cond);color:var(--creme)}
+.dia.on{background:var(--latao);color:#3d2c10}.dia.on b{color:#21180c}
+.slot{display:flex;gap:10px;align-items:stretch;min-height:46px}
+.slot .h{width:48px;color:var(--mudo);font-size:13px;padding-top:12px;text-align:right}
+.slot .c{flex:1;display:flex;gap:6px;flex-direction:column;padding:3px 0;border-top:1px solid var(--linha)}
+.livre{background:none;border:1px dashed var(--linha);border-radius:10px;color:var(--mudo);text-align:left;padding:9px 12px;cursor:pointer;font-size:14px}
+.ocup{border-radius:10px;padding:8px 12px;background:var(--sup);border-left:4px solid var(--latao);cursor:pointer}
+
+/* formulários */
+label.campo{display:block;margin:10px 0}
+label.campo span{display:block;color:var(--mudo);font-size:13px;margin-bottom:4px}
+input,select,textarea{width:100%;background:var(--couro);border:1px solid var(--linha);border-radius:10px;padding:11px 12px;min-height:44px}
+textarea{min-height:90px;resize:vertical}
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tres{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;align-items:end}
+.busca{position:relative}
+.sugs{background:var(--sup2);border-radius:10px;margin-top:4px;overflow:hidden}
+.sugs button{display:block;width:100%;text-align:left;background:none;border:0;padding:11px 12px;border-bottom:1px solid var(--linha);cursor:pointer}
+
+/* navegação inferior e botão + */
+nav.abas{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#16120e;border-top:1px solid var(--linha);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav.abas .in{display:grid;grid-template-columns:repeat(5,1fr);max-width:620px;width:100%}
+nav.abas button{background:none;border:0;color:var(--mudo);padding:9px 0 10px;font-size:11.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+nav.abas button svg{width:23px;height:23px}
+nav.abas button.on{color:var(--latao2)}
+nav.abas .badge{position:absolute;top:4px;left:calc(50% + 6px);background:var(--mal);color:#fff;border-radius:9px;font-size:10.5px;padding:0 5px;line-height:16px}
+.fab{position:fixed;right:max(16px,calc(50% - 294px));bottom:calc(78px + env(safe-area-inset-bottom));z-index:7;width:60px;height:60px;border-radius:50%;border:0;background:var(--latao);color:#21180c;font-size:32px;line-height:1;box-shadow:0 6px 20px rgba(0,0,0,.45);cursor:pointer}
+
+/* folha inferior */
+.veu{position:fixed;inset:0;background:rgba(10,8,6,.6);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.folha{background:var(--sup);width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom));animation:sobe .22s ease-out}
+.folha .pega{width:42px;height:5px;border-radius:3px;background:var(--linha);margin:4px auto 10px}
+.folha h2{margin-top:4px}
+@keyframes sobe{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.folha{animation:none}.bt:active{transform:none}}
+
+.aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom));background:var(--creme);color:var(--couro);padding:11px 16px;border-radius:12px;z-index:30;font-weight:600;font-size:14px;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.faixa-demo{background:#3b3220;color:var(--latao2);font-size:13px;padding:8px 12px;border-radius:10px;margin:6px 0}
+.barra{height:8px;border-radius:4px;background:var(--sup2);overflow:hidden;margin-top:6px}
+.barra i{display:block;height:100%;background:var(--latao)}
+.pix{word-break:break-all;font-size:12px;color:var(--mudo);background:var(--couro);border-radius:8px;padding:8px;margin:8px 0}
+details summary{cursor:pointer;color:var(--latao2);padding:6px 0}
+body.cliente nav.abas,body.cliente .fab,body.cliente #ajustes{display:none!important}
+body.cliente{padding-bottom:30px}
+.bt[disabled]{cursor:not-allowed}
+[hidden]{display:none!important}
+
+/* ===== passada de polimento: organização e separação ===== */
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+h1,h2,.marca{text-wrap:balance}
+.sub,.mini,.meta,.vazio{text-wrap:pretty}
+.valor,.grande,.kpi strong,.hora,.dia b{font-variant-numeric:tabular-nums}
+h1{font-size:30px;margin:14px 0 2px}
+.data-topo{color:var(--mudo);font-size:14px;margin:14px 0 0}
+.data-topo+h1{margin-top:0}
+h2{margin:30px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+h2 small{font:500 13px/1 var(--corpo);color:var(--mudo)}
+.secao{margin-top:26px}
+
+/* superfícies: borda fina + sombra discreta em vez de blocos chapados */
+.item,.cartao,.kpi,.grupo{border:1px solid rgba(255,255,255,.06);box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 6px 16px -10px rgba(0,0,0,.6)}
+.kpi.dest{border-color:transparent}
+
+/* lista agrupada (uma superfície, linhas separadas por filete) */
+.grupo{background:var(--sup);border-radius:16px;overflow:hidden}
+.grupo>.linha{background:none;border-radius:0;padding:13px 14px;min-height:56px}
+.grupo>.linha+.linha{border-top:1px solid var(--linha)}
+.grupo>.linha[data-act]:active{background:var(--sup2)}
+.seta{color:var(--linha);font-size:20px;line-height:1}
+
+/* cartões de horário: hierarquia clara e uma ação principal */
+.item{grid-template-columns:58px 1fr auto;padding:14px;gap:2px 12px;border-left:3px solid var(--latao)}
+.item.feito{border-left-color:var(--linha)}
+.item.pedido{border-left-color:var(--aviso)}
+.item .nome{font-size:17px}
+.item .acoes{grid-column:2/-1;margin-top:10px;gap:8px;align-items:center}
+.item .acoes .bt:first-child{flex:1}
+.ib{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--linha);background:none;color:var(--mudo);display:grid;place-items:center;cursor:pointer;transition-property:transform,background-color,color;transition-duration:150ms;transition-timing-function:ease-out}
+.ib svg{width:20px;height:20px}
+.ib.zap{color:#5fd08f;border-color:#2a5a3e}
+.ib.mal{color:var(--mal);border-color:#5a2e28}
+.ib:active{transform:scale(.96);background:var(--sup2)}
+.desfazer{background:none;border:0;color:var(--mudo);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:10px 4px;min-height:40px}
+.bt{transition-property:transform,background-color,opacity;transition-duration:150ms;transition-timing-function:ease-out}
+.bt:active{transform:scale(.96)}
+
+/* controle segmentado para sub-seções */
+.seg{display:flex;gap:4px;background:var(--sup);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:4px;margin:12px 0 4px;overflow-x:auto;scrollbar-width:none}
+.seg button{flex:1 0 auto;border:0;background:none;color:var(--mudo);border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600;cursor:pointer;min-height:40px;transition-property:background-color,color;transition-duration:150ms}
+.seg button.on{background:var(--creme);color:var(--couro)}
+
+/* cartões de cobrança: valor em destaque e ações numa linha */
+.cob{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:start}
+.cob .acoes{grid-column:1/-1;display:flex;gap:8px;margin-top:12px}
+.cob .acoes .bt:first-child{flex:1}
+
+.kpi{padding:12px}
+.kpi strong{font-size:21px}
+.alerta-cob{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.folha{border-top:1px solid rgba(255,255,255,.08)}
+.folha h2{margin-top:6px}
+.sugs button{min-height:44px}
+@media (prefers-reduced-motion:reduce){.bt:active,.ib:active{transform:none}}
+.mat{display:grid!important;grid-template-columns:1fr 92px 96px 64px;gap:8px;align-items:center}
+.mat input{min-height:40px;padding:8px 10px}
+.mat .nome-mat{grid-column:1/-1;background:none;border:0;padding:0;font-weight:600;min-height:28px}
+.mat label{display:flex;align-items:center;gap:6px;color:var(--mudo);font-size:13px;grid-column:span 1}
+.mat label:first-of-type{grid-column:1/2}
+.mat .uso{text-align:right;color:var(--latao2);font-size:14px;grid-column:3/5}
+.mat{grid-template-columns:1fr 1fr 90px}
+.mat label:first-of-type{grid-column:auto}
+.mat .uso{grid-column:auto}
+</style>
+</head>
+<body class="cliente">
+<header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
+<main></main>
+<script>
+// GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
+
+// ---------- utilidades de data/dinheiro
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const monthKey = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+const parseLocal = s => {
+  const [date, time = '00:00'] = String(s).split('T');
+  const [y, m, d] = date.split('-').map(Number);
+  const [hh, mm] = time.split(':').map(Number);
+  return new Date(y, m - 1, d, hh || 0, mm || 0);
+};
+const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, d.getHours(), d.getMinutes());
+const daysBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / 86400000);
+const lastDay = (y, m) => new Date(y, m + 1, 0).getDate();
+const dayIn = (y, m, day) => new Date(y, m, Math.min(day, lastDay(y, m)));
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dataBR = d => d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+const brl = n => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const round2 = n => Math.round((Number(n) || 0) * 100) / 100;
+const stripAccents = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+const norm = s => stripAccents(s).toLowerCase().trim();
+
+// ---------- custos
+function costPerMinute(fixedCosts, hoursPerMonth) {
+  const total = (fixedCosts || []).reduce((a, c) => a + (Number(c.monthly) || 0), 0);
+  const min = (Number(hoursPerMonth) || 0) * 60;
+  return min > 0 ? total / min : 0;
+}
+// custo de material por atendimento: Σ qty × (preço pago ÷ quantos usos rende)
+function materialCostOf(service, materials) {
+  return (service?.materials || []).reduce((t, u) => {
+    const m = (materials || []).find(x => x.id === u.id);
+    return m && Number(m.yield) > 0 ? t + (Number(u.qty) || 0) * Number(m.price) / Number(m.yield) : t;
+  }, 0);
+}
+function apptCost(service, cpm, price, feePct, materials) {
+  const mat = materials && service?.materials?.length ? materialCostOf(service, materials) : (Number(service?.materialCost) || 0);
+  return (Number(service?.durationMin) || 0) * cpm + mat + (Number(price) || 0) * (Number(feePct) || 0) / 100;
+}
+
+// Ciclo da assinatura: do último vencimento <= ref até a véspera do próximo.
+function cycleRange(dueDay, refDate) {
+  const r = startOfDay(refDate);
+  let y = r.getFullYear(), m = r.getMonth();
+  let start = dayIn(y, m, dueDay);
+  if (start > r) { m -= 1; if (m < 0) { m = 11; y -= 1; } start = dayIn(y, m, dueDay); }
+  let ny = start.getFullYear(), nm = start.getMonth() + 1;
+  if (nm > 11) { nm = 0; ny += 1; }
+  const next = dayIn(ny, nm, dueDay);
+  return { start, end: addDays(next, -1) };
+}
+const inRange = (iso, { start, end }) => { const d = startOfDay(parseLocal(iso)); return d >= start && d <= end; };
+
+function subscriberStats(client, plan, appts, services, cpm, feePct, refDate, materials) {
+  const cyc = cycleRange(client.dueDay || 1, refDate);
+  const svc = id => services.find(s => s.id === id);
+  const mine = appts.filter(a => a.clientId === client.id && a.status === 'done' && a.covered && inRange(a.start, cyc));
+  const cost = mine.reduce((t, a) => t + apptCost(svc(a.serviceId), cpm, 0, 0, materials), 0) + (plan?.price || 0) * (feePct || 0) / 100;
+  return { visits: mine.length, cost, profit: (plan?.price || 0) - cost, cycle: cyc };
+}
+const breakEven = (price, avg) => (avg > 0 ? Math.floor(price / avg) : Infinity);
+
+function proShare(pro, appts, month) {
+  const gross = appts.filter(a => a.proId === pro.id && a.status === 'done' && String(a.start).slice(0, 7) === month)
+    .reduce((t, a) => t + (Number(a.price) || 0), 0);
+  const share = pro.shareType === 'percent' ? round2(gross * (Number(pro.shareValue) || 0) / 100) : (Number(pro.shareValue) || 0);
+  return { gross: round2(gross), share };
+}
+
+// ---------- Pix BR Code (EMV)
+function crc16(str) {
+  let crc = 0xffff;
+  for (const ch of new TextEncoder().encode(str)) {
+    crc ^= ch << 8;
+    for (let i = 0; i < 8; i++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+const tlv = (id, v) => id + pad2(v.length) + v;
+const pixText = (s, max) => stripAccents(s).toUpperCase().replace(/[^A-Z0-9 .\-@]/g, '').trim().slice(0, max);
+function pixCode({ key, name, city, amount, txid = '***' }) {
+  const mai = tlv('00', 'br.gov.bcb.pix') + tlv('01', String(key).trim());
+  let p = tlv('00', '01') + tlv('26', mai) + tlv('52', '0000') + tlv('53', '986');
+  if (amount && Number(amount) > 0) p += tlv('54', Number(amount).toFixed(2));
+  p += tlv('58', 'BR') + tlv('59', pixText(name, 25) || 'RECEBEDOR') + tlv('60', pixText(city, 15) || 'BRASIL');
+  p += tlv('62', tlv('05', String(txid).replace(/[^A-Za-z0-9*]/g, '').slice(0, 25) || '***'));
+  p += '6304';
+  return p + crc16(p);
+}
+
+// ---------- WhatsApp
+function normPhone(raw) {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (d.startsWith('55') && (d.length === 12 || d.length === 13)) return d;
+  d = d.replace(/^0+/, '');
+  if (d.length === 10 || d.length === 11) return '55' + d;
+  return d;
+}
+// chave Pix no formato que os bancos aceitam
+function normPixKey(key, type) {
+  const k = String(key || '').trim();
+  if (type === 'phone') { const d = normPhone(k); return d ? '+' + d : ''; }
+  if (type === 'cpf' || type === 'cnpj') return k.replace(/\D/g, '');
+  if (type === 'email') return k.toLowerCase();
+  return k.toLowerCase();
+}
+const waLink = (phone, text) => `https://wa.me/${normPhone(phone)}?text=${encodeURIComponent(text)}`;
+const fill = (tpl, vars) => String(tpl).replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
+
+// dinheiro digitado: "12.50", "12,50", "1.234,56", "1,234.56", "1.050", "R$100.00"
+function parseMoney(v) {
+  let t = String(v ?? '').replace(/[^\d.,-]/g, '');
+  if (!/\d/.test(t)) return NaN;
+  const lc = t.lastIndexOf(','), ld = t.lastIndexOf('.');
+  if (lc >= 0 && ld >= 0) { const dec = lc > ld ? ',' : '.'; t = t.split(dec === ',' ? '.' : ',').join('').replace(dec, '.'); }
+  else if (lc >= 0) t = t.split(',').length > 2 ? t.replace(/,/g, '') : t.replace(',', '.');
+  else if (ld >= 0 && (t.split('.').length > 2 || /^\d{1,3}\.\d{3}$/.test(t))) t = t.replace(/\./g, '');
+  const n = Number(t);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+// ---------- notificação do banco
+function parseBankNotification(text) {
+  const t = String(text || '');
+  const mv = t.match(/R\$\s*([\d.,]*\d)/i);
+  const amount = mv ? parseMoney(mv[1]) : null;
+  const mn = t.match(/\bde\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\s]*?)(?=\s+(?:no valor|valor|R\$)|[.,!;:\n]|$)/);
+  let name = mn ? mn[1].trim() : null;
+  if (name && /^(r\$|valor)/i.test(name)) name = null;
+  return { amount, name };
+}
+function matchPayment(parsed, open) {
+  if (!parsed || parsed.amount == null) return null;
+  const sameVal = open.filter(o => Math.abs(Number(o.amount) - parsed.amount) <= 0.01);
+  if (!parsed.name) return null; // sem nome: vai para "Pix a conferir"
+  const words = s => norm(s).split(/\s+/).filter(w => w.length > 2 && !['das', 'dos', 'de', 'da', 'do', 'e'].includes(w));
+  const payer = new Set(words(parsed.name));
+  const hit = sameVal.filter(o => { const w = words(o.clientName); return w.length > 0 && w.every(x => payer.has(x)); });
+  return hit.length === 1 ? hit[0].id : null;
+}
+
+// ---------- caixa avançado
+function rhythm(dates) {
+  const ds = [...dates].map(d => startOfDay(d)).sort((a, b) => a - b);
+  if (ds.length < 2) return null;
+  let s = 0; for (let i = 1; i < ds.length; i++) s += daysBetween(ds[i - 1], ds[i]);
+  return Math.round(s / (ds.length - 1));
+}
+function isMissing(dates, today, missingDays) {
+  if (!dates.length) return false;
+  const last = dates.reduce((a, b) => (a > b ? a : b));
+  const r = rhythm(dates);
+  const limit = Math.max(r ? r * 1.5 : 0, missingDays);
+  return daysBetween(last, today) > limit;
+}
+const toneFor = late => (late >= 2 ? 'firme' : 'leve');
+
+function billsStatus(state, month, today) {
+  const [y, m] = month.split('-').map(Number);
+  return (state.fixedCosts || []).map(cost => {
+    const due = dayIn(y, m - 1, cost.dueDay || 1);
+    const paid = (state.billPayments || []).some(p => p.costId === cost.id && p.month === month);
+    return { cost, due, paid, overdue: !paid && startOfDay(today) > due };
+  });
+}
+
+function forecast30(state, today) {
+  const t0 = startOfDay(today), t30 = addDays(t0, 30);
+  const items = [];
+  const within = d => d >= t0 && d <= t30;
+  const nextDue = day => { const c = cycleRange(day, t0); const n = addDays(c.end, 1); return c.start.getTime() === t0.getTime() ? t0 : n; };
+  for (const c of state.clients || []) {
+    if (!c.planId) continue;
+    const plan = (state.plans || []).find(p => p.id === c.planId); if (!plan) continue;
+    const d = nextDue(c.dueDay || 1);
+    if (within(d)) items.push({ date: d, label: `Mensalidade ${c.name}`, amount: plan.price });
+  }
+  for (const p of state.pros || []) {
+    if (p.owner || p.shareType !== 'fixed') continue;
+    const d = nextDue(p.dueDay || 5);
+    if (within(d)) items.push({ date: d, label: `Repasse ${p.name || ''}`.trim(), amount: Number(p.shareValue) || 0 });
+  }
+  // avulsos: média diária dos últimos 30 dias de pagamentos 'single'
+  const from = addDays(t0, -30);
+  const owners = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
+  const singles = (state.payments || []).filter(p => p.kind === 'single' && (!p.proId || owners.has(p.proId)) && parseLocal(p.date) >= from && parseLocal(p.date) < t0)
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  if (singles > 0) items.push({ date: t30, label: 'Avulsos (média 30 dias)', amount: round2(singles) });
+  // contas: vencidas não pagas deste mês entram hoje; próximas dentro de 30 dias
+  for (const b of billsStatus(state, monthKey(t0), t0)) {
+    if (b.paid) continue;
+    items.push({ date: b.overdue ? t0 : b.due, label: `${b.cost.name}${b.overdue ? ' (vencida)' : ''}`, amount: -(Number(b.cost.monthly) || 0) });
+  }
+  const nm = new Date(t0.getFullYear(), t0.getMonth() + 1, 1);
+  for (const b of billsStatus(state, monthKey(nm), t0)) {
+    if (!b.paid && within(b.due)) items.push({ date: b.due, label: b.cost.name, amount: -(Number(b.cost.monthly) || 0) });
+  }
+  items.sort((a, b) => a.date - b.date);
+  const inflow = round2(items.filter(i => i.amount > 0).reduce((s, i) => s + i.amount, 0));
+  const outflow = round2(-items.filter(i => i.amount < 0).reduce((s, i) => s + i.amount, 0));
+  return { inflow, outflow, net: round2(inflow - outflow), items };
+}
+
+// resumo do mês (fechamento)
+function monthSummary(state, month) {
+  const pays = (state.payments || []).filter(p => String(p.date).slice(0, 7) === month);
+  const ownerIds = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
+  const isSalon = p => !p.proId || ownerIds.has(p.proId);
+  const own = pays.filter(p => p.kind === 'single' && isSalon(p)).reduce((s, p) => s + p.amount, 0);
+  const plans = pays.filter(p => p.kind === 'plan').reduce((s, p) => s + p.amount, 0);
+  const shares = (state.proPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
+  const fixed = (state.billPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
+  const expenses = (state.expenses || []).filter(e => String(e.date).slice(0, 7) === month).reduce((s, e) => s + e.amount, 0);
+  const income = { own: round2(own), plans: round2(plans), shares: round2(shares) };
+  const out = { fixed: round2(fixed), expenses: round2(expenses) };
+  return { income, out, totalIn: round2(own + plans + shares), totalOut: round2(fixed + expenses), profit: round2(own + plans + shares - fixed - expenses) };
+}
+
+// ---------- agendamento pelo cliente
+function freeSlots(state, dateStr, proId, durationMin, now = null) {
+  const st = state.settings, out = [];
+  const busy = (state.appointments || []).filter(a => a.proId === proId && a.start.startsWith(dateStr) && !['canceled', 'noshow'].includes(a.status))
+    .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; });
+  const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() : -1;
+  for (let m = st.openHour * 60; m + durationMin <= st.closeHour * 60; m += st.slotMin) {
+    if (isToday && m <= nowM) continue;
+    if (busy.some(([a, b]) => m < b && a < m + durationMin)) continue;
+    out.push(`${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`);
+  }
+  return out;
+}
+const b64e = s => (typeof btoa === 'function' ? btoa(unescape(encodeURIComponent(s))) : Buffer.from(s, 'utf8').toString('base64'));
+const b64d = s => (typeof atob === 'function' ? decodeURIComponent(escape(atob(s))) : Buffer.from(s, 'base64').toString('utf8'));
+const encodeAvailability = data => b64e(JSON.stringify(data)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+function decodeAvailability(str) {
+  let o; try { o = JSON.parse(b64d(String(str).replace(/-/g, '+').replace(/_/g, '/'))); } catch { return null; }
+  const pos = v => typeof v === 'number' && Number.isFinite(v) && v > 0;
+  const hr = v => typeof v === 'number' && v >= 0 && v <= 24;
+  if (!o || typeof o !== 'object' || !o.d || typeof o.d !== 'object' || !Array.isArray(o.sv) || !Array.isArray(o.pr)) return null;
+  if (!hr(o.o) || !hr(o.c) || o.c <= o.o || !pos(o.sl) || o.sl < 5) return null;
+  if (!o.sv.length || !o.sv.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string' && typeof x[2] === 'number' && pos(x[3]))) return null;
+  if (!o.pr.length || !o.pr.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string')) return null;
+  if (!Object.keys(o.d).every(k => /^\d{4}-\d{2}-\d{2}$/.test(k))) return null;
+  if (typeof o.w !== 'string' || !/^\d{10,13}$/.test(o.w) || typeof o.s !== 'string') return null;
+  return o;
+}
+function parseBookingRequest(text) {
+  const m = String(text || '').match(/#GL\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
+  return m ? { start: m[1], serviceId: m[2], proId: m[3], name: m[4].trim() } : null;
+}
+
+function findClash(state, proId, startIso, durationMin, ignoreId = null) {
+  const s0 = parseLocal(startIso), e0 = new Date(s0.getTime() + durationMin * 60000);
+  return (state.appointments || []).find(a => a.id !== ignoreId && a.proId === proId && !['canceled', 'noshow'].includes(a.status) && (() => {
+    const a0 = parseLocal(a.start), sv = (state.services || []).find(x => x.id === a.serviceId);
+    const a1 = new Date(a0.getTime() + (sv ? sv.durationMin : 30) * 60000);
+    return a0 < e0 && s0 < a1;
+  })()) || null;
+}
+function findClientForRequest(clients, name, phone) {
+  const p = normPhone(phone);
+  if (p.length >= 12) { const byPhone = clients.find(c => normPhone(c.phone) === p); if (byPhone) return byPhone; }
+  const n = norm(name);
+  const same = clients.filter(c => norm(c.name) === n);
+  if (p.length >= 12) return same.find(c => normPhone(c.phone) === p) || null; // telefone diferente = outra pessoa
+  return same.length === 1 ? same[0] : null; // sem telefone: só se o nome for único
+}
+
+// GL Style — página pública de agendamento (lê os dados do link).
+const bk = { sv: null, pr: null, day: null, time: null, name: '', phone: '' };
+function bookingPage(code) {
+  const D = decodeAvailability(code);
+  document.body.classList.add('cliente');
+  const main = document.querySelector('main');
+  if (!D) { main.innerHTML = '<h1>Agendamento</h1><p class="sub">Este link está incompleto ou expirou. Peça ao salão o link de agendamento atualizado pelo WhatsApp.</p>'; return; }
+  const days = Object.keys(D.d).filter(d => d >= ymd(new Date())).sort();
+  bk.sv = bk.sv || D.sv[0][0]; bk.pr = bk.pr || D.pr[0][0]; bk.day = days.includes(bk.day) ? bk.day : days[0];
+  const svc = D.sv.find(x => x[0] === bk.sv) || D.sv[0];
+  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl }, services: [], appointments: [] };
+  const slotsFor = (day, pr) => {
+    const busy = (D.d[day] && D.d[day][pr]) || [];
+    st.services = busy.map((b, i) => ({ id: 'b' + i, durationMin: b[1] - b[0] }));
+    st.appointments = busy.map((b, i) => ({ proId: pr, serviceId: 'b' + i, status: 'scheduled', start: `${day}T${pad2(Math.floor(b[0] / 60))}:${pad2(b[0] % 60)}` }));
+    return freeSlots(st, day, pr, svc[3], new Date());
+  };
+  const slots = bk.day ? slotsFor(bk.day, bk.pr) : [];
+  if (!slots.includes(bk.time)) bk.time = null;
+  const old = Math.round((Date.now() - (D.g || Date.now())) / 3600000);
+  main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<h1>Agende no ${esc(D.s)}</h1><p class="sub">Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
+  <h2>Serviço</h2><div class="chips" style="flex-wrap:wrap">${D.sv.map(x => `<button class="chip ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}">${esc(x[1])} · ${brl(x[2])}</button>`).join('')}</div>
+  ${D.pr.length > 1 ? '<h2>Com quem</h2>' : ''}<div class="chips" ${D.pr.length > 1 ? '' : 'hidden'}>${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>
+  <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${esc(d)}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
+  <h2>Horários livres</h2>${slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
+  <h2>Seu nome</h2><input data-bkin="name" value="${esc(bk.name)}" placeholder="Como o Guilherme te conhece" autocomplete="name">
+  <p class="mini">Sem cadastro: o pedido sai do seu WhatsApp.</p>
+  <button class="bt zap cheio" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled style="opacity:.5"'}>Pedir ${bk.time ? `${bk.time} de ${dataBR(parseLocal(bk.day + 'T00:00'))}` : 'horário'} pelo WhatsApp</button>
+  <p class="mini" style="text-align:center;margin-top:10px">O horário só fica garantido quando o ${esc(D.s)} confirmar.</p>
+`;
+  main.onclick = e => {
+    const el = e.target.closest('[data-bk]'); if (!el || el.disabled) return;
+    const k = el.dataset.bk;
+    if (k === 'send') {
+      const pr = D.pr.find(x => x[0] === bk.pr), dt = parseLocal(`${bk.day}T${bk.time}`);
+      const msg = `Olá! Quero marcar ${svc[1]}${D.pr.length > 1 ? ` com ${pr[1]}` : ''} ${dataBR(dt)} às ${bk.time}.\nNome: ${bk.name.trim()}\n#GL[${bk.day}T${bk.time}|${svc[0]}|${pr[0]}|${bk.name.trim()}]`;
+      const lk = document.createElement('a'); lk.href = waLink(D.w, msg); lk.target = '_blank'; lk.rel = 'noopener'; document.body.appendChild(lk); lk.click(); lk.remove(); return;
+    }
+    bk[k] = el.dataset.id; bookingPage(code);
+  };
+  main.oninput = e => { const k = e.target.dataset.bkin; if (k) { bk[k] = e.target.value; const b = main.querySelector('[data-bk="send"]'); const ok = bk.time && bk.name.trim().length > 1; b.disabled = !ok; b.style.opacity = ok ? '' : '.5'; } };
+}
+
+function bootBooking() { const h = location.hash.replace(/^#(agendar=)?/, ''); bookingPage(h || window.GL_DEMO || ''); }
+if (document.body.classList.contains('cliente')) window.addEventListener('hashchange', bootBooking);
+if (document.body.classList.contains('cliente')) bootBooking();
+
+</script>
+</body>
+</html>

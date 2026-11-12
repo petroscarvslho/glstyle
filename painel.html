@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d1813">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GL Style">
+<title>GL Style · Painel</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d1813'/%3E%3Ctext x='32' y='42' font-family='Arial Narrow,Arial' font-weight='700' font-size='28' text-anchor='middle' fill='%23c99a3b'%3EGL%3C/text%3E%3C/svg%3E">
+<style>:root{
+  --couro:#1d1813; --sup:#2a221b; --sup2:#332a21; --linha:#43372b;
+  --latao:#c99a3b; --latao2:#e2b65a; --creme:#f1e7d6; --mudo:#a99a85;
+  --ok:#74c27a; --mal:#e06b5b; --aviso:#e0a64b;
+  --cond:"Avenir Next Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue",sans-serif;
+  --corpo:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--couro);color:var(--creme);font:16px/1.45 var(--corpo)}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--latao2);outline-offset:2px}
+
+/* barra do topo com a faixa de barbearia */
+.top{position:sticky;top:0;z-index:5;background:var(--couro)}
+.poste{height:5px;background:repeating-linear-gradient(-45deg,#b8332a 0 10px,var(--creme) 10px 20px,#2c5aa0 20px 30px,var(--creme) 30px 40px)}
+.top-in{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:620px;margin:auto}
+.marca{font:700 22px/1 var(--cond);letter-spacing:.02em}
+.marca b{color:var(--latao)}
+.icone{background:none;border:0;padding:8px;border-radius:10px;color:var(--mudo);font-size:20px;cursor:pointer}
+.icone:active{background:var(--sup)}
+
+main{max-width:620px;margin:auto;padding:4px 14px 20px}
+h1{font:700 34px/1.05 var(--cond);margin:8px 0 2px}
+h2{font:700 21px/1.2 var(--cond);margin:22px 0 8px;color:var(--creme)}
+.sub{color:var(--mudo);font-size:14px;margin:0 0 12px}
+
+.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.kpi{background:var(--sup);border-radius:12px;padding:10px 12px}
+.kpi span{display:block;color:var(--mudo);font-size:12px}
+.kpi strong{font:700 20px/1.2 var(--cond)}
+.kpi.dest{background:var(--latao);color:#21180c}.kpi.dest span{color:#3d2c10}
+
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--linha);background:none;border-radius:999px;padding:7px 13px;font-size:14px;cursor:pointer;color:var(--mudo)}
+.chip.on{background:var(--creme);color:var(--couro);border-color:var(--creme)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+
+.lista{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--sup);border-radius:var(--r);padding:12px;display:grid;grid-template-columns:54px 1fr;gap:4px 10px;align-items:start}
+.item .hora{font:700 19px/1.1 var(--cond);color:var(--latao2)}
+.item .nome{font-weight:600;cursor:pointer}
+.item .meta{color:var(--mudo);font-size:13px}
+.item .acoes{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.item.feito{opacity:.62}
+.linha{background:var(--sup);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:10px}
+.linha .cresce{flex:1;min-width:0}
+.linha .cresce .meta{color:var(--mudo);font-size:13px}
+.valor{font:700 18px/1 var(--cond);white-space:nowrap}
+.pos{color:var(--ok)}.neg{color:var(--mal)}
+
+.bt{border:0;border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600;cursor:pointer;background:var(--sup2);color:var(--creme);min-height:40px}
+.bt:active{transform:scale(.97)}
+.bt.zap{background:#1f7a46;color:#fff}
+.bt.ok{background:var(--ok);color:#10240f}
+.bt.ouro{background:var(--latao);color:#21180c}
+.bt.mal{background:none;border:1px solid var(--linha);color:var(--mal)}
+.bt.leve{background:none;border:1px solid var(--linha);color:var(--mudo)}
+.bt.cheio{width:100%;padding:13px;font-size:16px}
+
+.tag{display:inline-block;font-size:12px;border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.tag.plano{background:#3b3220;color:var(--latao2)}
+.tag.ok{background:#24371f;color:var(--ok)}
+.tag.mal{background:#3e2220;color:var(--mal)}
+.tag.av{background:#3d3020;color:var(--aviso)}
+.tag.mudo{background:var(--sup2);color:var(--mudo)}
+
+.cartao{background:var(--sup);border-radius:var(--r);padding:14px;margin:8px 0}
+.cartao.alerta{border:1px solid #6b3a2e}
+.vazio{color:var(--mudo);text-align:center;padding:22px 10px;border:1px dashed var(--linha);border-radius:var(--r)}
+.mini{font-size:13px;color:var(--mudo)}
+.grande{font:700 40px/1 var(--cond)}
+
+/* agenda */
+.dias{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.dia{flex:none;width:52px;border-radius:12px;background:var(--sup);border:0;padding:8px 0;text-align:center;cursor:pointer;color:var(--mudo)}
+.dia b{display:block;font:700 20px/1.1 var(--cond);color:var(--creme)}
+.dia.on{background:var(--latao);color:#3d2c10}.dia.on b{color:#21180c}
+.slot{display:flex;gap:10px;align-items:stretch;min-height:46px}
+.slot .h{width:48px;color:var(--mudo);font-size:13px;padding-top:12px;text-align:right}
+.slot .c{flex:1;display:flex;gap:6px;flex-direction:column;padding:3px 0;border-top:1px solid var(--linha)}
+.livre{background:none;border:1px dashed var(--linha);border-radius:10px;color:var(--mudo);text-align:left;padding:9px 12px;cursor:pointer;font-size:14px}
+.ocup{border-radius:10px;padding:8px 12px;background:var(--sup);border-left:4px solid var(--latao);cursor:pointer}
+
+/* formulários */
+label.campo{display:block;margin:10px 0}
+label.campo span{display:block;color:var(--mudo);font-size:13px;margin-bottom:4px}
+input,select,textarea{width:100%;background:var(--couro);border:1px solid var(--linha);border-radius:10px;padding:11px 12px;min-height:44px}
+textarea{min-height:90px;resize:vertical}
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tres{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;align-items:end}
+.busca{position:relative}
+.sugs{background:var(--sup2);border-radius:10px;margin-top:4px;overflow:hidden}
+.sugs button{display:block;width:100%;text-align:left;background:none;border:0;padding:11px 12px;border-bottom:1px solid var(--linha);cursor:pointer}
+
+/* navegação inferior e botão + */
+nav.abas{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#16120e;border-top:1px solid var(--linha);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav.abas .in{display:grid;grid-template-columns:repeat(5,1fr);max-width:620px;width:100%}
+nav.abas button{background:none;border:0;color:var(--mudo);padding:9px 0 10px;font-size:11.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+nav.abas button svg{width:23px;height:23px}
+nav.abas button.on{color:var(--latao2)}
+nav.abas .badge{position:absolute;top:4px;left:calc(50% + 6px);background:var(--mal);color:#fff;border-radius:9px;font-size:10.5px;padding:0 5px;line-height:16px}
+.fab{position:fixed;right:max(16px,calc(50% - 294px));bottom:calc(78px + env(safe-area-inset-bottom));z-index:7;width:60px;height:60px;border-radius:50%;border:0;background:var(--latao);color:#21180c;font-size:32px;line-height:1;box-shadow:0 6px 20px rgba(0,0,0,.45);cursor:pointer}
+
+/* folha inferior */
+.veu{position:fixed;inset:0;background:rgba(10,8,6,.6);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.folha{background:var(--sup);width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom));animation:sobe .22s ease-out}
+.folha .pega{width:42px;height:5px;border-radius:3px;background:var(--linha);margin:4px auto 10px}
+.folha h2{margin-top:4px}
+@keyframes sobe{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.folha{animation:none}.bt:active{transform:none}}
+
+.aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom));background:var(--creme);color:var(--couro);padding:11px 16px;border-radius:12px;z-index:30;font-weight:600;font-size:14px;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.faixa-demo{background:#3b3220;color:var(--latao2);font-size:13px;padding:8px 12px;border-radius:10px;margin:6px 0}
+.barra{height:8px;border-radius:4px;background:var(--sup2);overflow:hidden;margin-top:6px}
+.barra i{display:block;height:100%;background:var(--latao)}
+.pix{word-break:break-all;font-size:12px;color:var(--mudo);background:var(--couro);border-radius:8px;padding:8px;margin:8px 0}
+details summary{cursor:pointer;color:var(--latao2);padding:6px 0}
+body.cliente nav.abas,body.cliente .fab,body.cliente #ajustes{display:none!important}
+body.cliente{padding-bottom:30px}
+.bt[disabled]{cursor:not-allowed}
+[hidden]{display:none!important}
+
+/* ===== passada de polimento: organização e separação ===== */
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+h1,h2,.marca{text-wrap:balance}
+.sub,.mini,.meta,.vazio{text-wrap:pretty}
+.valor,.grande,.kpi strong,.hora,.dia b{font-variant-numeric:tabular-nums}
+h1{font-size:30px;margin:14px 0 2px}
+.data-topo{color:var(--mudo);font-size:14px;margin:14px 0 0}
+.data-topo+h1{margin-top:0}
+h2{margin:30px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+h2 small{font:500 13px/1 var(--corpo);color:var(--mudo)}
+.secao{margin-top:26px}
+
+/* superfícies: borda fina + sombra discreta em vez de blocos chapados */
+.item,.cartao,.kpi,.grupo{border:1px solid rgba(255,255,255,.06);box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 6px 16px -10px rgba(0,0,0,.6)}
+.kpi.dest{border-color:transparent}
+
+/* lista agrupada (uma superfície, linhas separadas por filete) */
+.grupo{background:var(--sup);border-radius:16px;overflow:hidden}
+.grupo>.linha{background:none;border-radius:0;padding:13px 14px;min-height:56px}
+.grupo>.linha+.linha{border-top:1px solid var(--linha)}
+.grupo>.linha[data-act]:active{background:var(--sup2)}
+.seta{color:var(--linha);font-size:20px;line-height:1}
+
+/* cartões de horário: hierarquia clara e uma ação principal */
+.item{grid-template-columns:58px 1fr auto;padding:14px;gap:2px 12px;border-left:3px solid var(--latao)}
+.item.feito{border-left-color:var(--linha)}
+.item.pedido{border-left-color:var(--aviso)}
+.item .nome{font-size:17px}
+.item .acoes{grid-column:2/-1;margin-top:10px;gap:8px;align-items:center}
+.item .acoes .bt:first-child{flex:1}
+.ib{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--linha);background:none;color:var(--mudo);display:grid;place-items:center;cursor:pointer;transition-property:transform,background-color,color;transition-duration:150ms;transition-timing-function:ease-out}
+.ib svg{width:20px;height:20px}
+.ib.zap{color:#5fd08f;border-color:#2a5a3e}
+.ib.mal{color:var(--mal);border-color:#5a2e28}
+.ib:active{transform:scale(.96);background:var(--sup2)}
+.desfazer{background:none;border:0;color:var(--mudo);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:10px 4px;min-height:40px}
+.bt{transition-property:transform,background-color,opacity;transition-duration:150ms;transition-timing-function:ease-out}
+.bt:active{transform:scale(.96)}
+
+/* controle segmentado para sub-seções */
+.seg{display:flex;gap:4px;background:var(--sup);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:4px;margin:12px 0 4px;overflow-x:auto;scrollbar-width:none}
+.seg button{flex:1 0 auto;border:0;background:none;color:var(--mudo);border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600;cursor:pointer;min-height:40px;transition-property:background-color,color;transition-duration:150ms}
+.seg button.on{background:var(--creme);color:var(--couro)}
+
+/* cartões de cobrança: valor em destaque e ações numa linha */
+.cob{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:start}
+.cob .acoes{grid-column:1/-1;display:flex;gap:8px;margin-top:12px}
+.cob .acoes .bt:first-child{flex:1}
+
+.kpi{padding:12px}
+.kpi strong{font-size:21px}
+.alerta-cob{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.folha{border-top:1px solid rgba(255,255,255,.08)}
+.folha h2{margin-top:6px}
+.sugs button{min-height:44px}
+@media (prefers-reduced-motion:reduce){.bt:active,.ib:active{transform:none}}
+.mat{display:grid!important;grid-template-columns:1fr 92px 96px 64px;gap:8px;align-items:center}
+.mat input{min-height:40px;padding:8px 10px}
+.mat .nome-mat{grid-column:1/-1;background:none;border:0;padding:0;font-weight:600;min-height:28px}
+.mat label{display:flex;align-items:center;gap:6px;color:var(--mudo);font-size:13px;grid-column:span 1}
+.mat label:first-of-type{grid-column:1/2}
+.mat .uso{text-align:right;color:var(--latao2);font-size:14px;grid-column:3/5}
+.mat{grid-template-columns:1fr 1fr 90px}
+.mat label:first-of-type{grid-column:auto}
+.mat .uso{grid-column:auto}
+</style>
+</head>
+<body>
+<header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div><button class="icone" id="ajustes" data-act="settings" aria-label="Ajustes">⚙︎</button></div></header>
+<main></main>
+<button class="fab" data-act="new" aria-label="Novo horário">+</button>
+<nav class="abas"><div class="in"></div></nav>
+<script>
+// GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
+
+// ---------- utilidades de data/dinheiro
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const monthKey = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+const parseLocal = s => {
+  const [date, time = '00:00'] = String(s).split('T');
+  const [y, m, d] = date.split('-').map(Number);
+  const [hh, mm] = time.split(':').map(Number);
+  return new Date(y, m - 1, d, hh || 0, mm || 0);
+};
+const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, d.getHours(), d.getMinutes());
+const daysBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / 86400000);
+const lastDay = (y, m) => new Date(y, m + 1, 0).getDate();
+const dayIn = (y, m, day) => new Date(y, m, Math.min(day, lastDay(y, m)));
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dataBR = d => d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+const brl = n => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const round2 = n => Math.round((Number(n) || 0) * 100) / 100;
+const stripAccents = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+const norm = s => stripAccents(s).toLowerCase().trim();
+
+// ---------- custos
+function costPerMinute(fixedCosts, hoursPerMonth) {
+  const total = (fixedCosts || []).reduce((a, c) => a + (Number(c.monthly) || 0), 0);
+  const min = (Number(hoursPerMonth) || 0) * 60;
+  return min > 0 ? total / min : 0;
+}
+// custo de material por atendimento: Σ qty × (preço pago ÷ quantos usos rende)
+function materialCostOf(service, materials) {
+  return (service?.materials || []).reduce((t, u) => {
+    const m = (materials || []).find(x => x.id === u.id);
+    return m && Number(m.yield) > 0 ? t + (Number(u.qty) || 0) * Number(m.price) / Number(m.yield) : t;
+  }, 0);
+}
+function apptCost(service, cpm, price, feePct, materials) {
+  const mat = materials && service?.materials?.length ? materialCostOf(service, materials) : (Number(service?.materialCost) || 0);
+  return (Number(service?.durationMin) || 0) * cpm + mat + (Number(price) || 0) * (Number(feePct) || 0) / 100;
+}
+
+// Ciclo da assinatura: do último vencimento <= ref até a véspera do próximo.
+function cycleRange(dueDay, refDate) {
+  const r = startOfDay(refDate);
+  let y = r.getFullYear(), m = r.getMonth();
+  let start = dayIn(y, m, dueDay);
+  if (start > r) { m -= 1; if (m < 0) { m = 11; y -= 1; } start = dayIn(y, m, dueDay); }
+  let ny = start.getFullYear(), nm = start.getMonth() + 1;
+  if (nm > 11) { nm = 0; ny += 1; }
+  const next = dayIn(ny, nm, dueDay);
+  return { start, end: addDays(next, -1) };
+}
+const inRange = (iso, { start, end }) => { const d = startOfDay(parseLocal(iso)); return d >= start && d <= end; };
+
+function subscriberStats(client, plan, appts, services, cpm, feePct, refDate, materials) {
+  const cyc = cycleRange(client.dueDay || 1, refDate);
+  const svc = id => services.find(s => s.id === id);
+  const mine = appts.filter(a => a.clientId === client.id && a.status === 'done' && a.covered && inRange(a.start, cyc));
+  const cost = mine.reduce((t, a) => t + apptCost(svc(a.serviceId), cpm, 0, 0, materials), 0) + (plan?.price || 0) * (feePct || 0) / 100;
+  return { visits: mine.length, cost, profit: (plan?.price || 0) - cost, cycle: cyc };
+}
+const breakEven = (price, avg) => (avg > 0 ? Math.floor(price / avg) : Infinity);
+
+function proShare(pro, appts, month) {
+  const gross = appts.filter(a => a.proId === pro.id && a.status === 'done' && String(a.start).slice(0, 7) === month)
+    .reduce((t, a) => t + (Number(a.price) || 0), 0);
+  const share = pro.shareType === 'percent' ? round2(gross * (Number(pro.shareValue) || 0) / 100) : (Number(pro.shareValue) || 0);
+  return { gross: round2(gross), share };
+}
+
+// ---------- Pix BR Code (EMV)
+function crc16(str) {
+  let crc = 0xffff;
+  for (const ch of new TextEncoder().encode(str)) {
+    crc ^= ch << 8;
+    for (let i = 0; i < 8; i++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+const tlv = (id, v) => id + pad2(v.length) + v;
+const pixText = (s, max) => stripAccents(s).toUpperCase().replace(/[^A-Z0-9 .\-@]/g, '').trim().slice(0, max);
+function pixCode({ key, name, city, amount, txid = '***' }) {
+  const mai = tlv('00', 'br.gov.bcb.pix') + tlv('01', String(key).trim());
+  let p = tlv('00', '01') + tlv('26', mai) + tlv('52', '0000') + tlv('53', '986');
+  if (amount && Number(amount) > 0) p += tlv('54', Number(amount).toFixed(2));
+  p += tlv('58', 'BR') + tlv('59', pixText(name, 25) || 'RECEBEDOR') + tlv('60', pixText(city, 15) || 'BRASIL');
+  p += tlv('62', tlv('05', String(txid).replace(/[^A-Za-z0-9*]/g, '').slice(0, 25) || '***'));
+  p += '6304';
+  return p + crc16(p);
+}
+
+// ---------- WhatsApp
+function normPhone(raw) {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (d.startsWith('55') && (d.length === 12 || d.length === 13)) return d;
+  d = d.replace(/^0+/, '');
+  if (d.length === 10 || d.length === 11) return '55' + d;
+  return d;
+}
+// chave Pix no formato que os bancos aceitam
+function normPixKey(key, type) {
+  const k = String(key || '').trim();
+  if (type === 'phone') { const d = normPhone(k); return d ? '+' + d : ''; }
+  if (type === 'cpf' || type === 'cnpj') return k.replace(/\D/g, '');
+  if (type === 'email') return k.toLowerCase();
+  return k.toLowerCase();
+}
+const waLink = (phone, text) => `https://wa.me/${normPhone(phone)}?text=${encodeURIComponent(text)}`;
+const fill = (tpl, vars) => String(tpl).replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
+
+// dinheiro digitado: "12.50", "12,50", "1.234,56", "1,234.56", "1.050", "R$100.00"
+function parseMoney(v) {
+  let t = String(v ?? '').replace(/[^\d.,-]/g, '');
+  if (!/\d/.test(t)) return NaN;
+  const lc = t.lastIndexOf(','), ld = t.lastIndexOf('.');
+  if (lc >= 0 && ld >= 0) { const dec = lc > ld ? ',' : '.'; t = t.split(dec === ',' ? '.' : ',').join('').replace(dec, '.'); }
+  else if (lc >= 0) t = t.split(',').length > 2 ? t.replace(/,/g, '') : t.replace(',', '.');
+  else if (ld >= 0 && (t.split('.').length > 2 || /^\d{1,3}\.\d{3}$/.test(t))) t = t.replace(/\./g, '');
+  const n = Number(t);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+// ---------- notificação do banco
+function parseBankNotification(text) {
+  const t = String(text || '');
+  const mv = t.match(/R\$\s*([\d.,]*\d)/i);
+  const amount = mv ? parseMoney(mv[1]) : null;
+  const mn = t.match(/\bde\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\s]*?)(?=\s+(?:no valor|valor|R\$)|[.,!;:\n]|$)/);
+  let name = mn ? mn[1].trim() : null;
+  if (name && /^(r\$|valor)/i.test(name)) name = null;
+  return { amount, name };
+}
+function matchPayment(parsed, open) {
+  if (!parsed || parsed.amount == null) return null;
+  const sameVal = open.filter(o => Math.abs(Number(o.amount) - parsed.amount) <= 0.01);
+  if (!parsed.name) return null; // sem nome: vai para "Pix a conferir"
+  const words = s => norm(s).split(/\s+/).filter(w => w.length > 2 && !['das', 'dos', 'de', 'da', 'do', 'e'].includes(w));
+  const payer = new Set(words(parsed.name));
+  const hit = sameVal.filter(o => { const w = words(o.clientName); return w.length > 0 && w.every(x => payer.has(x)); });
+  return hit.length === 1 ? hit[0].id : null;
+}
+
+// ---------- caixa avançado
+function rhythm(dates) {
+  const ds = [...dates].map(d => startOfDay(d)).sort((a, b) => a - b);
+  if (ds.length < 2) return null;
+  let s = 0; for (let i = 1; i < ds.length; i++) s += daysBetween(ds[i - 1], ds[i]);
+  return Math.round(s / (ds.length - 1));
+}
+function isMissing(dates, today, missingDays) {
+  if (!dates.length) return false;
+  const last = dates.reduce((a, b) => (a > b ? a : b));
+  const r = rhythm(dates);
+  const limit = Math.max(r ? r * 1.5 : 0, missingDays);
+  return daysBetween(last, today) > limit;
+}
+const toneFor = late => (late >= 2 ? 'firme' : 'leve');
+
+function billsStatus(state, month, today) {
+  const [y, m] = month.split('-').map(Number);
+  return (state.fixedCosts || []).map(cost => {
+    const due = dayIn(y, m - 1, cost.dueDay || 1);
+    const paid = (state.billPayments || []).some(p => p.costId === cost.id && p.month === month);
+    return { cost, due, paid, overdue: !paid && startOfDay(today) > due };
+  });
+}
+
+function forecast30(state, today) {
+  const t0 = startOfDay(today), t30 = addDays(t0, 30);
+  const items = [];
+  const within = d => d >= t0 && d <= t30;
+  const nextDue = day => { const c = cycleRange(day, t0); const n = addDays(c.end, 1); return c.start.getTime() === t0.getTime() ? t0 : n; };
+  for (const c of state.clients || []) {
+    if (!c.planId) continue;
+    const plan = (state.plans || []).find(p => p.id === c.planId); if (!plan) continue;
+    const d = nextDue(c.dueDay || 1);
+    if (within(d)) items.push({ date: d, label: `Mensalidade ${c.name}`, amount: plan.price });
+  }
+  for (const p of state.pros || []) {
+    if (p.owner || p.shareType !== 'fixed') continue;
+    const d = nextDue(p.dueDay || 5);
+    if (within(d)) items.push({ date: d, label: `Repasse ${p.name || ''}`.trim(), amount: Number(p.shareValue) || 0 });
+  }
+  // avulsos: média diária dos últimos 30 dias de pagamentos 'single'
+  const from = addDays(t0, -30);
+  const owners = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
+  const singles = (state.payments || []).filter(p => p.kind === 'single' && (!p.proId || owners.has(p.proId)) && parseLocal(p.date) >= from && parseLocal(p.date) < t0)
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  if (singles > 0) items.push({ date: t30, label: 'Avulsos (média 30 dias)', amount: round2(singles) });
+  // contas: vencidas não pagas deste mês entram hoje; próximas dentro de 30 dias
+  for (const b of billsStatus(state, monthKey(t0), t0)) {
+    if (b.paid) continue;
+    items.push({ date: b.overdue ? t0 : b.due, label: `${b.cost.name}${b.overdue ? ' (vencida)' : ''}`, amount: -(Number(b.cost.monthly) || 0) });
+  }
+  const nm = new Date(t0.getFullYear(), t0.getMonth() + 1, 1);
+  for (const b of billsStatus(state, monthKey(nm), t0)) {
+    if (!b.paid && within(b.due)) items.push({ date: b.due, label: b.cost.name, amount: -(Number(b.cost.monthly) || 0) });
+  }
+  items.sort((a, b) => a.date - b.date);
+  const inflow = round2(items.filter(i => i.amount > 0).reduce((s, i) => s + i.amount, 0));
+  const outflow = round2(-items.filter(i => i.amount < 0).reduce((s, i) => s + i.amount, 0));
+  return { inflow, outflow, net: round2(inflow - outflow), items };
+}
+
+// resumo do mês (fechamento)
+function monthSummary(state, month) {
+  const pays = (state.payments || []).filter(p => String(p.date).slice(0, 7) === month);
+  const ownerIds = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
+  const isSalon = p => !p.proId || ownerIds.has(p.proId);
+  const own = pays.filter(p => p.kind === 'single' && isSalon(p)).reduce((s, p) => s + p.amount, 0);
+  const plans = pays.filter(p => p.kind === 'plan').reduce((s, p) => s + p.amount, 0);
+  const shares = (state.proPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
+  const fixed = (state.billPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
+  const expenses = (state.expenses || []).filter(e => String(e.date).slice(0, 7) === month).reduce((s, e) => s + e.amount, 0);
+  const income = { own: round2(own), plans: round2(plans), shares: round2(shares) };
+  const out = { fixed: round2(fixed), expenses: round2(expenses) };
+  return { income, out, totalIn: round2(own + plans + shares), totalOut: round2(fixed + expenses), profit: round2(own + plans + shares - fixed - expenses) };
+}
+
+// ---------- agendamento pelo cliente
+function freeSlots(state, dateStr, proId, durationMin, now = null) {
+  const st = state.settings, out = [];
+  const busy = (state.appointments || []).filter(a => a.proId === proId && a.start.startsWith(dateStr) && !['canceled', 'noshow'].includes(a.status))
+    .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; });
+  const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() : -1;
+  for (let m = st.openHour * 60; m + durationMin <= st.closeHour * 60; m += st.slotMin) {
+    if (isToday && m <= nowM) continue;
+    if (busy.some(([a, b]) => m < b && a < m + durationMin)) continue;
+    out.push(`${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`);
+  }
+  return out;
+}
+const b64e = s => (typeof btoa === 'function' ? btoa(unescape(encodeURIComponent(s))) : Buffer.from(s, 'utf8').toString('base64'));
+const b64d = s => (typeof atob === 'function' ? decodeURIComponent(escape(atob(s))) : Buffer.from(s, 'base64').toString('utf8'));
+const encodeAvailability = data => b64e(JSON.stringify(data)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+function decodeAvailability(str) {
+  let o; try { o = JSON.parse(b64d(String(str).replace(/-/g, '+').replace(/_/g, '/'))); } catch { return null; }
+  const pos = v => typeof v === 'number' && Number.isFinite(v) && v > 0;
+  const hr = v => typeof v === 'number' && v >= 0 && v <= 24;
+  if (!o || typeof o !== 'object' || !o.d || typeof o.d !== 'object' || !Array.isArray(o.sv) || !Array.isArray(o.pr)) return null;
+  if (!hr(o.o) || !hr(o.c) || o.c <= o.o || !pos(o.sl) || o.sl < 5) return null;
+  if (!o.sv.length || !o.sv.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string' && typeof x[2] === 'number' && pos(x[3]))) return null;
+  if (!o.pr.length || !o.pr.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string')) return null;
+  if (!Object.keys(o.d).every(k => /^\d{4}-\d{2}-\d{2}$/.test(k))) return null;
+  if (typeof o.w !== 'string' || !/^\d{10,13}$/.test(o.w) || typeof o.s !== 'string') return null;
+  return o;
+}
+function parseBookingRequest(text) {
+  const m = String(text || '').match(/#GL\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
+  return m ? { start: m[1], serviceId: m[2], proId: m[3], name: m[4].trim() } : null;
+}
+
+function findClash(state, proId, startIso, durationMin, ignoreId = null) {
+  const s0 = parseLocal(startIso), e0 = new Date(s0.getTime() + durationMin * 60000);
+  return (state.appointments || []).find(a => a.id !== ignoreId && a.proId === proId && !['canceled', 'noshow'].includes(a.status) && (() => {
+    const a0 = parseLocal(a.start), sv = (state.services || []).find(x => x.id === a.serviceId);
+    const a1 = new Date(a0.getTime() + (sv ? sv.durationMin : 30) * 60000);
+    return a0 < e0 && s0 < a1;
+  })()) || null;
+}
+function findClientForRequest(clients, name, phone) {
+  const p = normPhone(phone);
+  if (p.length >= 12) { const byPhone = clients.find(c => normPhone(c.phone) === p); if (byPhone) return byPhone; }
+  const n = norm(name);
+  const same = clients.filter(c => norm(c.name) === n);
+  if (p.length >= 12) return same.find(c => normPhone(c.phone) === p) || null; // telefone diferente = outra pessoa
+  return same.length === 1 ? same[0] : null; // sem telefone: só se o nome for único
+}
+
+// GL Style — persistência (Fase 1: localStorage). Trocar por Supabase na Fase 2 mantendo a interface.
+
+
+const KEY = 'glstyle.v1';
+const REQUIRED = ['settings', 'services', 'plans', 'clients', 'appointments', 'payments', 'pros', 'fixedCosts'];
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+
+function seed(today = new Date()) {
+  const t = startOfDay(today);
+  const at = (d, h, m = 0) => `${ymd(d)}T${pad2(h)}:${pad2(m)}`;
+  const settings = {
+    shopName: 'GL Style', pixKey: '+5575999331990', pixName: 'Guilherme Mendes', pixCity: 'Seabra',
+    openHour: 8, closeHour: 19, slotMin: 30, missingDays: 25, hoursPerMonth: 176, paymentFeePct: 0,
+    templates: {
+      confirm: '{nome}, boa noite! Tudo certo para amanhã às {hora}?',
+      renew: 'Bom dia, {nome}! Tudo bem?\n\nPassando para te avisar que seu plano chegou ao fim do ciclo. Ele teve início em {inicio} e encerra {fim}.\n\nAgradeço pela confiança e por continuar contando com o nosso trabalho! 🤝\nJá estamos iniciando um novo ciclo e gostaria de saber se podemos confirmar a renovação do seu plano ({plano} — {valor}) para que você continue aproveitando todos os benefícios.\nPosso deixar sua renovação confirmada?\n\nPix: {chave}\n\nUm abraço!',
+      accept: '{nome}, confirmado! {data} às {hora} ({servico}) no {salao}. Te espero ✂️',
+      refuse: '{nome}, esse horário ({data} às {hora}) não vai dar. Olha os outros livres aqui e me pede de novo: {link}',
+      reschedule: '{nome}, seu horário mudou para {data} às {hora}. Tudo certo?',
+      remindLeve: 'Oi, {nome}! Sua mensalidade do {salao} ({plano}) de {valor} vence {data}. Segue o Pix copia e cola:\n{pix}',
+      remindFirme: '{nome}, sua mensalidade do {salao} ({plano}) de {valor} está em aberto desde {data}. Pra continuar usando o plano, faz o Pix por aqui:\n{pix}',
+      charge: 'Oi, {nome}! Ficou {valor} do atendimento no {salao}. Pix copia e cola:\n{pix}',
+      thanks: 'Recebi seu pagamento de {valor}, {nome}. Valeu! 🙌 — {salao}',
+      comeback: 'E aí, {nome}! Faz {dias} dias que você não aparece no {salao}. Bora dar aquele trato? Me fala o melhor dia que eu reservo.',
+      proShare: 'Fala, {nome}! Fechamento de {mes}: seu repasse pro {salao} ficou em {valor}. Pix:\n{pix}',
+    },
+  };
+  const pros = [
+    { id: 'p_gl', name: 'Guilherme (dono)', phone: '75999331990', color: '#d4a64a', owner: true, shareType: 'percent', shareValue: 0 },
+  ];
+  const materials = [
+    { id: 'm_lam', name: 'Lâmina (caixa c/ 100)', price: 35, yield: 100 },
+    { id: 'm_pom', name: 'Pomada modeladora', price: 45, yield: 40 },
+    { id: 'm_gel', name: 'Gel de barbear', price: 30, yield: 50 },
+    { id: 'm_oleo', name: 'Óleo/balm de barba', price: 40, yield: 60 },
+    { id: 'm_toalha', name: 'Toalha (lavagem por uso)', price: 2, yield: 1 },
+    { id: 'm_talco', name: 'Talco / pós-barba', price: 25, yield: 80 },
+    { id: 'm_desc', name: 'Descartáveis (capa, gola, papel)', price: 30, yield: 100 },
+    { id: 'm_maq', name: 'Manutenção de máquina (rateio)', price: 120, yield: 300 },
+  ];
+  const svc = (id, name, durationMin, price, mats) => ({ id, name, durationMin, price, materialCost: 0, materials: mats.map(([m, qty]) => ({ id: m, qty })) });
+  const services = [
+    svc('s_corte', 'Corte', 40, 35, [['m_lam', 1], ['m_pom', 1], ['m_toalha', 1], ['m_talco', 1], ['m_desc', 1], ['m_maq', 1]]),
+    svc('s_barba', 'Barba', 30, 25, [['m_lam', 1], ['m_gel', 1], ['m_oleo', 1], ['m_toalha', 1], ['m_desc', 1]]),
+    svc('s_cb', 'Corte + Barba', 60, 55, [['m_lam', 2], ['m_pom', 1], ['m_gel', 1], ['m_oleo', 1], ['m_toalha', 1], ['m_talco', 1], ['m_desc', 1], ['m_maq', 1]]),
+    svc('s_pez', 'Pezinho', 15, 15, [['m_lam', 1], ['m_desc', 1], ['m_maq', 1]]),
+  ];
+  const plans = [
+    { id: 'pl_ilim', name: 'Corte Ilimitado', type: 'unlimited', visitsPerCycle: 0, price: 100, serviceIds: ['s_corte', 's_pez'] },
+    { id: 'pl_4', name: '4 Cortes/mês', type: 'fixed', visitsPerCycle: 4, price: 110, serviceIds: ['s_corte'] },
+    { id: 'pl_cb', name: 'Corte + Barba 4x', type: 'fixed', visitsPerCycle: 4, price: 180, serviceIds: ['s_cb', 's_corte', 's_barba'] },
+  ];
+  const names = ['João Pedro', 'Maria Lima', 'Carlos Souza', 'Lucas Andrade', 'Rafael Santos', 'Bruno Costa', 'Diego Alves', 'Felipe Rocha', 'Gustavo Melo', 'Henrique Dias', 'Igor Matos', 'Vinícius Reis'];
+  const planOf = ['pl_ilim', null, 'pl_4', 'pl_ilim', 'pl_cb', null, 'pl_4', null, 'pl_ilim', null, null, 'pl_cb'];
+  const dueOf = [5, 1, 10, 15, 20, 1, 12, 1, 25, 1, 1, 8];
+  const clients = names.map((n, i) => ({
+    id: 'c' + i, name: n, phone: `7598888${pad2(i)}${pad2(i)}`, notes: i === 3 ? 'Degradê navalhado, nº 1 nas laterais' : '',
+    planId: planOf[i], dueDay: dueOf[i], createdAt: ymd(addDays(t, -120)), lateCount: i === 6 ? 2 : 0,
+  }));
+  const appointments = [], payments = [];
+  const svcOf = id => services.find(s => s.id === id);
+  const add = (ci, si, d, h, m, status, proId = 'p_gl') => {
+    const c = clients[ci];
+    const covered = !!c.planId && plans.find(p => p.id === c.planId).serviceIds.includes(si);
+    const a = { id: uid(), clientId: c.id, serviceId: si, proId, start: at(d, h, m), status, covered, price: covered ? 0 : svcOf(si).price, paid: covered || status === 'done' };
+    appointments.push(a);
+    if (!covered && status === 'done') payments.push({ id: uid(), clientId: c.id, amount: a.price, date: a.start, kind: 'single', ref: a.id, method: 'pix', proId });
+    return a;
+  };
+  // histórico (últimos 60 dias) para ritmo, lucro e sumidos
+  const hist = [[0, 's_corte', [-56, -42, -28, -14]], [1, 's_corte', [-60, -30]], [2, 's_corte', [-21, -12, -4]], [3, 's_corte', [-27, -20, -13, -9, -6, -3, -1]],
+    [4, 's_cb', [-25, -18, -11, -4]], [5, 's_barba', [-58, -44]], [6, 's_corte', [-30, -16]], [7, 's_cb', [-9]], [8, 's_corte', [-15, -8, -2]], [9, 's_corte', [-70, -55, -40]], [10, 's_pez', [-3]], [11, 's_cb', [-12, -5]]];
+  hist.forEach(([ci, si, ds], k) => ds.forEach((dd, j) => add(ci, si, addDays(t, dd), 9 + ((k + j) % 9), j % 2 ? 30 : 0, 'done')));
+  // movimento avulso dos últimos 35 dias (seg–sáb), determinístico
+  const extra = ['André Luiz', 'Paulo Henrique', 'Mateus Brito', 'Caio Nunes', 'Renan Oliveira', 'Samuel Pires', 'Otávio Lopes', 'Wesley Prado', 'Davi Moura', 'Leandro Sá'];
+  extra.forEach((n, i) => clients.push({ id: 'cx' + i, name: n, phone: `7597777${pad2(i)}${pad2(i)}`, notes: '', planId: null, dueDay: 1, createdAt: ymd(addDays(t, -90)), lateCount: 0 }));
+  let rnd = 7; const next = () => (rnd = (rnd * 9301 + 49297) % 233280) / 233280;
+  for (let dd = -35; dd <= -1; dd++) {
+    const d = addDays(t, dd); if (d.getDay() === 0) continue;
+    const n = 4 + Math.floor(next() * 4);
+    for (let k = 0; k < n; k++) {
+      const ci = clients.length - extra.length + Math.floor(next() * extra.length);
+      const si = ['s_corte', 's_corte', 's_cb', 's_barba', 's_pez'][Math.floor(next() * 5)];
+      add(ci, si, d, 8 + k + (k > 3 ? 1 : 0), next() > 0.5 ? 30 : 0, 'done');
+    }
+  }
+  // hoje
+  add(0, 's_corte', t, 9, 0, 'done'); add(10, 's_corte', t, 10, 0, 'confirmed'); add(2, 's_corte', t, 11, 0, 'scheduled');
+  add(7, 's_cb', t, 14, 0, 'scheduled'); add(4, 's_cb', t, 15, 30, 'scheduled'); add(5, 's_barba', t, 16, 30, 'scheduled');
+  // amanhã e semana
+  add(3, 's_corte', addDays(t, 1), 9, 0, 'scheduled'); add(8, 's_corte', addDays(t, 1), 10, 30, 'scheduled'); add(11, 's_cb', addDays(t, 1), 17, 0, 'scheduled');
+  add(1, 's_corte', addDays(t, 2), 11, 0, 'scheduled'); add(6, 's_corte', addDays(t, 3), 15, 0, 'scheduled');
+  // um avulso atendido e não pago (saldo devedor)
+  const fiado = add(7, 's_barba', addDays(t, -2), 18, 0, 'done'); fiado.paid = false;
+  payments.splice(payments.findIndex(p => p.ref === fiado.id), 1);
+  // mensalidades pagas no ciclo atual (exceto 2 em aberto para a demo)
+  clients.forEach((c, i) => {
+    if (!c.planId || i === 6 || i === 8) return;
+    const cyc = cycleRange(c.dueDay, t);
+    payments.push({ id: uid(), clientId: c.id, amount: plans.find(p => p.id === c.planId).price, date: at(cyc.start, 10), kind: 'plan', ref: ymd(cyc.start), method: 'pix' });
+  });
+  const fixedCosts = [
+    { id: 'f_alug', name: 'Aluguel', monthly: 900, dueDay: 5 }, { id: 'f_luz', name: 'Energia', monthly: 280, dueDay: 18 },
+    { id: 'f_agua', name: 'Água', monthly: 70, dueDay: 20 }, { id: 'f_net', name: 'Internet', monthly: 100, dueDay: 10 },
+    { id: 'f_mei', name: 'MEI (DAS)', monthly: 80, dueDay: 20 }, 
+  ];
+  const m = monthKey(t);
+  const billPayments = [{ id: uid(), costId: 'f_alug', month: m, amount: 900, date: `${m}-05` }, { id: uid(), costId: 'f_net', month: m, amount: 100, date: `${m}-10` }];
+  const expenses = [{ id: uid(), date: `${m}-03`, name: 'Toalhas novas', amount: 60 }, { id: uid(), date: `${m}-08`, name: 'Pomada (estoque)', amount: 85 }];
+  const proPayments = [];
+  return { version: 1, settings, pros, materials, services, plans, clients, appointments, payments, fixedCosts, billPayments, expenses, proPayments };
+}
+
+function createStore(storage, today = new Date()) {
+  let persistent = false, state = null;
+  try {
+    if (storage) {
+      const raw = storage.getItem(KEY);
+      if (raw) state = JSON.parse(raw);
+      storage.setItem(KEY + '.probe', '1'); storage.removeItem(KEY + '.probe');
+      persistent = true;
+    }
+  } catch { persistent = false; }
+  if (!state || !REQUIRED.every(k => k in state)) state = seed(today);
+  const fresh = seed(today).settings.templates;
+  state.settings.templates = { ...fresh, ...state.settings.templates };
+  const api = {
+    get state() { return state; }, set state(v) { state = v; },
+    persistent, uid,
+    save() { if (!persistent) return false; try { storage.setItem(KEY, JSON.stringify(state)); return true; } catch { return false; } },
+    reset() { state = seed(new Date()); api.save(); },
+    exportJSON() { return JSON.stringify(state, null, 1); },
+    importJSON(s) {
+      const obj = JSON.parse(s);
+      if (!obj || !REQUIRED.every(k => k in obj)) throw new Error('Arquivo de backup inválido');
+      for (const k of ['billPayments', 'expenses', 'proPayments', 'materials']) obj[k] = obj[k] || [];
+      state = obj; api.save();
+    },
+  };
+  return api;
+}
+
+// GL Style — página pública de agendamento (lê os dados do link).
+const bk = { sv: null, pr: null, day: null, time: null, name: '', phone: '' };
+function bookingPage(code) {
+  const D = decodeAvailability(code);
+  document.body.classList.add('cliente');
+  const main = document.querySelector('main');
+  if (!D) { main.innerHTML = '<h1>Agendamento</h1><p class="sub">Este link está incompleto ou expirou. Peça ao salão o link de agendamento atualizado pelo WhatsApp.</p>'; return; }
+  const days = Object.keys(D.d).filter(d => d >= ymd(new Date())).sort();
+  bk.sv = bk.sv || D.sv[0][0]; bk.pr = bk.pr || D.pr[0][0]; bk.day = days.includes(bk.day) ? bk.day : days[0];
+  const svc = D.sv.find(x => x[0] === bk.sv) || D.sv[0];
+  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl }, services: [], appointments: [] };
+  const slotsFor = (day, pr) => {
+    const busy = (D.d[day] && D.d[day][pr]) || [];
+    st.services = busy.map((b, i) => ({ id: 'b' + i, durationMin: b[1] - b[0] }));
+    st.appointments = busy.map((b, i) => ({ proId: pr, serviceId: 'b' + i, status: 'scheduled', start: `${day}T${pad2(Math.floor(b[0] / 60))}:${pad2(b[0] % 60)}` }));
+    return freeSlots(st, day, pr, svc[3], new Date());
+  };
+  const slots = bk.day ? slotsFor(bk.day, bk.pr) : [];
+  if (!slots.includes(bk.time)) bk.time = null;
+  const old = Math.round((Date.now() - (D.g || Date.now())) / 3600000);
+  main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<h1>Agende no ${esc(D.s)}</h1><p class="sub">Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
+  <h2>Serviço</h2><div class="chips" style="flex-wrap:wrap">${D.sv.map(x => `<button class="chip ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}">${esc(x[1])} · ${brl(x[2])}</button>`).join('')}</div>
+  ${D.pr.length > 1 ? '<h2>Com quem</h2>' : ''}<div class="chips" ${D.pr.length > 1 ? '' : 'hidden'}>${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>
+  <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${esc(d)}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
+  <h2>Horários livres</h2>${slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
+  <h2>Seu nome</h2><input data-bkin="name" value="${esc(bk.name)}" placeholder="Como o Guilherme te conhece" autocomplete="name">
+  <p class="mini">Sem cadastro: o pedido sai do seu WhatsApp.</p>
+  <button class="bt zap cheio" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled style="opacity:.5"'}>Pedir ${bk.time ? `${bk.time} de ${dataBR(parseLocal(bk.day + 'T00:00'))}` : 'horário'} pelo WhatsApp</button>
+  <p class="mini" style="text-align:center;margin-top:10px">O horário só fica garantido quando o ${esc(D.s)} confirmar.</p>
+`;
+  main.onclick = e => {
+    const el = e.target.closest('[data-bk]'); if (!el || el.disabled) return;
+    const k = el.dataset.bk;
+    if (k === 'send') {
+      const pr = D.pr.find(x => x[0] === bk.pr), dt = parseLocal(`${bk.day}T${bk.time}`);
+      const msg = `Olá! Quero marcar ${svc[1]}${D.pr.length > 1 ? ` com ${pr[1]}` : ''} ${dataBR(dt)} às ${bk.time}.\nNome: ${bk.name.trim()}\n#GL[${bk.day}T${bk.time}|${svc[0]}|${pr[0]}|${bk.name.trim()}]`;
+      const lk = document.createElement('a'); lk.href = waLink(D.w, msg); lk.target = '_blank'; lk.rel = 'noopener'; document.body.appendChild(lk); lk.click(); lk.remove(); return;
+    }
+    bk[k] = el.dataset.id; bookingPage(code);
+  };
+  main.oninput = e => { const k = e.target.dataset.bkin; if (k) { bk[k] = e.target.value; const b = main.querySelector('[data-bk="send"]'); const ok = bk.time && bk.name.trim().length > 1; b.disabled = !ok; b.style.opacity = ok ? '' : '.5'; } };
+}
+
+function bootBooking() { const h = location.hash.replace(/^#(agendar=)?/, ''); bookingPage(h || window.GL_DEMO || ''); }
+if (document.body.classList.contains('cliente')) window.addEventListener('hashchange', bootBooking);
+if (document.body.classList.contains('cliente')) bootBooking();
+
+// GL Style — interface. Usa as funções de core.js e store.js (juntadas no build).
+let store; try { store = createStore(window.localStorage); } catch { store = createStore(null); }
+const S = () => store.state;
+const ui = { cx: 'resumo', aj: 'salao', tab: 'hoje', pro: 'todos', day: ymd(new Date()), month: monthKey(new Date()), q: '', sheet: null, open: {} };
+const $ = sel => document.querySelector(sel);
+const today = () => startOfDay(new Date());
+const byId = (arr, id) => arr.find(x => x.id === id);
+const client = id => byId(S().clients, id) || { name: '(cliente removido)', phone: '' };
+const service = id => byId(S().services, id) || { name: '?', durationMin: 30, price: 0, materialCost: 0 };
+const pro = id => byId(S().pros, id) || S().pros[0];
+const plan = id => byId(S().plans, id);
+const owner = () => S().pros.find(p => p.owner) || S().pros[0];
+const hhmm = iso => iso.slice(11, 16);
+const dataCurta = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+const mesNome = mk => { const [y, m] = mk.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); };
+const firstName = n => String(n).split(' ')[0];
+
+function ask(msg, okLabel, act, id) { sheet(`<h2>${esc(msg)}</h2><div class="duas" style="margin-top:12px"><button class="bt leve" data-act="close">Voltar</button><button class="bt mal" style="background:var(--mal);color:#fff" data-act="${act}" data-id="${id || ''}" data-ok="1">${esc(okLabel)}</button></div>`); }
+function save() { store.save(); render(); }
+function toast(msg) { const t = document.createElement('div'); t.className = 'aviso'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+async function copy(text, msg = 'Copiado') { try { await navigator.clipboard.writeText(text); } catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch {} ta.remove(); } toast(msg); }
+function openWA(phone, text) { if (normPhone(phone).length < 12) { toast('Cliente sem WhatsApp cadastrado: abra a ficha e preencha'); return false; } const a = document.createElement('a'); a.href = waLink(phone, text); a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); return true; }
+
+// ---------- regras de negócio da interface
+const mats = () => S().materials || [];
+const cpm = () => costPerMinute(S().fixedCosts, (S().settings.hoursPerMonth || 176) * Math.max(1, S().pros.length));
+const pixFor = (amount, txid) => pixCode({ key: normPixKey(S().settings.pixKey, S().settings.pixKeyType || 'phone'), name: S().settings.pixName, city: S().settings.pixCity, amount, txid });
+function vars(extra) { return { salao: S().settings.shopName, ...extra }; }
+function planPaid(c, refDate) { const cyc = cycleRange(c.dueDay || 1, refDate); return S().payments.some(p => p.kind === 'plan' && p.clientId === c.id && p.ref === ymd(cyc.start)); }
+function coveredFor(c, serviceId, startIso) {
+  const pl = plan(c.planId); if (!pl || !pl.serviceIds.includes(serviceId)) return false;
+  if (pl.type === 'unlimited') return true;
+  const cyc = cycleRange(c.dueDay || 1, parseLocal(startIso));
+  const used = S().appointments.filter(a => a.clientId === c.id && a.covered && a.status !== 'canceled' && a.status !== 'noshow' && (() => { const d = startOfDay(parseLocal(a.start)); return d >= cyc.start && d <= cyc.end; })()).length;
+  return used < pl.visitsPerCycle;
+}
+function openCharges() {
+  const t = today(), out = [];
+  for (const c of S().clients) {
+    const pl = plan(c.planId); if (!pl) continue;
+    const cyc = cycleRange(c.dueDay || 1, t);
+    if (!planPaid(c, t)) out.push({ id: 'plan:' + c.id + ':' + ymd(cyc.start), kind: 'plan', client: c, clientName: c.name, amount: pl.price, ref: ymd(cyc.start), due: cyc.start, late: daysBetween(cyc.start, t), label: pl.name });
+    else {
+      const next = addDays(cyc.end, 1), dd = daysBetween(t, next);
+      if (dd <= 3) out.push({ id: 'plan:' + c.id + ':' + ymd(next), kind: 'plan', client: c, clientName: c.name, amount: pl.price, ref: ymd(next), due: next, late: -dd, label: pl.name, upcoming: true });
+    }
+  }
+  for (const a of S().appointments) {
+    if (a.status === 'done' && !a.paid && !a.covered && pro(a.proId).owner) {
+      const c = client(a.clientId);
+      out.push({ id: 'appt:' + a.id, kind: 'single', client: c, clientName: c.name, amount: a.price, ref: a.id, due: parseLocal(a.start), late: daysBetween(parseLocal(a.start), t), label: service(a.serviceId).name });
+    }
+  }
+  return out.sort((a, b) => b.late - a.late);
+}
+function receive(ch, method = 'pix') {
+  const now = new Date(), iso = `${ymd(now)}T${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  if (ch.kind === 'plan') S().payments.push({ id: store.uid(), clientId: ch.client.id, amount: ch.amount, date: iso, kind: 'plan', ref: ch.ref, method });
+  else {
+    const a = byId(S().appointments, ch.ref); if (a) a.paid = true;
+    S().payments.push({ id: store.uid(), clientId: ch.client.id, amount: ch.amount, date: iso, kind: 'single', ref: ch.ref, method, proId: a?.proId });
+  }
+  if (ch.late > 0 && ch.kind === 'plan') ch.client.lateCount = (ch.client.lateCount || 0) + 1;
+}
+function chargeText(ch) {
+  const pix = pixFor(ch.amount, 'GL' + ch.client.id.slice(0, 6));
+  const T = S().settings.templates;
+  const tpl = ch.kind === 'single' ? T.charge : ch.late <= 0 && T.renew ? T.renew : (toneFor(ch.client.lateCount || 0) === 'firme' ? T.remindFirme : T.remindLeve);
+  const fimDate = ch.due, inicio = cycleRange(ch.client.dueDay || 1, addDays(fimDate, -1)).start;
+  return fill(tpl, vars({ nome: firstName(ch.client.name), plano: ch.label, valor: brl(ch.amount), data: ch.late > 0 ? dataCurta(ch.due) : (ch.late === 0 ? 'hoje' : dataCurta(ch.due)), inicio: dataCurta(inicio), fim: ch.late === 0 ? `hoje, ${dataCurta(fimDate)}` : `em ${dataCurta(fimDate)}`, chave: S().settings.pixKey, pix }));
+}
+function visitsOf(cid) { return S().appointments.filter(a => a.clientId === cid && a.status === 'done').map(a => parseLocal(a.start)); }
+
+// ---------- link de agendamento
+function bookingURL() {
+  const st = S().settings, t = today(), d = {};
+  for (let i = 0; i < 7; i++) {
+    const day = ymd(addDays(t, i)); d[day] = {};
+    for (const p of S().pros) d[day][p.id] = S().appointments.filter(a => a.proId === p.id && a.start.startsWith(day) && !['canceled', 'noshow'].includes(a.status))
+      .map(a => { const s0 = parseLocal(a.start), m = s0.getHours() * 60 + s0.getMinutes(); return [m, m + service(a.serviceId).durationMin]; });
+  }
+  const data = { s: st.shopName, w: normPhone(owner().phone), o: st.openHour, c: st.closeHour, sl: st.slotMin, sv: S().services.map(x => [x.id, x.name, x.price, x.durationMin]), pr: S().pros.map(p => [p.id, firstName(p.name.replace(/\s*\(.*\)/, ''))]), d, g: Date.now() };
+  return location.href.split('#')[0].replace(/[^/]*$/, '') + 'index.html#agendar=' + encodeAvailability(data);
+}
+
+// ---------- ícones
+const I = {
+  zap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4.5 19.5l1.2-3.6A8 8 0 1 1 8.4 18.6z"/><path d="M9.2 9.3c.3 2.4 2.2 4.4 4.6 4.9l1.1-1.1 1.8.8-.4 1.6c-3.6.2-7.6-3.6-7.6-7.4l1.6-.5.8 1.8z" stroke-width="1.3"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10M17 7 7 17"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 8V6.5A2 2 0 0 0 13.5 4.5H6.5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2H8"/></svg>',
+  hoje: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  agenda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  clientes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.8 19.5c.7-3.4 3.2-5 6.2-5s5.5 1.6 6.2 5"/><circle cx="17" cy="9.5" r="2.6"/><path d="M16.5 14.6c2.4.1 4 1.5 4.6 4.4"/></svg>',
+  cobrancas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M8.5 12h7"/></svg>',
+  caixa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5V11M10 19.5V6M16 19.5v-6M21 19.5H3"/></svg>',
+};
+
+// ---------- telas
+function proChips() {
+  if (S().pros.length < 2) return '';
+  return `<div class="chips">${[{ id: 'todos', name: 'Todos' }, ...S().pros].map(p => `<button class="chip ${ui.pro === p.id ? 'on' : ''}" data-act="pro" data-id="${p.id}">${p.color ? `<span class="dot" style="background:${p.color}"></span>` : ''}${esc(firstName(p.name))}</button>`).join('')}</div>`;
+}
+const fPro = a => ui.pro === 'todos' || a.proId === ui.pro;
+const statusTag = a => ({ requested: '<span class="tag av">pedido</span>', scheduled: '<span class="tag mudo">marcado</span>', confirmed: '<span class="tag ok">confirmado</span>', done: '<span class="tag ok">atendido</span>', noshow: '<span class="tag mal">faltou</span>', canceled: '<span class="tag mal">cancelado</span>' }[a.status] || '');
+
+function apptItem(a, actions = true) {
+  const c = client(a.clientId), s = service(a.serviceId), p = pro(a.proId);
+  const pago = a.covered ? '<span class="tag plano">plano</span>' : (a.paid ? '<span class="tag ok">pago</span>' : (a.status === 'done' ? `<span class="tag av">deve ${brl(a.price)}</span>` : `<span class="mini">${brl(a.price)}</span>`));
+  let bts = '';
+  if (actions) {
+    if (a.status === 'requested') bts = `<button class="bt ok" data-act="accept" data-id="${a.id}">Aceitar pedido</button><button class="ib mal" data-act="refuse" data-id="${a.id}" aria-label="Recusar pedido">${I.x}</button>`;
+    else if (a.status === 'scheduled' || a.status === 'confirmed') bts = `<button class="bt ok" data-act="done" data-id="${a.id}">Atendido</button><button class="ib zap" data-act="confirm" data-id="${a.id}" aria-label="Confirmar no WhatsApp">${I.zap}</button><button class="ib mal" data-act="noshow" data-id="${a.id}" aria-label="Marcar falta">${I.x}</button>`;
+    else if (a.status === 'done' && !a.paid && !a.covered) bts = `<button class="bt ouro" data-act="paid" data-id="${a.id}">Recebi ${brl(a.price)}</button><button class="ib zap" data-act="chargeAppt" data-id="${a.id}" aria-label="Cobrar no WhatsApp">${I.zap}</button><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
+    else if (a.status === 'done' || a.status === 'noshow') bts = `<span style="flex:1"></span><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
+  }
+  const cls = a.status === 'requested' ? 'pedido' : (a.status === 'done' || a.status === 'noshow' ? 'feito' : '');
+  return `<div class="item ${cls}">
+    <div class="hora">${hhmm(a.start)}</div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)}</div>
+      <div class="meta">${S().pros.length > 1 ? `<span class="dot" style="background:${p.color}"></span>${esc(firstName(p.name))} · ` : ''}${esc(s.name)} · ${s.durationMin} min</div></div>
+    <div style="text-align:right">${statusTag(a)}<div style="margin-top:4px">${pago}</div></div>
+    ${bts ? `<div class="acoes" style="display:flex">${bts}</div>` : ''}</div>`;
+}
+
+function viewHoje() {
+  const t = today(), tk = ymd(t);
+  const list = S().appointments.filter(a => a.start.startsWith(tk) && a.status !== 'canceled' && fPro(a)).sort((a, b) => a.start.localeCompare(b.start));
+  const recebido = S().payments.filter(p => p.date.startsWith(tk) && (ui.pro === 'todos' || p.proId === ui.pro || (!p.proId && pro(ui.pro)?.owner))).reduce((s, p) => s + p.amount, 0);
+  const aReceber = list.filter(a => !a.paid && !a.covered && a.status !== 'noshow').reduce((s, a) => s + a.price, 0);
+  const feitos = list.filter(a => a.status === 'done').length;
+  const tomorrow = ymd(addDays(t, 1));
+  const amanha = S().appointments.filter(a => a.start.startsWith(tomorrow) && a.status === 'scheduled' && fPro(a)).sort((a, b) => a.start.localeCompare(b.start));
+  const charges = openCharges().filter(c => c.late > 0).length;
+  return `<p class="data-topo">${esc(new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }))}</p><h1>Hoje</h1>
+  ${store.persistent ? '' : '<div class="faixa-demo">Os dados ficam só nesta aba: o navegador não deixa guardar. Use Ajustes → Exportar backup antes de fechar.</div>'}
+  <div class="resumo"><div class="kpi dest"><span>Recebido hoje</span><strong class="num">${brl(recebido)}</strong></div>
+    <div class="kpi"><span>A receber</span><strong class="num">${brl(aReceber)}</strong></div>
+    <div class="kpi"><span>Atendidos</span><strong class="num">${feitos}/${list.length}</strong></div></div>
+  ${charges ? `<div class="cartao alerta alerta-cob" data-act="tab" data-id="cobrancas" style="cursor:pointer"><div><strong>${charges} cobrança${charges > 1 ? 's' : ''} em atraso</strong><div class="mini">Cobrar pelo WhatsApp</div></div><span class="seta">›</span></div>` : ''}
+  ${(() => { const req = S().appointments.filter(a => a.status === 'requested').sort((a, b) => a.start.localeCompare(b.start)); return req.length ? `<h2>Pedidos de clientes <small>${req.length}</small></h2><div class="lista">${req.map(a => `<div class="mini">${esc(dataBR(parseLocal(a.start)))}</div>${apptItem(a)}`).join('')}</div>` : ''; })()}
+  <button class="bt leve cheio" style="margin-top:12px" data-act="shareFree">Divulgar horários livres de hoje</button>
+  <h2>Agenda de hoje <small>${list.filter(a => a.status !== 'requested').length} horários</small></h2>
+  ${proChips()}
+  <div class="lista">${list.filter(a => a.status !== 'requested').length ? list.filter(a => a.status !== 'requested').map(a => apptItem(a)).join('') : '<div class="vazio">Nenhum horário hoje. Toque em + para marcar.</div>'}</div>
+  <h2>Confirmar amanhã <small>${amanha.length}</small></h2>
+  ${amanha.length ? `<div class="grupo">${amanha.map(a => `<div class="linha"><div class="cresce"><strong>${hhmm(a.start)}</strong> ${esc(client(a.clientId).name)}<div class="meta">${esc(service(a.serviceId).name)}${S().pros.length > 1 ? ' · ' + esc(firstName(pro(a.proId).name)) : ''}${a.remindedAt ? ' · mensagem enviada' : ''}</div></div><button class="${a.remindedAt ? 'ib' : 'ib zap'}" data-act="confirm" data-id="${a.id}" aria-label="${a.remindedAt ? 'Reenviar' : 'Enviar'} confirmação">${I.zap}</button></div>`).join('')}</div>` : '<div class="vazio">Nada pendente para amanhã.</div>'}`;
+}
+
+function viewAgenda() {
+  const base = parseLocal(ui.day + 'T00:00');
+  const t = today();
+  const days = Array.from({ length: 14 }, (_, i) => addDays(t, i - 3));
+  const st = S().settings, slots = [];
+  for (let m = st.openHour * 60; m < st.closeHour * 60; m += st.slotMin) slots.push(m);
+  const dayAppts = S().appointments.filter(a => a.start.startsWith(ui.day) && a.status !== 'canceled' && fPro(a));
+  const rows = slots.map(m => {
+    const hh = `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`;
+    const here = dayAppts.filter(a => { const s = parseLocal(a.start); const am = s.getHours() * 60 + s.getMinutes(); return am >= m && am < m + st.slotMin; });
+    const busyPros = new Set(dayAppts.filter(a => { const s = parseLocal(a.start); const am = s.getHours() * 60 + s.getMinutes(); return am < m + st.slotMin && am + service(a.serviceId).durationMin > m; }).map(a => a.proId));
+    const free = ui.pro === 'todos' ? busyPros.size < S().pros.length : !busyPros.has(ui.pro);
+    return `<div class="slot"><div class="h num">${hh}</div><div class="c">${here.map(a => `<div class="ocup" style="border-left-color:${pro(a.proId).color}" data-act="appt" data-id="${a.id}"><strong>${hhmm(a.start)} ${esc(client(a.clientId).name)}</strong> ${statusTag(a)}<div class="mini">${esc(service(a.serviceId).name)} · ${esc(firstName(pro(a.proId).name))}</div></div>`).join('')}${free && !here.length ? `<button class="livre" data-act="new" data-time="${hh}">Livre · marcar</button>` : ''}</div></div>`;
+  }).join('');
+  return `<h1>Agenda</h1><p class="sub">${esc(dataBR(base))}</p>
+  <div class="dias">${days.map(d => `<button class="dia ${ymd(d) === ui.day ? 'on' : ''}" data-act="day" data-id="${ymd(d)}">${d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${d.getDate()}</b></button>`).join('')}</div>
+  ${proChips()}${rows}
+  <h2>Agendamento pelo cliente</h2>
+  <div class="cartao"><div class="mini">Mande o link no WhatsApp, status ou Instagram. O cliente vê os horários livres dos próximos 7 dias e pede pelo WhatsApp. Gere de novo quando a agenda mudar.</div>
+    <div class="duas" style="margin-top:8px"><button class="bt ouro" data-act="bookLink">Copiar link</button><button class="bt leve" data-act="bookPreview">Ver como cliente</button></div>
+    <label class="campo"><span>Chegou um pedido? Cole a mensagem aqui</span><textarea data-input="req" placeholder="Olá! Quero marcar… #GL[…]">${esc(ui.req || '')}</textarea></label>
+    <button class="bt ok cheio" data-act="pasteReq">Adicionar pedido</button></div>`;
+}
+
+function viewClientes() {
+  const t = today(), q = stripAccents(ui.q).toLowerCase();
+  const all = [...S().clients].sort((a, b) => a.name.localeCompare(b.name));
+  const sumidos = all.filter(c => isMissing(visitsOf(c.id), t, S().settings.missingDays));
+  const list = all.filter(c => !q || stripAccents(c.name).toLowerCase().includes(q) || c.phone.includes(q));
+  const last = c => { const v = visitsOf(c.id); return v.length ? daysBetween(v.reduce((a, b) => (a > b ? a : b)), t) : null; };
+  const debt = c => S().appointments.filter(a => a.clientId === c.id && a.status === 'done' && !a.paid && !a.covered).reduce((s, a) => s + a.price, 0);
+  return `<h1>Clientes</h1><p class="sub">${all.length} cadastrados · ${all.filter(c => c.planId).length} com plano</p>
+  <input type="search" placeholder="Buscar por nome ou telefone" value="${esc(ui.q)}" data-input="q" autocomplete="off">
+  ${!q && sumidos.length ? `<h2>Sumidos <small>passaram do ritmo de sempre</small></h2><div class="grupo">${sumidos.map(c => `<div class="linha"><div class="cresce"><strong data-act="client" data-id="${c.id}">${esc(c.name)}</strong><div class="meta">Última visita há ${last(c)} dias · costuma vir a cada ${rhythm(visitsOf(c.id)) ?? '?'} dias</div></div><button class="ib zap" data-act="comeback" data-id="${c.id}" aria-label="Chamar no WhatsApp">${I.zap}</button></div>`).join('')}</div><h2>Todos <small>${all.length}</small></h2>` : ''}
+  <div class="grupo" id="cliRes" style="margin-top:10px">${list.map(c => { const d = debt(c), l = last(c); return `<div class="linha" data-act="client" data-id="${c.id}" style="cursor:pointer"><div class="cresce"><strong>${esc(c.name)}</strong>${c.planId ? `<span class="tag plano">${esc(plan(c.planId)?.name || '')}</span>` : ''}${d ? `<span class="tag av">deve ${brl(d)}</span>` : ''}<div class="meta">${l === null ? 'Sem visitas' : l === 0 ? 'Veio hoje' : `Última visita há ${l} dias`}</div></div><span class="seta">›</span></div>`; }).join('') || '<div class="vazio">Ninguém com esse nome. Toque em + para cadastrar no agendamento.</div>'}</div>
+  <button class="bt cheio leve" style="margin-top:12px" data-act="newClient">Cadastrar cliente</button>`;
+}
+
+function viewCobrancas() {
+  const ch = openCharges();
+  const late = ch.filter(c => c.late > 0), soon = ch.filter(c => c.late <= 0);
+  const row = c => `<div class="cartao cob"><div><strong data-act="client" data-id="${c.client.id}">${esc(c.client.name)}</strong><div class="mini">${esc(c.label)} · ${c.kind === 'single' ? (c.late > 0 ? `<span class="neg">atendido há ${c.late} dia${c.late > 1 ? 's' : ''}</span>` : 'atendido hoje') : c.late > 0 ? `<span class="neg">atrasada há ${c.late} dia${c.late > 1 ? 's' : ''}</span>` : c.late === 0 ? 'vence hoje' : `vence em ${-c.late} dia${c.late < -1 ? 's' : ''}`}${c.kind === 'plan' && c.late > 0 ? ` · tom ${toneFor(c.client.lateCount || 0)}` : ''}</div></div><div class="valor num">${brl(c.amount)}</div>
+    <div class="acoes"><button class="bt zap" data-act="charge" data-id="${c.id}">Cobrar</button><button class="bt ok" data-act="receive" data-id="${c.id}">Recebi</button><button class="ib" data-act="copyPix" data-id="${c.id}" aria-label="Copiar Pix copia e cola">${I.copy}</button></div></div>`;
+  const pend = ui.pending || [];
+  return `<h1>Cobranças</h1><p class="sub">${late.length} em atraso · ${soon.length} vencendo em até 3 dias</p>
+  <h2>Em atraso <small>${brl(late.reduce((t, c) => t + c.amount, 0))}</small></h2>${late.length ? late.map(row).join('') : '<div class="vazio">Ninguém em atraso.</div>'}
+  <h2>Vencendo <small>${brl(soon.reduce((t, c) => t + c.amount, 0))}</small></h2>${soon.length ? soon.map(row).join('') : '<div class="vazio">Nada vencendo nos próximos 3 dias.</div>'}
+  <h2>Chegou um Pix?</h2><div class="cartao"><div class="mini">Cole a notificação ou o comprovante do banco. O app acha a cobrança pelo nome e valor e marca como paga.</div>
+    <textarea data-input="notif" placeholder="Ex.: Você recebeu um Pix de JOAO PEDRO no valor de R$ 100,00">${esc(ui.notif || '')}</textarea>
+    <button class="bt ouro cheio" style="margin-top:8px" data-act="parseNotif">Conferir Pix</button>
+    ${pend.length ? `<h2>Pix a conferir</h2>${pend.map((p, i) => `<div class="linha" style="background:var(--couro);margin-top:6px"><div class="cresce">${esc(p.name || 'Sem nome')} · <strong>${p.amount != null ? brl(p.amount) : 'valor não lido'}</strong><div class="meta">Não achei uma cobrança só com esses dados. Escolha:</div><select data-pend="${i}"><option value="">Escolher cobrança…</option>${ch.map(c => `<option value="${c.id}">${esc(c.client.name)} — ${brl(c.amount)}</option>`).join('')}</select></div></div>`).join('')}` : ''}</div>`;
+}
+
+function viewCaixa() {
+  const mk = ui.month, sum = monthSummary(S(), mk), t = today();
+  const isCur = mk === monthKey(t);
+  const bills = billsStatus(S(), mk, t);
+  const fc = forecast30(S(), t);
+  const c = cpm();
+  const svcRows = S().services.map(s => { const cost = apptCost(s, c, s.price, S().settings.paymentFeePct, mats()); return `<div class="linha"><div class="cresce"><strong>${esc(s.name)}</strong><div class="meta">${s.durationMin} min · material ${brl(materialCostOf(s, mats()))} · cadeira ${brl(s.durationMin * c)} · preço ${brl(s.price)}</div></div><div class="valor num ${s.price - cost >= 0 ? 'pos' : 'neg'}">${brl(s.price - cost)}</div></div>`; }).join('');
+  const planRows = S().plans.map(pl => {
+    const subs = S().clients.filter(x => x.planId === pl.id);
+    const stats = subs.map(x => ({ c: x, ...subscriberStats(x, pl, S().appointments, S().services, c, S().settings.paymentFeePct, t, mats()) }));
+    const lucro = stats.reduce((s, x) => s + x.profit, 0);
+    const avg = pl.serviceIds.map(id => apptCost(service(id), c, 0, 0, mats())).reduce((a, b) => a + b, 0) / Math.max(1, pl.serviceIds.length);
+    const be = breakEven(pl.price, avg);
+    const ruins = stats.filter(x => x.profit < 0);
+    return `<div class="cartao"><div style="display:flex;justify-content:space-between"><div><strong>${esc(pl.name)}</strong><div class="mini">${brl(pl.price)}/mês · ${subs.length} assinante${subs.length !== 1 ? 's' : ''} · ${pl.type === 'unlimited' ? 'ilimitado' : pl.visitsPerCycle + ' visitas'}</div></div><div class="valor num ${lucro >= 0 ? 'pos' : 'neg'}">${brl(lucro)}</div></div>
+      <div class="mini" style="margin-top:6px">Compensa até <strong>${be === Infinity ? '∞' : be} visitas</strong> no mês por cliente. Custo médio por visita: ${brl(avg)}.</div>
+      ${stats.map(x => `<div class="mini" style="display:flex;justify-content:space-between;margin-top:4px"><span>${esc(x.c.name)} · ${x.visits} visita${x.visits !== 1 ? 's' : ''}</span><span class="num ${x.profit >= 0 ? 'pos' : 'neg'}">${brl(x.profit)}</span></div>`).join('')}
+      ${ruins.length ? `<div class="mini neg" style="margin-top:6px">${ruins.length} assinante(s) dando prejuízo neste ciclo.</div>` : ''}</div>`;
+  }).join('');
+  const assoc = S().pros.filter(p => !p.owner).map(p => {
+    const sh = proShare(p, S().appointments, mk);
+    const paid = (S().proPayments || []).filter(x => x.proId === p.id && x.month === mk).reduce((s, x) => s + x.amount, 0);
+    const falta = round2(sh.share - paid);
+    return `<div class="linha"><div class="cresce"><strong><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</strong><div class="meta">Faturou ${brl(sh.gross)} · repasse ${p.shareType === 'percent' ? p.shareValue + '%' : 'fixo'} = ${brl(sh.share)}${paid ? ` · pago ${brl(paid)}` : ''}</div></div>${falta > 0 ? `<div style="display:flex;gap:6px"><button class="bt zap" data-act="proCharge" data-id="${p.id}" data-v="${falta}">Cobrar</button><button class="bt ok" data-act="proPaid" data-id="${p.id}" data-v="${falta}">Recebi</button></div>` : '<span class="tag ok">em dia</span>'}</div>`;
+  }).join('');
+  const totalFix = S().fixedCosts.reduce((s, x) => s + x.monthly, 0);
+  const sec = {
+    resumo: () => `  <div class="cartao"><div class="mini">Lucro do mês</div><div class="grande num ${sum.profit >= 0 ? 'pos' : 'neg'}">${brl(sum.profit)}</div>
+    <div class="duas" style="margin-top:10px"><div><div class="mini">Entradas</div><strong class="num">${brl(sum.totalIn)}</strong><div class="mini">Avulsos ${brl(sum.income.own)}<br>Mensalidades ${brl(sum.income.plans)}<br>Repasses ${brl(sum.income.shares)}</div></div>
+    <div><div class="mini">Saídas</div><strong class="num">${brl(sum.totalOut)}</strong><div class="mini">Contas ${brl(sum.out.fixed)}<br>Despesas ${brl(sum.out.expenses)}</div></div></div></div>
+  ${isCur ? `<h2>Próximos 30 dias</h2><div class="cartao ${fc.net < 0 ? 'alerta' : ''}"><div style="display:flex;justify-content:space-between;align-items:end"><div><div class="mini">Previsão de saldo</div><div class="valor num ${fc.net >= 0 ? 'pos' : 'neg'}" style="font-size:26px">${brl(fc.net)}</div></div><div class="mini" style="text-align:right">Entra ${brl(fc.inflow)}<br>Sai ${brl(fc.outflow)}</div></div>
+    ${fc.net < 0 ? '<div class="mini neg" style="margin-top:6px">Vai faltar dinheiro: cobre os atrasados ou segure despesas.</div>' : ''}
+    <details><summary>Ver lançamentos previstos</summary>${fc.items.map(i => `<div class="mini" style="display:flex;justify-content:space-between;margin:3px 0"><span>${dataCurta(i.date)} · ${esc(i.label)}</span><span class="num ${i.amount >= 0 ? 'pos' : 'neg'}">${brl(i.amount)}</span></div>`).join('')}</details></div>` : ''}
+  <h2>Barbeiros associados</h2>${assoc ? `<p class="sub">Repasse de ${esc(mesNome(mk))}</p><div class="lista">${assoc}</div>` : '<div class="vazio">Por enquanto só você. Quando entrar outro barbeiro, cadastre em Ajustes → Profissionais: ele ganha agenda própria e o app calcula o repasse dele.</div>'}
+`,
+    contas: () => `  <h2>Contas do mês</h2><div class="grupo">${bills.map(b => `<div class="linha"><div class="cresce"><strong>${esc(b.cost.name)}</strong><div class="meta">vence ${dataCurta(b.due)} ${b.paid ? '<span class="tag ok">paga</span>' : b.overdue ? '<span class="tag mal">vencida</span>' : ''}</div></div><div class="valor num">${brl(b.cost.monthly)}</div>${b.paid ? '' : `<button class="bt ok" data-act="billPaid" data-id="${b.cost.id}">Paguei</button>`}</div>`).join('')}</div>
+  <h2>Despesas avulsas</h2>
+  <div class="grupo">${S().expenses.filter(e => e.date.startsWith(mk)).map(e => `<div class="linha"><div class="cresce"><strong>${esc(e.name)}</strong><div class="meta">${dataCurta(parseLocal(e.date))}</div></div><div class="valor num neg">${brl(e.amount)}</div><button class="icone" data-act="delExpense" data-id="${e.id}" aria-label="Apagar despesa">✕</button></div>`).join('')}</div>
+  <div class="tres" style="margin-top:8px"><input placeholder="Gasto (ex.: lâminas)" data-new="expName"><input inputmode="decimal" placeholder="R$" data-new="expVal"><button class="bt ouro" data-act="addExpense">Lançar</button></div>
+  <h2>Quanto custa cada minuto</h2>
+  <div class="cartao"><div class="duas"><div><div class="mini">Gastos fixos/mês</div><strong class="num">${brl(totalFix)}</strong></div><div><div class="mini">Custo do minuto de cadeira</div><strong class="num">${brl(c)}</strong></div></div>
+  <div class="mini" style="margin-top:6px">${S().pros.length} cadeira(s) × ${S().settings.hoursPerMonth} h/mês. Cada cadeira custa ${brl(totalFix / Math.max(1, S().pros.length))} por mês. Compare com o repasse de cada associado.</div>
+  <details><summary>Editar gastos fixos</summary>${S().fixedCosts.map(f => `<div class="tres" style="margin:6px 0"><input value="${esc(f.name)}" data-fc="${f.id}" data-k="name"><input inputmode="decimal" value="${f.monthly}" data-fc="${f.id}" data-k="monthly"><input inputmode="numeric" value="${f.dueDay}" data-fc="${f.id}" data-k="dueDay" aria-label="Dia de vencimento"></div>`).join('')}<div class="mini">Nome · valor mensal · dia que vence</div><button class="bt leve" style="margin-top:6px" data-act="addFixed">Adicionar gasto fixo</button>
+    <label class="campo"><span>Horas trabalhadas por mês (por cadeira)</span><input inputmode="numeric" value="${S().settings.hoursPerMonth}" data-set="hoursPerMonth"></label></details></div>
+`,
+    material: () => `  <h2>Material <small>custo por uso</small></h2><p class="sub">Coloque o preço que pagou e quantos atendimentos rende. O custo entra sozinho em cada serviço (Ajustes → Serviços).</p>
+  <div class="grupo">${mats().map(m => `<div class="linha mat"><input class="nome-mat" value="${esc(m.name)}" data-mt="${m.id}" data-k="name" aria-label="Nome do material"><label>R$<input inputmode="decimal" value="${m.price}" data-mt="${m.id}" data-k="price" aria-label="Preço pago"></label><label>rende<input inputmode="numeric" value="${m.yield}" data-mt="${m.id}" data-k="yield" aria-label="Rende quantos usos"></label><span class="uso num">${brl(m.yield > 0 ? m.price / m.yield : 0)}</span></div>`).join('')}</div>
+  <button class="bt leve" style="margin-top:6px" data-act="addMat">Adicionar material</button>
+`,
+    lucro: () => `  <h2>Lucro por serviço</h2><div class="grupo">${svcRows}</div>
+  <h2>Lucro por pacote <small>ciclo atual</small></h2>${planRows}`,
+  };
+  return `<h1>Caixa</h1>
+  <div class="seg" role="tablist">${[['resumo', 'Resumo'], ['contas', 'Contas'], ['material', 'Material'], ['lucro', 'Lucro']].map(([k, l]) => `<button role="tab" aria-selected="${ui.cx === k}" class="${ui.cx === k ? 'on' : ''}" data-act="cx" data-id="${k}">${l}</button>`).join('')}</div>
+  ${ui.cx === 'resumo' || ui.cx === 'contas' ? `<div class="chips"><button class="chip" data-act="month" data-id="-1">‹ Anterior</button><button class="chip on">${esc(mesNome(mk))}</button><button class="chip" data-act="month" data-id="1">Próximo ›</button></div>` : ''}
+${(ui.cx === 'resumo' || ui.cx === 'contas') ? '' : ''}${sec[ui.cx]()}`;
+}
+
+// ---------- folhas (modais)
+function sheet(html) { ui.sheet = html; renderSheet(); }
+function closeSheet() { ui.sheet = null; renderSheet(); }
+function renderSheet() {
+  let v = $('.veu'); if (!ui.sheet) { v && v.remove(); return; }
+  if (!v) { v = document.createElement('div'); v.className = 'veu'; v.addEventListener('click', e => { if (e.target === v) closeSheet(); }); document.body.appendChild(v); }
+  v.innerHTML = `<div class="folha" role="dialog" aria-modal="true"><div class="pega"></div>${ui.sheet}</div>`;
+  const f = v.querySelector('[autofocus]'); f && f.focus();
+}
+
+function newApptSheet(pre = {}) {
+  ui.na = { clientId: pre.clientId || '', serviceId: S().services[0].id, proId: ui.pro !== 'todos' ? ui.pro : owner().id, date: pre.date || ui.day, time: pre.time || '', q: '', newName: '', newPhone: '' };
+  drawNA();
+}
+function naSugs() {
+  const q = stripAccents(ui.na.q).toLowerCase();
+  const sugs = q.length >= 2 ? S().clients.filter(x => stripAccents(x.name).toLowerCase().includes(q)).slice(0, 5) : [];
+  return sugs.length ? `<div class="sugs">${sugs.map(x => `<button data-act="naPick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}</div>` : '';
+}
+function drawNA() {
+  const n = ui.na, c = n.clientId && byId(S().clients, n.clientId);
+  const covered = c && coveredFor(c, n.serviceId, `${n.date}T${n.time || '09:00'}`);
+  sheet(`<h2>Novo horário</h2>
+  ${c ? `<div class="linha" style="background:var(--couro)"><div class="cresce"><strong>${esc(c.name)}</strong>${c.planId ? `<span class="tag plano">${esc(plan(c.planId).name)}</span>` : ''}</div><button class="bt leve" data-act="naClear">Trocar</button></div>`
+      : `<div class="busca"><input placeholder="Nome do cliente (2 letras)" data-na="q" value="${esc(n.q)}" autofocus autocomplete="off"><div id="naSugs">${naSugs()}</div></div>
+         <div class="duas" style="margin-top:8px"><input placeholder="WhatsApp (se for cliente novo)" inputmode="tel" data-na="newPhone" value="${esc(n.newPhone)}"></div><div class="mini">Não achou na lista? Preencha o WhatsApp e o cliente é cadastrado ao marcar.</div>`}
+  <div class="mini" style="margin-top:12px">Serviço</div><div class="chips">${S().services.map(s => `<button class="chip ${n.serviceId === s.id ? 'on' : ''}" data-act="naSvc" data-id="${s.id}">${esc(s.name)} · ${brl(s.price)}</button>`).join('')}</div>
+  ${S().pros.length > 1 ? `<div class="mini">Profissional</div>` : ''}<div class="chips" ${S().pros.length > 1 ? '' : 'hidden'}>${S().pros.map(p => `<button class="chip ${n.proId === p.id ? 'on' : ''}" data-act="naPro" data-id="${p.id}"><span class="dot" style="background:${p.color}"></span>${esc(firstName(p.name))}</button>`).join('')}</div>
+  <div class="duas"><label class="campo"><span>Dia</span><input type="date" value="${n.date}" data-na="date"></label><label class="campo"><span>Hora</span><input type="time" value="${n.time}" step="${S().settings.slotMin * 60}" data-na="time"></label></div>
+  ${c ? `<div class="mini">${covered ? '<span class="tag plano">coberto pelo plano</span> não cobra nada agora.' : `Valor: <strong>${brl(service(n.serviceId).price)}</strong>${c.planId ? ' (fora do plano ou limite do mês atingido)' : ''}`}</div>` : ''}
+  <div id="naErr" class="mini neg"></div>
+  <button class="bt ouro cheio" style="margin-top:12px" data-act="naSave">Marcar horário</button>`);
+}
+
+function clientSheet(id) {
+  const c = byId(S().clients, id); if (!c) return;
+  const hist = S().appointments.filter(a => a.clientId === id).sort((a, b) => b.start.localeCompare(a.start)).slice(0, 12);
+  const debt = S().appointments.filter(a => a.clientId === id && a.status === 'done' && !a.paid && !a.covered).reduce((s, a) => s + a.price, 0);
+  const r = rhythm(visitsOf(id));
+  sheet(`<h2>${esc(c.name)}</h2>
+  <div class="mini">${r ? `Costuma vir a cada ${r} dias · ` : ''}${debt ? `<span class="neg">deve ${brl(debt)}</span>` : 'sem débitos'}${c.lateCount ? ` · ${c.lateCount} atraso(s) de mensalidade` : ''}</div>
+  <div style="display:flex;gap:6px;margin:10px 0;flex-wrap:wrap"><button class="bt zap" data-act="waOpen" data-id="${id}">WhatsApp</button><button class="bt ouro" data-act="newFor" data-id="${id}">Marcar horário</button></div>
+  <label class="campo"><span>Nome</span><input value="${esc(c.name)}" data-cl="name"></label>
+  <label class="campo"><span>WhatsApp</span><input inputmode="tel" value="${esc(c.phone)}" data-cl="phone"></label>
+  <div class="duas"><label class="campo"><span>Plano</span><select data-cl="planId"><option value="">Sem plano</option>${S().plans.map(p => `<option value="${p.id}" ${c.planId === p.id ? 'selected' : ''}>${esc(p.name)} · ${brl(p.price)}</option>`).join('')}</select></label>
+    <label class="campo"><span>Dia de vencimento</span><input inputmode="numeric" value="${c.dueDay || ''}" data-cl="dueDay"></label></div>
+  <label class="campo"><span>Observações (corte preferido etc.)</span><textarea data-cl="notes">${esc(c.notes || '')}</textarea></label>
+  <button class="bt ouro cheio" data-act="clSave" data-id="${id}">Salvar</button>
+  <h2>Histórico</h2>${hist.length ? hist.map(a => `<div class="mini" style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--linha)"><span>${dataCurta(parseLocal(a.start))} ${hhmm(a.start)} · ${esc(service(a.serviceId).name)} · ${esc(firstName(pro(a.proId).name))}</span><span>${a.covered ? 'plano' : brl(a.price)} ${statusTag(a)}</span></div>`).join('') : '<div class="vazio">Sem atendimentos ainda.</div>'}
+  <button class="bt mal cheio" style="margin-top:16px" data-act="clDel" data-id="${id}">Apagar cliente</button>`);
+}
+
+function apptSheet(id) {
+  const a = byId(S().appointments, id); if (!a) return;
+  sheet(`<h2>${esc(client(a.clientId).name)}</h2><div class="lista">${apptItem(a)}</div>
+  ${['scheduled', 'confirmed'].includes(a.status) ? `<h2>Remarcar</h2><div class="duas"><input type="date" value="${a.start.slice(0, 10)}" id="rmD"><input type="time" value="${hhmm(a.start)}" step="${S().settings.slotMin * 60}" id="rmT"></div><button class="bt zap cheio" style="margin-top:8px" data-act="reschedule" data-id="${a.id}">Remarcar e avisar no WhatsApp</button>` : ''}
+  <div style="display:flex;gap:6px;margin-top:12px"><button class="bt leve" data-act="client" data-id="${a.clientId}">Ver cliente</button><button class="bt mal" data-act="cancel" data-id="${a.id}">Cancelar horário</button></div>`);
+}
+
+function settingsSheet() {
+  const st = S().settings;
+  const sec = {
+    salao: () => `  <label class="campo"><span>Nome do salão</span><input value="${esc(st.shopName)}" data-set="shopName"></label>
+  <div class="duas"><label class="campo"><span>Tipo de chave Pix</span><select data-set="pixKeyType">${[['phone', 'Celular'], ['cpf', 'CPF'], ['cnpj', 'CNPJ'], ['email', 'E-mail'], ['evp', 'Chave aleatória']].map(([v, l]) => `<option value="${v}" ${(st.pixKeyType || 'phone') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label><label class="campo"><span>Chave Pix</span><input value="${esc(st.pixKey)}" data-set="pixKey"></label></div>
+  <div class="mini">Vai no Pix como: <strong>${esc(normPixKey(st.pixKey, st.pixKeyType || 'phone'))}</strong></div>
+  <label class="campo"><span>Nome no Pix (como aparece no banco)</span><input value="${esc(st.pixName)}" data-set="pixName"></label>
+  <div class="duas"><label class="campo"><span>Cidade</span><input value="${esc(st.pixCity)}" data-set="pixCity"></label><label class="campo"><span>Sumido após (dias)</span><input inputmode="numeric" value="${st.missingDays}" data-set="missingDays"></label></div>
+  <div class="tres"><label class="campo"><span>Abre</span><input inputmode="numeric" value="${st.openHour}" data-set="openHour"></label><label class="campo"><span>Fecha</span><input inputmode="numeric" value="${st.closeHour}" data-set="closeHour"></label><label class="campo"><span>Intervalo (min)</span><input inputmode="numeric" value="${st.slotMin}" data-set="slotMin"></label></div>
+<h2>Barbeiros</h2>  ${S().pros.map(p => `<div class="cartao" style="background:var(--couro)"><div class="duas"><input value="${esc(p.name)}" data-pr="${p.id}" data-k="name"><input inputmode="tel" value="${esc(p.phone || '')}" placeholder="WhatsApp" data-pr="${p.id}" data-k="phone"></div>${p.owner ? '<div class="mini" style="margin-top:6px">Dono do salão</div>' : `<div class="tres" style="margin-top:6px"><select data-pr="${p.id}" data-k="shareType"><option value="percent" ${p.shareType === 'percent' ? 'selected' : ''}>% do faturamento</option><option value="fixed" ${p.shareType === 'fixed' ? 'selected' : ''}>Valor fixo/mês</option></select><input inputmode="decimal" value="${p.shareValue}" data-pr="${p.id}" data-k="shareValue"><input inputmode="numeric" value="${p.dueDay || 5}" data-pr="${p.id}" data-k="dueDay" aria-label="Dia do repasse"></div><div class="mini">Tipo · valor · dia do repasse</div>`}</div>`).join('')}<button class="bt leve" data-act="addPro">Adicionar barbeiro</button>
+`,
+    servicos: () => `<p class="sub">Preço, duração e o material que cada serviço gasta.</p>  ${S().services.map(s => `<div class="cartao" style="background:var(--couro)"><input value="${esc(s.name)}" data-sv="${s.id}" data-k="name"><div class="tres" style="margin-top:6px"><input inputmode="decimal" value="${s.price}" data-sv="${s.id}" data-k="price"><input inputmode="numeric" value="${s.durationMin}" data-sv="${s.id}" data-k="durationMin"><input inputmode="decimal" value="${s.materialCost}" data-sv="${s.id}" data-k="materialCost"></div><div class="mini">Preço · minutos · custo extra fixo</div>${mats().length ? `<div class="mini" style="margin-top:8px">Material usado por atendimento (quantidade):</div>${mats().map(m => { const u = (s.materials || []).find(x => x.id === m.id); return `<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><span class="mini" style="flex:1">${esc(m.name)}</span><input style="width:80px" inputmode="decimal" value="${u ? u.qty : 0}" data-svm="${s.id}" data-m="${m.id}"></div>`; }).join('')}<div class="mini" style="margin-top:4px">Material por atendimento: <strong>${brl(materialCostOf(s, mats()))}</strong></div>` : ''}</div>`).join('')}<button class="bt leve" data-act="addSvc">Adicionar serviço</button>
+`,
+    pacotes: () => `<p class="sub">Preço do plano, se é ilimitado ou por número de visitas, e quais serviços entram.</p>  ${S().plans.map(p => `<div class="cartao" style="background:var(--couro)"><input value="${esc(p.name)}" data-pl="${p.id}" data-k="name"><div class="tres" style="margin-top:6px"><input inputmode="decimal" value="${p.price}" data-pl="${p.id}" data-k="price"><select data-pl="${p.id}" data-k="type"><option value="unlimited" ${p.type === 'unlimited' ? 'selected' : ''}>Ilimitado</option><option value="fixed" ${p.type === 'fixed' ? 'selected' : ''}>Nº de visitas</option></select><input inputmode="numeric" value="${p.visitsPerCycle}" data-pl="${p.id}" data-k="visitsPerCycle"></div><div class="mini">Preço · tipo · visitas no mês</div><div class="chips" style="margin-top:6px">${S().services.map(s => `<button class="chip ${p.serviceIds.includes(s.id) ? 'on' : ''}" data-act="plSvc" data-id="${p.id}" data-s="${s.id}">${esc(s.name)}</button>`).join('')}</div></div>`).join('')}<button class="bt leve" data-act="addPlan">Adicionar pacote</button>
+`,
+    mensagens: () => `<p class="sub">Textos que vão prontos no WhatsApp. Escreva do seu jeito.</p>  ${Object.entries(st.templates).map(([k, v]) => `<label class="campo"><span>${{ accept: 'Pedido aceito', refuse: 'Pedido recusado', confirm: 'Confirmação de horário (véspera)', renew: 'Renovação do plano (fim do ciclo)', reschedule: 'Horário remarcado', remindLeve: 'Mensalidade (tom leve)', remindFirme: 'Mensalidade atrasada (tom firme)', charge: 'Cobrança de avulso', thanks: 'Agradecimento de pagamento', comeback: 'Cliente sumido', proShare: 'Repasse do associado' }[k] || k}</span><textarea data-tpl="${k}">${esc(v)}</textarea></label>`).join('')}<div class="mini">Variáveis: {link} {nome} {data} {hora} {servico} {valor} {plano} {inicio} {fim} {chave} {pix} {dias} {mes} {salao}</div>
+`,
+    backup: () => `  <div class="mini">${store.persistent ? 'Os dados ficam guardados neste aparelho. Exporte um backup de vez em quando.' : 'Este navegador não está guardando os dados. Exporte antes de fechar.'}</div>
+  <div class="duas" style="margin-top:8px"><button class="bt leve" data-act="export">Baixar backup</button><button class="bt leve" data-act="exportCopy">Copiar backup</button><label class="bt leve" style="text-align:center">Importar<input type="file" accept="application/json" data-act-file="import" hidden></label></div>
+  <button class="bt mal cheio" style="margin-top:12px" data-act="reset">Recomeçar com dados de exemplo</button>`,
+  };
+  sheet(`<h2>Ajustes</h2><div class="seg">${[['salao', 'Salão'], ['servicos', 'Serviços'], ['pacotes', 'Pacotes'], ['mensagens', 'Mensagens'], ['backup', 'Backup']].map(([k, l]) => `<button class="${ui.aj === k ? 'on' : ''}" data-act="aj" data-id="${k}">${l}</button>`).join('')}</div>${sec[ui.aj]()}`);
+}
+
+// ---------- render
+const TABS = [['hoje', 'Hoje'], ['agenda', 'Agenda'], ['clientes', 'Clientes'], ['cobrancas', 'Cobranças'], ['caixa', 'Caixa']];
+function render() {
+  const view = { hoje: viewHoje, agenda: viewAgenda, clientes: viewClientes, cobrancas: viewCobrancas, caixa: viewCaixa }[ui.tab];
+  const focus = document.activeElement?.dataset?.input; const pos = document.activeElement?.selectionStart;
+  $('main').innerHTML = view();
+  const late = openCharges().filter(c => c.late > 0).length;
+  $('nav.abas .in').innerHTML = TABS.map(([k, l]) => `<button class="${ui.tab === k ? 'on' : ''}" data-act="tab" data-id="${k}" aria-label="${l}">${I[k]}${l}${k === 'cobrancas' && late ? `<span class="badge">${late}</span>` : ''}</button>`).join('');
+  $('.fab').style.display = ui.tab === 'hoje' || ui.tab === 'agenda' ? '' : 'none';
+  $('.marca').innerHTML = esc(S().settings.shopName).replace(/^(\S+)/, '<b>$1</b>');
+  if (focus) { const el = document.querySelector(`[data-input="${focus}"]`); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} } }
+}
+
+// ---------- ações
+const findCharge = id => openCharges().find(c => c.id === id);
+const A = {
+  cx: el => { ui.cx = el.dataset.id; render(); },
+  aj: el => { ui.aj = el.dataset.id; settingsSheet(); },
+  tab: el => { ui.tab = el.dataset.id; window.scrollTo(0, 0); render(); },
+  pro: el => { ui.pro = el.dataset.id; render(); },
+  day: el => { ui.day = el.dataset.id; render(); },
+  month: el => { const [y, m] = ui.month.split('-').map(Number); ui.month = monthKey(new Date(y, m - 1 + Number(el.dataset.id), 1)); render(); },
+  confirm: el => { const a = byId(S().appointments, el.dataset.id), c = client(a.clientId); openWA(c.phone, fill(S().settings.templates.confirm, vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: hhmm(a.start), servico: service(a.serviceId).name }))); a.remindedAt = new Date().toISOString(); if (a.status === 'scheduled') a.status = 'confirmed'; save(); },
+  done: el => { const a = byId(S().appointments, el.dataset.id); a.status = 'done'; if (a.covered) a.paid = true; save(); toast(a.covered ? 'Atendido (plano)' : `Atendido · falta receber ${brl(a.price)}`); },
+  noshow: el => { byId(S().appointments, el.dataset.id).status = 'noshow'; save(); },
+  undo: el => { const a = byId(S().appointments, el.dataset.id); a.status = 'confirmed'; if (!a.covered && a.paid) { a.paid = false; S().payments = S().payments.filter(p => p.ref !== a.id); } save(); },
+  paid: el => { const ch = findCharge('appt:' + el.dataset.id); if (ch) { receive(ch); save(); toast('Pagamento registrado'); } },
+  chargeAppt: el => { const ch = findCharge('appt:' + el.dataset.id); ch && openWA(ch.client.phone, chargeText(ch)); },
+  cancel: el => { byId(S().appointments, el.dataset.id).status = 'canceled'; closeSheet(); save(); toast('Horário cancelado'); },
+  client: el => clientSheet(el.dataset.id),
+  appt: el => apptSheet(el.dataset.id),
+  comeback: el => { const c = client(el.dataset.id), v = visitsOf(c.id); const d = v.length ? daysBetween(v.reduce((a, b) => (a > b ? a : b)), today()) : ''; openWA(c.phone, fill(S().settings.templates.comeback, vars({ nome: firstName(c.name), dias: d }))); },
+  waOpen: el => openWA(client(el.dataset.id).phone, ''),
+  newFor: el => { closeSheet(); newApptSheet({ clientId: el.dataset.id }); },
+  new: el => newApptSheet({ time: el.dataset.time }),
+  newClient: () => { const id = store.uid(); S().clients.push({ id, name: 'Novo cliente', phone: '', planId: null, dueDay: new Date().getDate(), notes: '', createdAt: ymd(new Date()), lateCount: 0 }); save(); clientSheet(id); },
+  clSave: el => {
+    const c = byId(S().clients, el.dataset.id), g = k => document.querySelector(`[data-cl="${k}"]`).value;
+    const name = g('name').trim(); if (!name) return toast('Preencha o nome');
+    Object.assign(c, { name, phone: g('phone').trim(), planId: g('planId') || null, dueDay: Math.min(31, Math.max(1, parseInt(g('dueDay')) || 1)), notes: g('notes') });
+    closeSheet(); save(); toast('Cliente salvo');
+  },
+  clDel: el => { if (!el.dataset.ok) return ask('Apagar este cliente e todo o histórico dele?', 'Apagar', 'clDel', el.dataset.id); const id = el.dataset.id; S().clients = S().clients.filter(c => c.id !== id); S().appointments = S().appointments.filter(a => a.clientId !== id); closeSheet(); save(); },
+  charge: el => { const ch = findCharge(el.dataset.id); ch && openWA(ch.client.phone, chargeText(ch)); },
+  copyPix: el => { const ch = findCharge(el.dataset.id); ch && copy(pixFor(ch.amount, 'GL' + ch.client.id.slice(0, 6)), 'Pix copia e cola copiado'); },
+  receive: el => { const ch = findCharge(el.dataset.id); if (!ch) return; receive(ch); save(); thanksPrompt(ch); },
+  parseNotif: () => {
+    const p = parseBankNotification(ui.notif || '');
+    if (p.amount == null) return toast('Não achei um valor (R$) no texto');
+    const id = matchPayment(p, openCharges());
+    if (id) { const ch = findCharge(id); receive(ch); ui.notif = ''; save(); thanksPrompt(ch); }
+    else { ui.pending = [...(ui.pending || []), p]; ui.notif = ''; render(); toast('Não achei sozinho: escolha em "Pix a conferir"'); }
+  },
+  naClear: () => { ui.na.clientId = ''; drawNA(); },
+  naPick: el => { ui.na.clientId = el.dataset.id; drawNA(); },
+  naSvc: el => { ui.na.serviceId = el.dataset.id; ui.na.force = false; drawNA(); },
+  naPro: el => { ui.na.proId = el.dataset.id; ui.na.force = false; drawNA(); },
+  naSave: () => {
+    const n = ui.na, err = m => { document.getElementById('naErr').textContent = m; };
+    if (!n.time) return err('Escolha a hora.');
+    let c = n.clientId && byId(S().clients, n.clientId);
+    if (!c) {
+      const name = n.q.trim(); if (name.length < 2) return err('Digite o nome do cliente.');
+      if (normPhone(n.newPhone).length < 12) return err('Informe o WhatsApp do cliente novo (com DDD).');
+      c = { id: store.uid(), name, phone: n.newPhone, planId: null, dueDay: new Date().getDate(), notes: '', createdAt: ymd(new Date()), lateCount: 0 }; S().clients.push(c);
+    }
+    const start = `${n.date}T${n.time}`, s = service(n.serviceId), st0 = parseLocal(start);
+    const clash = findClash(S(), n.proId, start, s.durationMin);
+    if (clash && !n.force) { n.force = true; return err(`${firstName(pro(n.proId).name)} já tem ${client(clash.clientId).name} às ${hhmm(clash.start)}. Toque de novo para marcar assim mesmo.`); }
+    const covered = coveredFor(c, n.serviceId, start);
+    S().appointments.push({ id: store.uid(), clientId: c.id, serviceId: n.serviceId, proId: n.proId, start, status: 'scheduled', covered, price: covered ? 0 : s.price, paid: covered });
+    closeSheet(); ui.day = n.date; save(); toast(`Marcado: ${firstName(c.name)} ${dataCurta(st0)} ${n.time}`);
+  },
+  reschedule: el => {
+    const a = byId(S().appointments, el.dataset.id), d = document.getElementById('rmD').value, t = document.getElementById('rmT').value;
+    if (!d || !t) return toast('Escolha dia e hora');
+    const clash = findClash(S(), a.proId, `${d}T${t}`, service(a.serviceId).durationMin, a.id);
+    if (clash) return toast(`Ocupado: ${client(clash.clientId).name} às ${hhmm(clash.start)}`);
+    a.start = `${d}T${t}`; a.status = 'scheduled'; const c = client(a.clientId);
+    if (!a.paid || a.covered) { a.covered = coveredFor(c, a.serviceId, a.start); a.price = a.covered ? 0 : service(a.serviceId).price; a.paid = a.covered; }
+    openWA(c.phone, fill(S().settings.templates.reschedule || '{nome}, seu horário mudou para {data} às {hora}.', vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: t })));
+    closeSheet(); ui.day = d; save(); toast('Remarcado');
+  },
+  accept: el => { const a = byId(S().appointments, el.dataset.id), c = client(a.clientId);
+    const clash = findClash(S(), a.proId, a.start, service(a.serviceId).durationMin, a.id);
+    if (clash) return toast(`Conflito com ${client(clash.clientId).name} às ${hhmm(clash.start)}. Remarque ou recuse.`);
+    a.status = 'confirmed'; openWA(c.phone, fill(S().settings.templates.accept, vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: hhmm(a.start), servico: service(a.serviceId).name }))); save(); toast('Pedido aceito'); },
+  refuse: el => { const a = byId(S().appointments, el.dataset.id), c = client(a.clientId); a.status = 'canceled'; openWA(c.phone, fill(S().settings.templates.refuse, vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: hhmm(a.start), link: bookingURL() }))); save(); },
+  shareFree: () => {
+    const now = new Date(), day = ymd(now), dur = Math.min(...S().services.map(x => x.durationMin));
+    const lines = S().pros.map(p => { const f = freeSlots(S(), day, p.id, dur, now); return f.length ? (S().pros.length > 1 ? `${firstName(p.name.replace(/\s*\(.*\)/, ''))}: ` : '') + f.join(' · ') : null; }).filter(Boolean);
+    if (!lines.length) return toast('Hoje não sobrou horário livre');
+    const msg = `✂️ ${S().settings.shopName} — horários livres hoje:\n${lines.join('\n')}\n\nPede o seu por aqui: ${bookingURL()}`;
+    const a = document.createElement('a'); a.href = 'https://wa.me/?text=' + encodeURIComponent(msg); a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  },
+  bookLink: () => copy(bookingURL(), 'Link de agendamento copiado'),
+  bookPreview: () => { ui.preview = true; document.body.classList.add('cliente'); bookingPage(bookingURL().split('#agendar=')[1]); $('main').insertAdjacentHTML('beforebegin', '<div id="prevBar" class="faixa-demo" style="max-width:620px;margin:10px auto 0;display:flex;justify-content:space-between;align-items:center">Prévia: é isso que o cliente vê <button class="bt ouro" data-act="endPreview">Voltar ao painel</button></div>'); window.scrollTo(0, 0); },
+  endPreview: () => { $('#prevBar')?.remove(); ui.preview = false; document.body.classList.remove('cliente'); $('main').onclick = null; $('main').oninput = null; render(); },
+  pasteReq: () => {
+    const r = parseBookingRequest(ui.req || ''); if (!r) return toast('Não achei o código do pedido (#GL[…]) na mensagem');
+    if (!byId(S().services, r.serviceId) || !byId(S().pros, r.proId)) return toast('Pedido com serviço ou profissional que não existe mais');
+    const phone = (String(ui.req).match(/tel(?:efone)?:?\s*(\+?[\d()\s.-]{10,})/i) || [])[1] || '';
+    let c = findClientForRequest(S().clients, r.name, phone);
+    if (!c) { c = { id: store.uid(), name: r.name, phone, planId: null, dueDay: new Date().getDate(), notes: '', createdAt: ymd(new Date()), lateCount: 0 }; S().clients.push(c); }
+    if (S().appointments.some(a => a.clientId === c.id && a.start === r.start && a.status !== 'canceled')) return toast('Esse pedido já está na agenda');
+    const covered = coveredFor(c, r.serviceId, r.start);
+    S().appointments.push({ id: store.uid(), clientId: c.id, serviceId: r.serviceId, proId: r.proId, start: r.start, status: 'requested', covered, price: covered ? 0 : service(r.serviceId).price, paid: covered });
+    ui.req = ''; ui.tab = 'hoje'; save();
+    if (normPhone(c.phone).length < 12) { clientSheet(c.id); toast('Cliente novo: coloque o WhatsApp dele e salve'); } else toast('Pedido adicionado: aceite ou recuse');
+  },
+  addMat: () => { (S().materials = S().materials || []).push({ id: store.uid(), name: 'Novo material', price: 0, yield: 1 }); save(); },
+  billPaid: el => { const f = byId(S().fixedCosts, el.dataset.id); S().billPayments.push({ id: store.uid(), costId: f.id, month: ui.month, amount: f.monthly, date: ymd(new Date()) }); save(); toast(`${f.name} paga`); },
+  addExpense: () => { const n = document.querySelector('[data-new="expName"]').value.trim(), v = parseMoney(document.querySelector('[data-new="expVal"]').value); if (!n || !(v > 0)) return toast('Preencha o gasto e o valor'); const d = ui.month === monthKey(new Date()) ? ymd(new Date()) : ui.month + '-01'; S().expenses.push({ id: store.uid(), date: d, name: n, amount: v }); save(); toast('Despesa lançada'); },
+  delExpense: el => { S().expenses = S().expenses.filter(e => e.id !== el.dataset.id); save(); },
+  proCharge: el => { const p = pro(el.dataset.id), v = Number(el.dataset.v); openWA(p.phone, fill(S().settings.templates.proShare, vars({ nome: firstName(p.name), mes: mesNome(ui.month), valor: brl(v), pix: pixFor(v, 'REP' + p.id.slice(-4)) }))); },
+  proPaid: el => { S().proPayments.push({ id: store.uid(), proId: el.dataset.id, month: ui.month, amount: Number(el.dataset.v), date: ymd(new Date()) }); save(); toast('Repasse recebido'); },
+  addFixed: () => { S().fixedCosts.push({ id: store.uid(), name: 'Novo gasto', monthly: 0, dueDay: 10 }); save(); },
+  settings: () => settingsSheet(),
+  addPro: () => { S().pros.push({ id: store.uid(), name: 'Novo barbeiro', phone: '', color: ['#e88cc2', '#f0d264', '#9b8cf0', '#64d2f0'][S().pros.length % 4], owner: false, shareType: 'percent', shareValue: 30, dueDay: 5 }); store.save(); settingsSheet(); },
+  addSvc: () => { S().services.push({ id: store.uid(), name: 'Novo serviço', durationMin: 30, price: 30, materialCost: 2 }); store.save(); settingsSheet(); },
+  addPlan: () => { S().plans.push({ id: store.uid(), name: 'Novo pacote', type: 'fixed', visitsPerCycle: 2, price: 60, serviceIds: [S().services[0].id] }); store.save(); settingsSheet(); },
+  plSvc: el => { const p = plan(el.dataset.id), s = el.dataset.s; p.serviceIds = p.serviceIds.includes(s) ? p.serviceIds.filter(x => x !== s) : [...p.serviceIds, s]; store.save(); settingsSheet(); },
+  exportCopy: () => copy(store.exportJSON(), 'Backup copiado: cole numa conversa sua no WhatsApp para guardar'),
+  export: () => { const blob = new Blob([store.exportJSON()], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `glstyle-backup-${ymd(new Date())}.json`; a.click(); toast('Backup baixado'); },
+  reset: el => { if (!el.dataset.ok) return ask('Apagar tudo e voltar aos dados de exemplo?', 'Apagar tudo', 'reset'); store.reset(); closeSheet(); render(); },
+  thanks: el => { const c = client(el.dataset.id); openWA(c.phone, fill(S().settings.templates.thanks, vars({ nome: firstName(c.name), valor: brl(Number(el.dataset.v)) }))); closeSheet(); },
+  close: () => closeSheet(),
+};
+function thanksPrompt(ch) {
+  sheet(`<h2>Pago ✓</h2><p>${esc(ch.client.name)} · <strong>${brl(ch.amount)}</strong> registrado.</p>
+  <button class="bt zap cheio" data-act="thanks" data-id="${ch.client.id}" data-v="${ch.amount}">Mandar “recebi, valeu” no WhatsApp</button>
+  <button class="bt leve cheio" style="margin-top:8px" data-act="close">Agora não</button>`);
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const fn = A[el.dataset.act]; if (fn) { e.preventDefault(); fn(el); }
+});
+document.addEventListener('input', e => {
+  const t = e.target, d = t.dataset;
+  if (d.input === 'q') { ui.q = t.value; const tmp = document.createElement('div'); tmp.innerHTML = viewClientes(); const fresh = tmp.querySelector('#cliRes'), cur = document.getElementById('cliRes'); if (fresh && cur) cur.replaceWith(fresh); else render(); }
+  else if (d.input === 'notif') ui.notif = t.value;
+  else if (d.input === 'req') ui.req = t.value;
+  else if (d.na) { ui.na[d.na] = t.value; ui.na.force = false; if (d.na === 'q') { const box = document.getElementById('naSugs'); if (box) box.innerHTML = naSugs(); } }
+});
+const numOr = (v, f) => { const n = parseMoney(v); return Number.isFinite(n) ? n : f; };
+document.addEventListener('change', e => {
+  const t = e.target, d = t.dataset;
+  if (d.set) { const st = S().settings; st[d.set] = typeof st[d.set] === 'number' ? numOr(t.value, st[d.set]) : t.value; save(); }
+  else if (d.tpl) { S().settings.templates[d.tpl] = t.value; store.save(); }
+  else if (d.fc) { const f = byId(S().fixedCosts, d.fc); f[d.k] = d.k === 'name' ? t.value : numOr(t.value, f[d.k]); save(); }
+  else if (d.pr) { const p = pro(d.pr); p[d.k] = ['name', 'phone', 'shareType'].includes(d.k) ? t.value : numOr(t.value, p[d.k]); store.save(); render(); }
+  else if (d.sv) { const s = service(d.sv); s[d.k] = d.k === 'name' ? t.value : numOr(t.value, s[d.k]); store.save(); render(); }
+  else if (d.pl) { const p = plan(d.pl); p[d.k] = ['name', 'type'].includes(d.k) ? t.value : numOr(t.value, p[d.k]); store.save(); render(); }
+  else if (d.mt) { const m = byId(mats(), d.mt); m[d.k] = d.k === 'name' ? t.value : numOr(t.value, m[d.k]); save(); }
+  else if (d.svm) { const sv = service(d.svm), q = numOr(t.value, 0); sv.materials = (sv.materials || []).filter(x => x.id !== d.m); if (q > 0) sv.materials.push({ id: d.m, qty: q }); store.save(); settingsSheet(); }
+  else if (d.pend !== undefined && t.value) { const ch = findCharge(t.value); if (!ch) { toast('Essa cobrança já foi paga'); render(); return; } ui.pending.splice(Number(d.pend), 1); receive(ch); save(); thanksPrompt(ch); }
+  else if (d.actFile === 'import' && t.files[0]) { t.files[0].text().then(s => { try { store.importJSON(s); closeSheet(); render(); toast('Backup importado'); } catch (err) { toast(err.message); } }); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && ui.sheet) closeSheet(); });
+render();
+
+</script>
+</body>
+</html>
