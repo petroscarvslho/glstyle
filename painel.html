@@ -717,6 +717,30 @@ body:not(.cliente) .slot .ib svg{width:14px;height:14px}
 body:not(.cliente) .livre{color:color-mix(in srgb,var(--mudo) 75%,transparent)}
 body:not(.cliente) .seg button{font-size:13px;padding:8px 11px}
 body:not(.cliente) .seg{display:flex;justify-content:space-between}
+/* agenda limpa */
+.agenda-lista{background:var(--sup);border:1px solid var(--linha);border-radius:16px;overflow:hidden;margin-top:12px}
+.ag-row{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:10px;padding:0 12px 0 14px;min-height:44px;border-top:1px solid var(--linha)}
+.ag-row:first-child{border-top:0}
+.ag-row .h{font-size:13px;color:var(--mudo);font-variant-numeric:tabular-nums}
+.ag-row .t{min-width:0}
+.ag-livre{cursor:pointer}
+.ag-livre .t{color:color-mix(in srgb,var(--mudo) 60%,transparent);font-size:13.5px}
+.ag-livre .h{color:color-mix(in srgb,var(--mudo) 80%,transparent)}
+.ag-lock{background:none;border:0;padding:8px;color:var(--mudo);opacity:.35;cursor:pointer;display:grid}
+.ag-lock svg{width:15px;height:15px}
+.ag-ocup{cursor:pointer;padding-top:8px;padding-bottom:8px;background:color-mix(in srgb,var(--verde) 4%,var(--sup))}
+.ag-ocup .h{color:var(--creme);font-weight:700}
+.ag-ocup b{display:block;font-size:14.5px;font-weight:600}
+.ag-ocup small{display:block;font-size:12.5px;color:var(--mudo)}
+.ag-dot{width:8px;height:8px;border-radius:50%;background:var(--latao)}
+.st-done .ag-dot{background:var(--ok)} .st-confirmed .ag-dot{background:var(--verde)} .st-noshow .ag-dot{background:var(--mal)} .st-requested .ag-dot{background:var(--aviso)}
+.st-done b,.st-noshow b{color:var(--mudo)}
+.ag-pausa .t,.ag-bloq .t{font-size:13px;color:var(--mudo)}
+.ag-pausa,.ag-bloq{background:repeating-linear-gradient(-45deg,var(--sup2) 0 6px,transparent 6px 12px)}
+@media (hover:hover){.ag-livre:hover{background:var(--sup2)}.ag-livre:hover .t{color:var(--verde)}.ag-livre:hover .ag-lock{opacity:.8}}
+body:not(.cliente) .dias{margin-top:4px}
+body:not(.cliente) .dias .dia{background:none;border:0;box-shadow:none;width:auto;flex:1;min-width:44px;padding:6px 0;border-radius:12px}
+body:not(.cliente) .dias .dia.on{background:var(--verde)}
 </style>
 </head>
 <body>
@@ -1524,13 +1548,16 @@ function viewAgenda() {
     const blk = (S().blocks || []).filter(b => b.start.startsWith(ui.day) && (ui.pro === 'todos' || b.proId === ui.pro) && (() => { const s0 = parseLocal(b.start); const bm = s0.getHours() * 60 + s0.getMinutes(); return bm >= m && bm < m + st.slotMin; })());
     const b0 = st.breakStart ? (([h0, m0]) => h0 * 60 + m0)(st.breakStart.split(':').map(Number)) : -1;
     const pausa = st.breakStart && m >= b0 && m < b0 + Number(st.breakMin || 0);
-    if (pausa && !here.length) return m < b0 + st.slotMin ? `<div class="slot"><div class="h num">${hh}</div><div class="c"><div class="bloq">Pausa · ${Number(st.breakMin || 0)} min</div></div></div>` : '';
-    return `<div class="slot"><div class="h num">${hh}</div><div class="c">${blk.map(b => `<div class="bloq">Bloqueado · ${esc(b.reason)} (${b.durationMin} min)<button class="desfazer" data-act="unblock" data-id="${b.id}">tirar</button></div>`).join('')}${here.map(a => `<div class="ocup" style="border-left-color:${pro(a.proId).color}" data-act="appt" data-id="${a.id}"><strong>${esc(client(a.clientId).name)}</strong> ${statusTag(a)}<div class="mini">${esc(service(a.serviceId).name)}${S().pros.length > 1 ? ' · ' + esc(firstName(pro(a.proId).name)) : ''}</div></div>`).join('')}${free && !here.length && !blk.length ? `<div style="display:flex;gap:6px"><button class="livre" style="flex:1" data-act="new" data-time="${hh}">livre</button><button class="ib" data-act="block" data-time="${hh}" aria-label="Bloquear ${hh}">${I.lock}</button></div>` : ''}</div></div>`;
+    if (pausa && !here.length) return m < b0 + st.slotMin ? `<div class="ag-row ag-pausa"><span class="h num">${hh}</span><span class="t">Pausa · ${Number(st.breakMin || 0)} min</span></div>` : '';
+    const out = blk.map(b => `<div class="ag-row ag-bloq"><span class="h num">${hh}</span><span class="t">${esc(b.reason)} · ${b.durationMin ? b.durationMin + ' min' : 'resto do dia'}</span><button class="link-mini" data-act="unblock" data-id="${b.id}">liberar</button></div>`).join('')
+      + here.map((a, i) => `<div class="ag-row ag-ocup st-${a.status}" data-act="appt" data-id="${a.id}"><span class="h num">${i ? '' : hhmm(a.start)}</span><span class="t"><b>${esc(client(a.clientId).name)}</b><small>${esc(service(a.serviceId).name)}${S().pros.length > 1 ? ' · ' + esc(firstName(pro(a.proId).name)) : ''} · ${{ done: 'atendido', confirmed: 'confirmado', noshow: 'faltou', requested: 'pedido' }[a.status] || 'marcado'}</small></span><i class="ag-dot" style="background:${S().pros.length > 1 ? pro(a.proId).color : ''}"></i></div>`).join('');
+    if (out) return out;
+    return free ? `<div class="ag-row ag-livre" data-act="new" data-time="${hh}"><span class="h num">${hh}</span><span class="t">livre</span><button class="ag-lock" data-act="block" data-time="${hh}" aria-label="Bloquear ${hh}">${I.lock}</button></div>` : '';
   }).join('');
   const aberto = isOpenDay(st, ui.day);
-  return `<h1>Agenda</h1><p class="sub">${esc(dataBR(base))}${aberto ? '' : ' · fechado'}</p>
+  return `<div class="hoje-topo"><h1>Agenda</h1><span class="data-topo">${esc(base.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }).replace(/\./g, ''))}${aberto ? '' : ' · fechado'}</span></div>
   <div class="dias">${days.map(d => `<button class="dia ${ymd(d) === ui.day ? 'on' : ''}" data-act="day" data-id="${ymd(d)}" ${isOpenDay(st, ymd(d)) ? '' : 'style="opacity:.45"'}>${d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${d.getDate()}</b></button>`).join('')}</div>
-  ${proChips()}${aberto || dayAppts.length ? rows : '<div class="vazio">Dia fechado: sem atendimento. Mude os dias em Ajustes → Salão.</div>'}
+  ${proChips()}${aberto || dayAppts.length ? `<div class="agenda-lista">${rows}</div>` : '<div class="vazio">Dia fechado: sem atendimento. Mude os dias em Ajustes → Salão.</div>'}
   <details class="mais cartao" style="margin-top:18px" ${ui.req ? 'open' : ''}><summary>Link de agendamento para clientes</summary><div class="mini">Mande o link no WhatsApp, status ou Instagram. O cliente vê os horários livres dos próximos 7 dias e pede pelo WhatsApp. Gere de novo quando a agenda mudar.</div>
     <div class="duas" style="margin-top:8px"><button class="bt ouro" data-act="bookLink">Copiar link</button><button class="bt leve" data-act="bookPreview">Ver como cliente</button></div>
     <label class="campo"><span>Chegou um pedido? Cole a mensagem aqui</span><textarea data-input="req" placeholder="Olá! Quero marcar… #GL[…]">${esc(ui.req || '')}</textarea></label>

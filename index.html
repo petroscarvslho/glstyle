@@ -717,12 +717,36 @@ body:not(.cliente) .slot .ib svg{width:14px;height:14px}
 body:not(.cliente) .livre{color:color-mix(in srgb,var(--mudo) 75%,transparent)}
 body:not(.cliente) .seg button{font-size:13px;padding:8px 11px}
 body:not(.cliente) .seg{display:flex;justify-content:space-between}
+/* agenda limpa */
+.agenda-lista{background:var(--sup);border:1px solid var(--linha);border-radius:16px;overflow:hidden;margin-top:12px}
+.ag-row{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:10px;padding:0 12px 0 14px;min-height:44px;border-top:1px solid var(--linha)}
+.ag-row:first-child{border-top:0}
+.ag-row .h{font-size:13px;color:var(--mudo);font-variant-numeric:tabular-nums}
+.ag-row .t{min-width:0}
+.ag-livre{cursor:pointer}
+.ag-livre .t{color:color-mix(in srgb,var(--mudo) 60%,transparent);font-size:13.5px}
+.ag-livre .h{color:color-mix(in srgb,var(--mudo) 80%,transparent)}
+.ag-lock{background:none;border:0;padding:8px;color:var(--mudo);opacity:.35;cursor:pointer;display:grid}
+.ag-lock svg{width:15px;height:15px}
+.ag-ocup{cursor:pointer;padding-top:8px;padding-bottom:8px;background:color-mix(in srgb,var(--verde) 4%,var(--sup))}
+.ag-ocup .h{color:var(--creme);font-weight:700}
+.ag-ocup b{display:block;font-size:14.5px;font-weight:600}
+.ag-ocup small{display:block;font-size:12.5px;color:var(--mudo)}
+.ag-dot{width:8px;height:8px;border-radius:50%;background:var(--latao)}
+.st-done .ag-dot{background:var(--ok)} .st-confirmed .ag-dot{background:var(--verde)} .st-noshow .ag-dot{background:var(--mal)} .st-requested .ag-dot{background:var(--aviso)}
+.st-done b,.st-noshow b{color:var(--mudo)}
+.ag-pausa .t,.ag-bloq .t{font-size:13px;color:var(--mudo)}
+.ag-pausa,.ag-bloq{background:repeating-linear-gradient(-45deg,var(--sup2) 0 6px,transparent 6px 12px)}
+@media (hover:hover){.ag-livre:hover{background:var(--sup2)}.ag-livre:hover .t{color:var(--verde)}.ag-livre:hover .ag-lock{opacity:.8}}
+body:not(.cliente) .dias{margin-top:4px}
+body:not(.cliente) .dias .dia{background:none;border:0;box-shadow:none;width:auto;flex:1;min-width:44px;padding:6px 0;border-radius:12px}
+body:not(.cliente) .dias .dia.on{background:var(--verde)}
 </style>
 </head>
 <body class="cliente">
 <header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
 <main></main>
-<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTg0MTM3Mzh9";</script>
+<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTg1NzcwMTR9";</script>
 <script>
 // GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
 
