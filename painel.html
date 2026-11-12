@@ -602,6 +602,85 @@ body.cliente input[data-bkin]{font-size:16px}
 h2:has(.passo){justify-content:flex-start;align-items:center}
 h2:has(.passo) small{margin-left:auto}
 .dia{min-width:64px;font-size:13px;padding-left:6px;padding-right:6px}
+
+/* ===== camada final: compacta, estilo app nativo (painel) ===== */
+body:not(.cliente){font-size:15px;line-height:1.4}
+body:not(.cliente) .top-in{padding-top:8px;padding-bottom:8px}
+body:not(.cliente) .marca{font-size:17px}
+body:not(.cliente) .marca .mono,body:not(.cliente) .marca img,body:not(.cliente) .marca::before{transform:scale(.85)}
+body:not(.cliente) #ajustes{padding:7px 12px;font-size:13.5px;min-height:0}
+body:not(.cliente) .data-topo{font-size:12.5px;margin-top:10px}
+body:not(.cliente) h1{font-size:24px;margin-bottom:10px}
+body:not(.cliente) h2{font-size:15px;margin-top:22px;margin-bottom:8px}
+body:not(.cliente) h2 small{font-size:12.5px}
+body:not(.cliente) .mini,body:not(.cliente) .meta{font-size:12.5px}
+body:not(.cliente) .cartao,body:not(.cliente) .cartao-preto{padding:14px 16px;border-radius:16px}
+body:not(.cliente) .cartao-preto .rot{font-size:12px}
+body:not(.cliente) .cartao-preto .val{font-size:28px;margin-top:2px}
+body:not(.cliente) .cartao-preto .linha3{margin-top:12px;padding-top:10px}
+body:not(.cliente) .cartao-preto .linha3 b{font-size:15px}
+body:not(.cliente) .cartao-preto .selo{font-size:11.5px;padding:3px 9px}
+body:not(.cliente) .alerta-cob{padding:11px 14px;margin-top:10px}
+body:not(.cliente) .alerta-cob strong{font-size:14px}
+body:not(.cliente) .bt{min-height:42px;padding:10px 14px;font-size:14.5px;border-radius:12px}
+body:not(.cliente) .duas{gap:8px}
+/* agenda como lista agrupada, sem um cartão por linha */
+body:not(.cliente) .lista{display:block;background:var(--sup);border:1px solid var(--linha);border-radius:16px;overflow:hidden}
+body:not(.cliente) .lista>.mini{padding:8px 14px 0;display:block}
+body:not(.cliente) .lista .item{border:0;border-top:1px solid var(--linha);border-radius:0;box-shadow:none;background:none;padding:10px 12px 10px 14px;grid-template-columns:48px 1fr auto;gap:1px 10px;align-items:center;opacity:1}
+body:not(.cliente) .lista .item:first-child,body:not(.cliente) .lista>.mini+.item{border-top:0}
+body:not(.cliente) .lista .item.feito .nome,body:not(.cliente) .lista .item.feito .hora{color:var(--mudo)}
+body:not(.cliente) .item .hora{font-size:15px;font-weight:700;color:var(--creme);font-family:var(--corpo);letter-spacing:0}
+body:not(.cliente) .item .nome{font-size:15px;font-weight:600}
+body:not(.cliente) .item .tag{font-size:12px}
+body:not(.cliente) .item:not(.compacto){background:color-mix(in srgb,var(--verde) 5%,var(--sup))}
+body:not(.cliente) .item .acoes{margin-top:8px;gap:6px}
+body:not(.cliente) .item .acoes .bt{min-height:36px;padding:7px 12px;font-size:14px}
+body:not(.cliente) .ib{width:34px;height:34px;border-radius:10px}
+body:not(.cliente) .ib svg{width:17px;height:17px}
+body:not(.cliente) .acoes-lado{display:flex;gap:6px}
+body:not(.cliente) .grupo .linha{padding:10px 14px;min-height:0}
+body:not(.cliente) .valor{font-size:15px}
+body:not(.cliente) .linha strong{font-size:14.5px}
+/* barra de baixo e botão + */
+body:not(.cliente) nav.abas button{padding:7px 0 6px;font-size:10.5px;gap:2px}
+body:not(.cliente) nav.abas button svg{width:21px;height:21px}
+body:not(.cliente) .fab{width:50px;height:50px;font-size:26px;right:16px;bottom:calc(70px + env(safe-area-inset-bottom))}
+body:not(.cliente) main{padding-bottom:70px}
+body:not(.cliente) .seg button{font-size:13.5px;padding:8px 12px}
+body:not(.cliente) .chip{font-size:13.5px;padding:7px 12px}
+@media (min-width:900px){ body:not(.cliente) .fab{width:200px;height:44px;font-size:14.5px} body:not(.cliente) main{padding-bottom:30px} }
+body:not(.cliente) .lista .item{border:0!important;border-top:1px solid var(--linha)!important}
+body:not(.cliente) .lista .item:first-child,body:not(.cliente) .lista>.mini+.item{border-top:0!important}
+body:not(.cliente) .ib{width:32px;height:32px;border:0;background:var(--sup2)}
+body:not(.cliente) .ib.zap{background:color-mix(in srgb,#1f8a4c 10%,var(--sup))}
+body:not(.cliente) .ib.mal{background:color-mix(in srgb,var(--mal) 8%,var(--sup))}
+body:not(.cliente) .ib.ok{background:color-mix(in srgb,var(--verde) 10%,var(--sup));color:var(--verde)}
+body:not(.cliente) .item .nome{font-size:14.5px}
+body:not(.cliente) .item .hora{font-size:14px}
+body:not(.cliente) .item:not(.compacto) .acoes .bt.ok{flex:0 1 auto;padding-left:18px;padding-right:18px}
+body:not(.cliente) .item:not(.compacto) .acoes{justify-content:flex-start}
+body:not(.cliente) .grupo .ib{border:0}
+body:not(.cliente) .grande{font-size:30px}
+body:not(.cliente) .hero .big{font-size:32px}
+body:not(.cliente) .stats .v{font-size:16px}
+body:not(.cliente) .cartao .bt,body:not(.cliente) .cartao .ib{min-height:38px}
+body:not(.cliente) .cartao .acoes .bt,body:not(.cliente) .cartao .duas .bt{padding:8px 12px}
+body:not(.cliente) .slot{min-height:38px}
+body:not(.cliente) .slot .h{padding-top:9px;font-size:12.5px}
+body:not(.cliente) .livre{padding:6px 10px;font-size:13px;border-radius:9px}
+body:not(.cliente) .ocup{padding:6px 10px;border-left-width:3px}
+body:not(.cliente) .ocup strong{font-size:14px}
+body:not(.cliente) .dia{width:46px;padding:6px 0;font-size:12px}
+body:not(.cliente) .dia b{font-size:17px}
+body:not(.cliente) .sub{font-size:13px}
+body:not(.cliente) input,body:not(.cliente) select,body:not(.cliente) textarea{font-size:16px;padding:10px 12px}
+@media (min-width:900px){
+  body:not(.cliente) nav.abas button{font-size:14px;padding:10px 12px;gap:10px}
+  body:not(.cliente) nav.abas button svg{width:19px;height:19px}
+  body:not(.cliente) .fab{top:auto;bottom:auto;position:fixed;top:300px}
+}
+@media (min-width:900px){ body:not(.cliente) .fab{top:312px} }
 </style>
 </head>
 <body>
