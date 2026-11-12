@@ -34,7 +34,7 @@ function bookingPage(code) {
     if (k === 'send') {
       const pr = D.pr.find(x => x[0] === bk.pr), dt = parseLocal(`${bk.day}T${bk.time}`);
       const msg = `Olá! Quero marcar ${svc[1]}${D.pr.length > 1 ? ` com ${pr[1]}` : ''} ${dataBR(dt)} às ${bk.time}.\nNome: ${bk.name.trim()}${bk.phone ? `\nTel: ${bk.phone}` : ''}\n#GL[${bk.day}T${bk.time}|${svc[0]}|${pr[0]}|${bk.name.trim()}]`;
-      window.open(waLink(D.w, msg), '_blank', 'noopener'); return;
+      const lk = document.createElement('a'); lk.href = waLink(D.w, msg); lk.target = '_blank'; lk.rel = 'noopener'; document.body.appendChild(lk); lk.click(); lk.remove(); return;
     }
     bk[k] = el.dataset.id; bookingPage(code);
   };
@@ -42,5 +42,5 @@ function bookingPage(code) {
 }
 
 function bootBooking() { const h = location.hash.replace(/^#(agendar=)?/, ''); bookingPage(h); }
-window.addEventListener('hashchange', bootBooking);
-bootBooking();
+if (document.body.classList.contains('cliente')) window.addEventListener('hashchange', bootBooking);
+if (document.body.classList.contains('cliente')) bootBooking();

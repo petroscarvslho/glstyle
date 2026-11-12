@@ -15,10 +15,11 @@ const dataCurta = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2
 const mesNome = mk => { const [y, m] = mk.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); };
 const firstName = n => String(n).split(' ')[0];
 
+function ask(msg, okLabel, act, id) { sheet(`<h2>${esc(msg)}</h2><div class="duas" style="margin-top:12px"><button class="bt leve" data-act="close">Voltar</button><button class="bt mal" style="background:var(--mal);color:#fff" data-act="${act}" data-id="${id || ''}" data-ok="1">${esc(okLabel)}</button></div>`); }
 function save() { store.save(); render(); }
 function toast(msg) { const t = document.createElement('div'); t.className = 'aviso'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
 async function copy(text, msg = 'Copiado') { try { await navigator.clipboard.writeText(text); } catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch {} ta.remove(); } toast(msg); }
-function openWA(phone, text) { if (normPhone(phone).length < 12) { toast('Cliente sem WhatsApp cadastrado: abra a ficha e preencha'); return false; } window.open(waLink(phone, text), '_blank', 'noopener'); return true; }
+function openWA(phone, text) { if (normPhone(phone).length < 12) { toast('Cliente sem WhatsApp cadastrado: abra a ficha e preencha'); return false; } const a = document.createElement('a'); a.href = waLink(phone, text); a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); return true; }
 
 // ---------- regras de negócio da interface
 const mats = () => S().materials || [];
@@ -332,7 +333,7 @@ function settingsSheet() {
     mensagens: () => `<p class="sub">Textos que vão prontos no WhatsApp. Escreva do seu jeito.</p>  ${Object.entries(st.templates).map(([k, v]) => `<label class="campo"><span>${{ accept: 'Pedido aceito', refuse: 'Pedido recusado', confirm: 'Confirmação de horário (véspera)', renew: 'Renovação do plano (fim do ciclo)', reschedule: 'Horário remarcado', remindLeve: 'Mensalidade (tom leve)', remindFirme: 'Mensalidade atrasada (tom firme)', charge: 'Cobrança de avulso', thanks: 'Agradecimento de pagamento', comeback: 'Cliente sumido', proShare: 'Repasse do associado' }[k] || k}</span><textarea data-tpl="${k}">${esc(v)}</textarea></label>`).join('')}<div class="mini">Variáveis: {link} {nome} {data} {hora} {servico} {valor} {plano} {inicio} {fim} {chave} {pix} {dias} {mes} {salao}</div>
 `,
     backup: () => `  <div class="mini">${store.persistent ? 'Os dados ficam guardados neste aparelho. Exporte um backup de vez em quando.' : 'Este navegador não está guardando os dados. Exporte antes de fechar.'}</div>
-  <div class="duas" style="margin-top:8px"><button class="bt leve" data-act="export">Exportar backup</button><label class="bt leve" style="text-align:center">Importar<input type="file" accept="application/json" data-act-file="import" hidden></label></div>
+  <div class="duas" style="margin-top:8px"><button class="bt leve" data-act="export">Baixar backup</button><button class="bt leve" data-act="exportCopy">Copiar backup</button><label class="bt leve" style="text-align:center">Importar<input type="file" accept="application/json" data-act-file="import" hidden></label></div>
   <button class="bt mal cheio" style="margin-top:12px" data-act="reset">Recomeçar com dados de exemplo</button>`,
   };
   sheet(`<h2>Ajustes</h2><div class="seg">${[['salao', 'Salão'], ['servicos', 'Serviços'], ['pacotes', 'Pacotes'], ['mensagens', 'Mensagens'], ['backup', 'Backup']].map(([k, l]) => `<button class="${ui.aj === k ? 'on' : ''}" data-act="aj" data-id="${k}">${l}</button>`).join('')}</div>${sec[ui.aj]()}`);
@@ -380,7 +381,7 @@ const A = {
     Object.assign(c, { name, phone: g('phone').trim(), planId: g('planId') || null, dueDay: Math.min(31, Math.max(1, parseInt(g('dueDay')) || 1)), notes: g('notes') });
     closeSheet(); save(); toast('Cliente salvo');
   },
-  clDel: el => { if (!confirm('Apagar este cliente e o histórico dele?')) return; const id = el.dataset.id; S().clients = S().clients.filter(c => c.id !== id); S().appointments = S().appointments.filter(a => a.clientId !== id); closeSheet(); save(); },
+  clDel: el => { if (!el.dataset.ok) return ask('Apagar este cliente e todo o histórico dele?', 'Apagar', 'clDel', el.dataset.id); const id = el.dataset.id; S().clients = S().clients.filter(c => c.id !== id); S().appointments = S().appointments.filter(a => a.clientId !== id); closeSheet(); save(); },
   charge: el => { const ch = findCharge(el.dataset.id); ch && openWA(ch.client.phone, chargeText(ch)); },
   copyPix: el => { const ch = findCharge(el.dataset.id); ch && copy(pixFor(ch.amount, 'GL' + ch.client.id.slice(0, 6)), 'Pix copia e cola copiado'); },
   receive: el => { const ch = findCharge(el.dataset.id); if (!ch) return; receive(ch); save(); thanksPrompt(ch); },
@@ -427,7 +428,8 @@ const A = {
     a.status = 'confirmed'; openWA(c.phone, fill(S().settings.templates.accept, vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: hhmm(a.start), servico: service(a.serviceId).name }))); save(); toast('Pedido aceito'); },
   refuse: el => { const a = byId(S().appointments, el.dataset.id), c = client(a.clientId); a.status = 'canceled'; openWA(c.phone, fill(S().settings.templates.refuse, vars({ nome: firstName(c.name), data: dataBR(parseLocal(a.start)), hora: hhmm(a.start), link: bookingURL() }))); save(); },
   bookLink: () => copy(bookingURL(), 'Link de agendamento copiado'),
-  bookPreview: () => { window.open(bookingURL(), '_blank'); },
+  bookPreview: () => { ui.preview = true; document.body.classList.add('cliente'); bookingPage(bookingURL().split('#agendar=')[1]); $('main').insertAdjacentHTML('beforebegin', '<div id="prevBar" class="faixa-demo" style="max-width:620px;margin:10px auto 0;display:flex;justify-content:space-between;align-items:center">Prévia: é isso que o cliente vê <button class="bt ouro" data-act="endPreview">Voltar ao painel</button></div>'); window.scrollTo(0, 0); },
+  endPreview: () => { $('#prevBar')?.remove(); ui.preview = false; document.body.classList.remove('cliente'); $('main').onclick = null; $('main').oninput = null; render(); },
   pasteReq: () => {
     const r = parseBookingRequest(ui.req || ''); if (!r) return toast('Não achei o código do pedido (#GL[…]) na mensagem');
     if (!byId(S().services, r.serviceId) || !byId(S().pros, r.proId)) return toast('Pedido com serviço ou profissional que não existe mais');
@@ -451,8 +453,9 @@ const A = {
   addSvc: () => { S().services.push({ id: store.uid(), name: 'Novo serviço', durationMin: 30, price: 30, materialCost: 2 }); store.save(); settingsSheet(); },
   addPlan: () => { S().plans.push({ id: store.uid(), name: 'Novo pacote', type: 'fixed', visitsPerCycle: 2, price: 60, serviceIds: [S().services[0].id] }); store.save(); settingsSheet(); },
   plSvc: el => { const p = plan(el.dataset.id), s = el.dataset.s; p.serviceIds = p.serviceIds.includes(s) ? p.serviceIds.filter(x => x !== s) : [...p.serviceIds, s]; store.save(); settingsSheet(); },
+  exportCopy: () => copy(store.exportJSON(), 'Backup copiado: cole numa conversa sua no WhatsApp para guardar'),
   export: () => { const blob = new Blob([store.exportJSON()], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `glstyle-backup-${ymd(new Date())}.json`; a.click(); toast('Backup baixado'); },
-  reset: () => { if (!confirm('Apagar tudo e voltar aos dados de exemplo?')) return; store.reset(); closeSheet(); render(); },
+  reset: el => { if (!el.dataset.ok) return ask('Apagar tudo e voltar aos dados de exemplo?', 'Apagar tudo', 'reset'); store.reset(); closeSheet(); render(); },
   thanks: el => { const c = client(el.dataset.id); openWA(c.phone, fill(S().settings.templates.thanks, vars({ nome: firstName(c.name), valor: brl(Number(el.dataset.v)) }))); closeSheet(); },
   close: () => closeSheet(),
 };
