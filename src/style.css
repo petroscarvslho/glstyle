@@ -353,3 +353,48 @@ body.cliente .top-in{justify-content:center}
 .svc-card:active{transform:scale(.98)}
 .data-topo::first-letter{text-transform:uppercase}
 body.cliente .top-in{display:none}
+
+/* ===== leve + premium ===== */
+.cartao-preto{background:var(--sup);color:var(--creme);box-shadow:var(--sombra);border:1px solid color-mix(in srgb,var(--latao) 28%,transparent)}
+.cartao-preto::after{border-color:color-mix(in srgb,var(--latao) 22%,transparent)}
+.cartao-preto .rot{color:var(--mudo)}
+.cartao-preto .linha3{border-top-color:var(--linha)}
+.cartao-preto .linha3 b{color:var(--creme)}
+.cartao-preto .selo{color:var(--latao2);border-color:color-mix(in srgb,var(--latao) 40%,transparent)}
+:root{--sombra:0 1px 2px rgba(16,18,22,.04),0 4px 14px -8px rgba(16,18,22,.10)}
+.item .acoes .bt.ok{background:var(--creme);color:var(--sup)}
+.tag{background:none!important;padding:0;margin-left:0;font-weight:600}
+.tag::before{content:"• "}
+.item .tag.mudo,.item .mini{color:var(--mudo)}
+.poste{height:2px;opacity:.75}
+.alerta-cob{background:var(--sup)!important;box-shadow:var(--sombra)!important;border-left:3px solid var(--aviso)!important}
+h2{font-size:17px}
+.secao,h2{margin-top:28px}
+.bloq{border-radius:12px;padding:9px 12px;background:repeating-linear-gradient(-45deg,var(--sup2) 0 8px,transparent 8px 16px);border:1px dashed var(--linha);color:var(--mudo);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+
+/* ===== computador (celular continua sendo o principal) ===== */
+@media (min-width:900px){
+  body:not(.cliente){padding-bottom:40px;padding-left:220px}
+  body:not(.cliente) nav.abas{left:16px;top:84px;bottom:auto;right:auto;width:188px;border-radius:20px;padding:8px}
+  body:not(.cliente) nav.abas .in{display:flex;flex-direction:column;gap:2px}
+  body:not(.cliente) nav.abas button{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;font-size:14.5px;border-radius:14px}
+  body:not(.cliente) nav.abas button.on{background:var(--sup2)}
+  body:not(.cliente) nav.abas .badge{position:static;margin-left:auto}
+  body:not(.cliente) main,body:not(.cliente) .top-in{max-width:880px}
+  body:not(.cliente) .fab{right:calc(50% - 440px + 110px);bottom:32px}
+  .veu{align-items:center}
+  .folha{border-radius:24px;max-width:560px;max-height:86vh}
+  .lista{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .lista>.mini{grid-column:1/-1}
+  .resumo{grid-template-columns:repeat(3,1fr)}
+}
+@media (min-width:700px){
+  body.cliente main{max-width:600px}
+  .svc-cards{grid-template-columns:repeat(3,1fr)}
+}
+@media (hover:hover){
+  .bt:hover,.chip:hover,.svc-card:hover,.livre:hover{filter:brightness(.97)}
+  nav.abas button:hover{color:var(--creme)}
+}
+.aviso-cli{background:color-mix(in srgb,var(--latao) 10%,var(--sup));border:1px solid color-mix(in srgb,var(--latao) 30%,transparent);border-radius:14px;padding:11px 14px;margin:10px 0 0;font-weight:600;font-size:14px}
+@media (min-width:900px){ body:not(.cliente) .fab{left:16px;right:auto;top:360px;bottom:auto;width:188px;height:48px;border-radius:16px;font-size:15px;font-family:var(--corpo);font-weight:700} body:not(.cliente) .fab::after{content:" Novo horário";} }

@@ -9,7 +9,7 @@ function bookingPage(code) {
   const openD = d => !Array.isArray(D.wd) || D.wd.includes(parseLocal(d + 'T12:00').getDay());
   bk.sv = bk.sv || D.sv[0][0]; bk.pr = bk.pr || D.pr[0][0]; bk.day = days.includes(bk.day) ? bk.day : (days.find(openD) || days[0]);
   const svc = D.sv.find(x => x[0] === bk.sv) || D.sv[0];
-  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl, workDays: D.wd }, services: [], appointments: [] };
+  const st = { settings: { openHour: D.o, closeHour: D.c, slotMin: D.sl, workDays: D.wd, minAdvanceH: D.ma || 0 }, services: [], appointments: [] };
   const slotsFor = (day, pr) => {
     const busy = (D.d[day] && D.d[day][pr]) || [];
     st.services = busy.map((b, i) => ({ id: 'b' + i, durationMin: b[1] - b[0] }));
@@ -20,7 +20,8 @@ function bookingPage(code) {
   if (!slots.includes(bk.time)) bk.time = null;
   const old = Math.round((Date.now() - (D.g || Date.now())) / 3600000);
   main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<div class="cli-hero"><div class="mono-g">${esc((D.s || 'GL').split(' ')[0].slice(0, 2).toUpperCase())}</div><h1>${esc(D.s)}</h1><p>${D.a ? '📍 ' + esc(D.a) + '<br>' : ''}Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
-  </p></div><h2>Serviço</h2><div class="svc-cards">${D.sv.map(x => `<button class="svc-card ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}"><b>${esc(x[1])}</b><small>${x[3]} min</small><div class="p num">${brl(x[2])}</div></button>`).join('')}</div>
+  </p>${D.ig ? `<p><a href="https://instagram.com/${encodeURIComponent(D.ig)}" target="_blank" rel="noopener" style="color:var(--latao2);font-weight:600">@${esc(D.ig)}</a></p>` : ''}</div>
+  ${(D.n || []).map(t => `<div class="aviso-cli">📣 ${esc(t)}</div>`).join('')}<h2>Serviço</h2><div class="svc-cards">${D.sv.map(x => `<button class="svc-card ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}"><b>${esc(x[1])}</b><small>${x[3]} min</small><div class="p num">${brl(x[2])}</div></button>`).join('')}</div>
   ${D.pr.length > 1 ? '<h2>Com quem</h2>' : ''}<div class="chips" ${D.pr.length > 1 ? '' : 'hidden'}>${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>
   <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${esc(d)}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
   <h2>Horários livres</h2>${!openD(bk.day) ? '<div class="vazio">Fechado nesse dia. Escolha outro.</div>' : slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
@@ -28,6 +29,7 @@ function bookingPage(code) {
   <p class="mini">Sem cadastro: o pedido sai do seu WhatsApp.</p>
   <button class="bt zap cheio" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled style="opacity:.5"'}>Pedir ${bk.time ? `${bk.time} de ${dataBR(parseLocal(bk.day + 'T00:00'))}` : 'horário'} pelo WhatsApp</button>
   <p class="mini" style="text-align:center;margin-top:10px">O horário só fica garantido quando o ${esc(D.s)} confirmar.</p>
+  ${D.pol ? `<div class="cartao" style="margin-top:14px"><strong>Regras do salão</strong><p class="mini" style="white-space:pre-line;margin:6px 0 0">${esc(D.pol)}</p></div>` : ''}
 `;
   main.onclick = e => {
     const el = e.target.closest('[data-bk]'); if (!el || el.disabled) return;

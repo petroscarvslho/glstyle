@@ -210,13 +210,16 @@ export function monthSummary(state, month) {
   const ownerIds = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
   const isSalon = p => !p.proId || ownerIds.has(p.proId);
   const own = pays.filter(p => p.kind === 'single' && isSalon(p)).reduce((s, p) => s + p.amount, 0);
+  const prodPays = pays.filter(p => p.kind === 'product' && isSalon(p));
+  const products = prodPays.reduce((s, p) => s + p.amount, 0), productCost = prodPays.reduce((s, p) => s + (Number(p.cost) || 0), 0);
   const plans = pays.filter(p => p.kind === 'plan').reduce((s, p) => s + p.amount, 0);
   const shares = (state.proPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
   const fixed = (state.billPayments || []).filter(p => p.month === month).reduce((s, p) => s + p.amount, 0);
   const expenses = (state.expenses || []).filter(e => String(e.date).slice(0, 7) === month).reduce((s, e) => s + e.amount, 0);
-  const income = { own: round2(own), plans: round2(plans), shares: round2(shares) };
-  const out = { fixed: round2(fixed), expenses: round2(expenses) };
-  return { income, out, totalIn: round2(own + plans + shares), totalOut: round2(fixed + expenses), profit: round2(own + plans + shares - fixed - expenses) };
+  const income = { own: round2(own), plans: round2(plans), shares: round2(shares), products: round2(products) };
+  const out = { fixed: round2(fixed), expenses: round2(expenses), productCost: round2(productCost) };
+  const tin = own + plans + shares + products, tout = fixed + expenses + productCost;
+  return { income, out, totalIn: round2(tin), totalOut: round2(tout), profit: round2(tin - tout) };
 }
 
 // ---------- agendamento pelo cliente
@@ -229,8 +232,13 @@ export function freeSlots(state, dateStr, proId, durationMin, now = null) {
   const st = state.settings, out = [];
   if (!isOpenDay(st, dateStr)) return out;
   const busy = (state.appointments || []).filter(a => a.proId === proId && a.start.startsWith(dateStr) && !['canceled', 'noshow'].includes(a.status))
-    .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; });
-  const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() : -1;
+    .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; })
+    .concat(st.breakStart && Number(st.breakMin) > 0 ? [(() => { const [h, m] = st.breakStart.split(':').map(Number); return [h * 60 + m, h * 60 + m + Number(st.breakMin)]; })()] : [])
+    .concat((state.blocks || []).filter(b => b.proId === proId && b.start.startsWith(dateStr)).map(b => { const s = parseLocal(b.start); const m = s.getHours() * 60 + s.getMinutes(); return [m, m + (Number(b.durationMin) || st.slotMin)]; }));
+  const adv = (Number(st.minAdvanceH) || 0) * 60;
+  const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() + adv : -1;
+  const limitDay = now && adv ? ymd(new Date(now.getTime() + adv * 60000)) : null;
+  if (limitDay && dateStr < limitDay) return out;
   for (let m = st.openHour * 60; m + durationMin <= st.closeHour * 60; m += st.slotMin) {
     if (isToday && m <= nowM) continue;
     if (busy.some(([a, b]) => m < b && a < m + durationMin)) continue;
@@ -252,6 +260,9 @@ export function decodeAvailability(str) {
   if (!Object.keys(o.d).every(k => /^\d{4}-\d{2}-\d{2}$/.test(k))) return null;
   if (o.wd !== undefined && !(Array.isArray(o.wd) && o.wd.every(x => Number.isInteger(x) && x >= 0 && x <= 6))) return null;
   if (o.a !== undefined && typeof o.a !== 'string') return null;
+  if (o.n !== undefined && !(Array.isArray(o.n) && o.n.every(x => typeof x === 'string' && x.length <= 300))) return null;
+  for (const k of ['ig', 'pol']) if (o[k] !== undefined && typeof o[k] !== 'string') return null;
+  if (o.ma !== undefined && !(typeof o.ma === 'number' && o.ma >= 0 && o.ma <= 72)) return null;
   if (typeof o.w !== 'string' || !/^\d{10,13}$/.test(o.w) || typeof o.s !== 'string') return null;
   return o;
 }
@@ -266,6 +277,9 @@ export function findClash(state, proId, startIso, durationMin, ignoreId = null) 
     const a0 = parseLocal(a.start), sv = (state.services || []).find(x => x.id === a.serviceId);
     const a1 = new Date(a0.getTime() + (sv ? sv.durationMin : 30) * 60000);
     return a0 < e0 && s0 < a1;
+  })()) || (state.blocks || []).find(b => b.proId === proId && (() => {
+    const b0 = parseLocal(b.start), b1 = new Date(b0.getTime() + (Number(b.durationMin) || 30) * 60000);
+    return b0 < e0 && s0 < b1;
   })()) || null;
 }
 export function findClientForRequest(clients, name, phone) {
@@ -281,4 +295,27 @@ export const equipMonthly = (price, months) => (Number(months) > 0 ? round2(Numb
 export function costSummary(costs) {
   const list = costs || [];
   return { filled: list.filter(c => Number(c.monthly) > 0).length, total: list.length, monthly: round2(list.reduce((t, c) => t + (Number(c.monthly) || 0), 0)) };
+}
+
+// dias de atraso para o cliente voltar (negativo = ainda não chegou a hora); null se o serviço não tem retorno
+export function returnDue(lastDate, returnDays, today) {
+  if (!(Number(returnDays) > 0) || !lastDate) return null;
+  return daysBetween(addDays(startOfDay(lastDate), Number(returnDays)), today);
+}
+// aniversários nos próximos 7 dias (aceita 'AAAA-MM-DD' ou 'MM-DD')
+export function birthdaysSoon(clients, today, days = 7) {
+  const t = startOfDay(today), out = [];
+  for (const c of clients || []) {
+    const m = String(c.birthday || '').match(/(\d{2})-(\d{2})$/); if (!m) continue;
+    let d = new Date(t.getFullYear(), Number(m[1]) - 1, Number(m[2]));
+    if (d < t) d = new Date(t.getFullYear() + 1, Number(m[1]) - 1, Number(m[2]));
+    const inDays = daysBetween(t, d);
+    if (inDays <= days) out.push({ client: c, inDays, date: d });
+  }
+  return out.sort((a, b) => a.inDays - b.inDays);
+}
+
+export function activeNotices(notices, today) {
+  const t = ymd(today);
+  return (notices || []).filter(n => n && n.on !== false && String(n.text || '').trim() && (!n.until || n.until >= t)).map(n => String(n.text).trim());
 }

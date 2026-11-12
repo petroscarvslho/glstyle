@@ -128,7 +128,7 @@ test('monthSummary: avulso de associado não entra como receita do salão', () =
     billPayments: [{ month: '2026-11', amount: 900 }], expenses: [{ date: '2026-11-03', amount: 60 }],
   };
   const s = C.monthSummary(state, '2026-11');
-  assert.deepEqual(s.income, { own: 35, plans: 100, shares: 21 });
+  assert.deepEqual(s.income, { own: 35, plans: 100, shares: 21, products: 0 });
   assert.equal(s.profit, 35 + 100 + 21 - 960);
 });
 
@@ -258,4 +258,49 @@ test('decodeAvailability recusa endereço que não é texto', () => {
   const ok = { s: 'GL', a: 'Rua X', w: '5575999331990', o: 8, c: 21, sl: 30, sv: [['s', 'Corte', 50, 30]], pr: [['p', 'G']], d: {} };
   assert.ok(C.decodeAvailability(C.encodeAvailability(ok)));
   assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, a: { x: 1 } })), null);
+});
+
+// ---------- pacote 2: bloqueio, produto, retorno, aniversário
+test('freeSlots e findClash respeitam bloqueio de horário', () => {
+  const state = { settings: { openHour: 9, closeHour: 14, slotMin: 30 }, services: [], appointments: [],
+    blocks: [{ id: 'b', proId: 'p', start: '2026-11-13T12:00', durationMin: 60, reason: 'Almoço' }] };
+  const f = C.freeSlots(state, '2026-11-13', 'p', 30);
+  assert.ok(!f.includes('12:00') && !f.includes('12:30') && f.includes('11:30') && f.includes('13:00'));
+  assert.equal(C.findClash(state, 'p', '2026-11-13T12:15', 30)?.reason, 'Almoço');
+  assert.equal(C.findClash(state, 'q', '2026-11-13T12:15', 30), null);
+});
+test('monthSummary separa venda de produto e custo do produto', () => {
+  const state = { pros: [{ id: 'o', owner: true }], payments: [{ kind: 'product', amount: 45, cost: 20, date: '2026-11-03T10:00', proId: 'o' }], proPayments: [], billPayments: [], expenses: [] };
+  const s = C.monthSummary(state, '2026-11');
+  assert.equal(s.income.products, 45); assert.equal(s.out.productCost, 20); assert.equal(s.profit, 25);
+});
+test('returnDue: dias de atraso para voltar', () => {
+  assert.equal(C.returnDue(new Date(2026, 10, 1), 15, new Date(2026, 10, 12)), -4);
+  assert.equal(C.returnDue(new Date(2026, 10, 1), 15, new Date(2026, 10, 20)), 4);
+  assert.equal(C.returnDue(new Date(2026, 10, 1), 0, new Date(2026, 10, 20)), null);
+});
+test('birthdaysSoon: próximos 7 dias, inclusive virada de ano', () => {
+  const cs = [{ id: 'a', birthday: '1990-11-14' }, { id: 'b', birthday: '11-30' }, { id: 'c', birthday: '2000-01-02' }, { id: 'd' }];
+  assert.deepEqual(C.birthdaysSoon(cs, new Date(2026, 10, 12)).map(x => [x.client.id, x.inDays]), [['a', 2]]);
+  assert.deepEqual(C.birthdaysSoon(cs, new Date(2026, 11, 28)).map(x => [x.client.id, x.inDays]), [['c', 5]]);
+});
+test('freeSlots respeita pausa fixa diária (almoço)', () => {
+  const state = { settings: { openHour: 11, closeHour: 14, slotMin: 30, breakStart: '12:00', breakMin: 60 }, services: [], appointments: [] };
+  assert.deepEqual(C.freeSlots(state, '2026-11-13', 'p', 30), ['11:00', '11:30', '13:00', '13:30']);
+});
+
+// ---------- página do cliente gerenciada pelo painel
+test('activeNotices: só avisos ativos e dentro da validade', () => {
+  const ns = [{ text: 'Feriado dia 15', until: '2026-11-15', on: true }, { text: 'Velho', until: '2026-11-01', on: true }, { text: 'Desligado', on: false }, { text: 'Sem data', on: true }];
+  assert.deepEqual(C.activeNotices(ns, new Date(2026, 10, 12)), ['Feriado dia 15', 'Sem data']);
+});
+test('freeSlots respeita antecedência mínima', () => {
+  const state = { settings: { openHour: 9, closeHour: 12, slotMin: 30, minAdvanceH: 2 }, services: [], appointments: [] };
+  assert.deepEqual(C.freeSlots(state, '2026-11-13', 'p', 30, new Date(2026, 10, 13, 9, 10)), ['11:30']);
+});
+test('decodeAvailability valida avisos e textos da página', () => {
+  const ok = { s: 'GL', w: '5575999331990', o: 8, c: 21, sl: 30, sv: [['s', 'Corte', 50, 30]], pr: [['p', 'G']], d: {}, n: ['Aviso'], ig: 'glstyle', pol: 'Tolerância 10 min', ma: 2 };
+  assert.ok(C.decodeAvailability(C.encodeAvailability(ok)));
+  assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, n: [{ x: 1 }] })), null);
+  assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, ma: -1 })), null);
 });

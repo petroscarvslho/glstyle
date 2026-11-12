@@ -76,10 +76,13 @@ function bookingURL() {
   const st = S().settings, t = today(), d = {};
   for (let i = 0; i < 7; i++) {
     const day = ymd(addDays(t, i)); d[day] = {};
+    const brk = st.breakStart && Number(st.breakMin) > 0 ? (() => { const [h, mm] = st.breakStart.split(':').map(Number); return [[h * 60 + mm, h * 60 + mm + Number(st.breakMin)]]; })() : [];
     for (const p of S().pros) d[day][p.id] = S().appointments.filter(a => a.proId === p.id && a.start.startsWith(day) && !['canceled', 'noshow'].includes(a.status))
-      .map(a => { const s0 = parseLocal(a.start), m = s0.getHours() * 60 + s0.getMinutes(); return [m, m + service(a.serviceId).durationMin]; });
+      .map(a => { const s0 = parseLocal(a.start), m = s0.getHours() * 60 + s0.getMinutes(); return [m, m + service(a.serviceId).durationMin]; })
+      .concat((S().blocks || []).filter(b => b.proId === p.id && b.start.startsWith(day)).map(b => { const s0 = parseLocal(b.start), m = s0.getHours() * 60 + s0.getMinutes(); return [m, m + Number(b.durationMin)]; }))
+      .concat(brk);
   }
-  const data = { s: st.shopName, a: st.address || '', w: normPhone(owner().phone), o: st.openHour, c: st.closeHour, sl: st.slotMin, wd: st.workDays, sv: S().services.map(x => [x.id, x.name, x.price, x.durationMin]), pr: S().pros.map(p => [p.id, firstName(p.name.replace(/\s*\(.*\)/, ''))]), d, g: Date.now() };
+  const data = { s: st.shopName, a: st.address || '', w: normPhone(owner().phone), o: st.openHour, c: st.closeHour, sl: st.slotMin, wd: st.workDays, sv: S().services.filter(x => !x.hideOnline).map(x => [x.id, x.name, x.price, x.durationMin]), n: activeNotices(st.notices, new Date()), ig: (st.instagram || '').replace(/^@/, ''), pol: st.policy || '', ma: Number(st.minAdvanceH) || 0, pr: S().pros.map(p => [p.id, firstName(p.name.replace(/\s*\(.*\)/, ''))]), d, g: Date.now() };
   return location.href.split('#')[0].replace(/[^/]*$/, '') + 'index.html#agendar=' + encodeAvailability(data);
 }
 
@@ -111,7 +114,8 @@ function apptItem(a, actions = true) {
     if (a.status === 'requested') bts = `<button class="bt ok" data-act="accept" data-id="${a.id}">Aceitar pedido</button><button class="ib mal" data-act="refuse" data-id="${a.id}" aria-label="Recusar pedido">${I.x}</button>`;
     else if (a.status === 'scheduled' || a.status === 'confirmed') bts = `<button class="bt ok" data-act="done" data-id="${a.id}">Atendido</button><button class="ib zap" data-act="confirm" data-id="${a.id}" aria-label="Confirmar no WhatsApp">${I.zap}</button><button class="ib mal" data-act="noshow" data-id="${a.id}" aria-label="Marcar falta">${I.x}</button>`;
     else if (a.status === 'done' && !a.paid && !a.covered) bts = `<button class="bt ouro" data-act="paid" data-id="${a.id}">Recebi ${brl(a.price)}</button><button class="ib zap" data-act="chargeAppt" data-id="${a.id}" aria-label="Cobrar no WhatsApp">${I.zap}</button><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
-    else if (a.status === 'done' || a.status === 'noshow') bts = `<span style="flex:1"></span><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
+    else if (a.status === 'done') bts = `<button class="bt leve" data-act="prod" data-id="${a.id}">+ produto${(a.extras || []).length ? ` (${a.extras.length})` : ''}</button><span style="flex:1"></span><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
+    else if (a.status === 'noshow') bts = `<span style="flex:1"></span><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
   }
   const cls = a.status === 'requested' ? 'pedido' : (a.status === 'done' || a.status === 'noshow' ? 'feito' : '');
   return `<div class="item ${cls}">
@@ -138,10 +142,11 @@ function viewHoje() {
     <div class="linha3"><div><span class="rot">A receber hoje</span><b class="num">${brl(aReceber)}</b></div><div><span class="rot">Próximo horário</span><b class="num">${(() => { const nx = list.find(a => ['scheduled', 'confirmed'].includes(a.status) && a.start.slice(11, 16) >= `${pad2(new Date().getHours())}:${pad2(new Date().getMinutes())}`); return nx ? hhmm(nx.start) + ' · ' + esc(firstName(client(nx.clientId).name)) : '—'; })()}</b></div></div></div>
   ${charges ? `<div class="cartao alerta alerta-cob" data-act="tab" data-id="cobrancas" style="cursor:pointer"><div><strong>${charges} cobrança${charges > 1 ? 's' : ''} em atraso</strong><div class="mini">Cobrar pelo WhatsApp</div></div><span class="seta">›</span></div>` : ''}
   ${(() => { const req = S().appointments.filter(a => a.status === 'requested').sort((a, b) => a.start.localeCompare(b.start)); return req.length ? `<h2>Pedidos de clientes <small>${req.length}</small></h2><div class="lista">${req.map(a => `<div class="mini">${esc(dataBR(parseLocal(a.start)))}</div>${apptItem(a)}`).join('')}</div>` : ''; })()}
-  <button class="bt leve cheio" style="margin-top:12px" data-act="shareFree">Divulgar horários livres de hoje</button>
+  <div class="duas" style="margin-top:12px"><button class="bt ouro" data-act="walkin">⚡ Chegou alguém</button><button class="bt leve" data-act="shareFree">Divulgar livres</button></div>
   <h2>Agenda de hoje <small>${list.filter(a => a.status !== 'requested').length} horários</small></h2>
   ${proChips()}
   <div class="lista">${list.filter(a => a.status !== 'requested').length ? list.filter(a => a.status !== 'requested').map(a => apptItem(a)).join('') : '<div class="vazio">Nenhum horário hoje. Toque em + para marcar.</div>'}</div>
+  ${(() => { const bd = birthdaysSoon(S().clients, t); return bd.length ? `<h2>Aniversários da semana <small>${bd.length}</small></h2><div class="grupo">${bd.map(x => `<div class="linha"><div class="cresce"><strong>🎂 ${esc(x.client.name)}</strong><div class="meta">${x.inDays === 0 ? 'hoje!' : x.inDays === 1 ? 'amanhã' : `em ${x.inDays} dias · ${dataCurta(x.date)}`}</div></div><button class="ib zap" data-act="bday" data-id="${x.client.id}" aria-label="Mandar parabéns">${I.zap}</button></div>`).join('')}</div>` : ''; })()}
   <h2>Confirmar amanhã <small>${amanha.length}</small></h2>
   ${amanha.length ? `<div class="grupo">${amanha.map(a => `<div class="linha"><div class="cresce"><strong>${hhmm(a.start)}</strong> ${esc(client(a.clientId).name)}<div class="meta">${esc(service(a.serviceId).name)}${S().pros.length > 1 ? ' · ' + esc(firstName(pro(a.proId).name)) : ''}${a.remindedAt ? ' · mensagem enviada' : ''}</div></div><button class="${a.remindedAt ? 'ib' : 'ib zap'}" data-act="confirm" data-id="${a.id}" aria-label="${a.remindedAt ? 'Reenviar' : 'Enviar'} confirmação">${I.zap}</button></div>`).join('')}</div>` : '<div class="vazio">Nada pendente para amanhã.</div>'}`;
 }
@@ -158,7 +163,10 @@ function viewAgenda() {
     const here = dayAppts.filter(a => { const s = parseLocal(a.start); const am = s.getHours() * 60 + s.getMinutes(); return am >= m && am < m + st.slotMin; });
     const busyPros = new Set(dayAppts.filter(a => { const s = parseLocal(a.start); const am = s.getHours() * 60 + s.getMinutes(); return am < m + st.slotMin && am + service(a.serviceId).durationMin > m; }).map(a => a.proId));
     const free = ui.pro === 'todos' ? busyPros.size < S().pros.length : !busyPros.has(ui.pro);
-    return `<div class="slot"><div class="h num">${hh}</div><div class="c">${here.map(a => `<div class="ocup" style="border-left-color:${pro(a.proId).color}" data-act="appt" data-id="${a.id}"><strong>${hhmm(a.start)} ${esc(client(a.clientId).name)}</strong> ${statusTag(a)}<div class="mini">${esc(service(a.serviceId).name)} · ${esc(firstName(pro(a.proId).name))}</div></div>`).join('')}${free && !here.length ? `<button class="livre" data-act="new" data-time="${hh}">Livre · marcar</button>` : ''}</div></div>`;
+    const blk = (S().blocks || []).filter(b => b.start.startsWith(ui.day) && (ui.pro === 'todos' || b.proId === ui.pro) && (() => { const s0 = parseLocal(b.start); const bm = s0.getHours() * 60 + s0.getMinutes(); return bm >= m && bm < m + st.slotMin; })());
+    const pausa = st.breakStart && (() => { const [h0, m0] = st.breakStart.split(':').map(Number); const b0 = h0 * 60 + m0; return m >= b0 && m < b0 + Number(st.breakMin || 0); })();
+    if (pausa && !here.length) return `<div class="slot"><div class="h num">${hh}</div><div class="c"><div class="bloq">Pausa · ${esc(st.breakStart)}</div></div></div>`;
+    return `<div class="slot"><div class="h num">${hh}</div><div class="c">${blk.map(b => `<div class="bloq">Bloqueado · ${esc(b.reason)} (${b.durationMin} min)<button class="desfazer" data-act="unblock" data-id="${b.id}">tirar</button></div>`).join('')}${here.map(a => `<div class="ocup" style="border-left-color:${pro(a.proId).color}" data-act="appt" data-id="${a.id}"><strong>${hhmm(a.start)} ${esc(client(a.clientId).name)}</strong> ${statusTag(a)}<div class="mini">${esc(service(a.serviceId).name)} · ${esc(firstName(pro(a.proId).name))}</div></div>`).join('')}${free && !here.length && !blk.length ? `<div style="display:flex;gap:6px"><button class="livre" style="flex:1" data-act="new" data-time="${hh}">Livre · marcar</button><button class="livre" data-act="block" data-time="${hh}" aria-label="Bloquear ${hh}">Bloquear</button></div>` : ''}</div></div>`;
   }).join('');
   const aberto = isOpenDay(st, ui.day);
   return `<h1>Agenda</h1><p class="sub">${esc(dataBR(base))}${aberto ? '' : ' · fechado'}</p>
@@ -174,13 +182,16 @@ function viewAgenda() {
 function viewClientes() {
   const t = today(), q = stripAccents(ui.q).toLowerCase();
   const all = [...S().clients].sort((a, b) => a.name.localeCompare(b.name));
-  const sumidos = all.filter(c => isMissing(visitsOf(c.id), t, S().settings.missingDays));
+  const lastAppt = c => S().appointments.filter(a => a.clientId === c.id && a.status === 'done').sort((a, b) => b.start.localeCompare(a.start))[0];
+  const hasFuture = c => S().appointments.some(a => a.clientId === c.id && ['scheduled', 'confirmed', 'requested'].includes(a.status) && parseLocal(a.start) >= t);
+  const dueOf = c => { const la = lastAppt(c); if (!la) return null; const rd = service(la.serviceId).returnDays; const d = returnDue(parseLocal(la.start), rd, t); return d !== null ? d : (isMissing(visitsOf(c.id), t, S().settings.missingDays) ? 1 : null); };
+  const sumidos = all.filter(c => !hasFuture(c) && (dueOf(c) ?? -1) >= 0).sort((a, b) => dueOf(b) - dueOf(a));
   const list = all.filter(c => !q || stripAccents(c.name).toLowerCase().includes(q) || c.phone.includes(q));
   const last = c => { const v = visitsOf(c.id); return v.length ? daysBetween(v.reduce((a, b) => (a > b ? a : b)), t) : null; };
   const debt = c => S().appointments.filter(a => a.clientId === c.id && a.status === 'done' && !a.paid && !a.covered).reduce((s, a) => s + a.price, 0);
   return `<h1>Clientes</h1><p class="sub">${all.length} cadastrados · ${all.filter(c => c.planId).length} com plano</p>
   <input type="search" placeholder="Buscar por nome ou telefone" value="${esc(ui.q)}" data-input="q" autocomplete="off">
-  ${!q && sumidos.length ? `<h2>Sumidos <small>passaram do ritmo de sempre</small></h2><div class="grupo">${sumidos.map(c => `<div class="linha"><div class="cresce"><strong data-act="client" data-id="${c.id}">${esc(c.name)}</strong><div class="meta">Última visita há ${last(c)} dias · costuma vir a cada ${rhythm(visitsOf(c.id)) ?? '?'} dias</div></div><button class="ib zap" data-act="comeback" data-id="${c.id}" aria-label="Chamar no WhatsApp">${I.zap}</button></div>`).join('')}</div><h2>Todos <small>${all.length}</small></h2>` : ''}
+  ${!q && sumidos.length ? `<h2>Hora de chamar <small>passou o dia de voltar</small></h2><div class="grupo">${sumidos.map(c => `<div class="linha"><div class="cresce"><strong data-act="client" data-id="${c.id}">${esc(c.name)}</strong><div class="meta">Última visita há ${last(c)} dias · ${(() => { const la = lastAppt(c), rd = la && service(la.serviceId).returnDays; return rd ? `${esc(service(la.serviceId).name)} volta em ${rd} dias` : `costuma vir a cada ${rhythm(visitsOf(c.id)) ?? '?'} dias`; })()}</div></div><button class="ib zap" data-act="comeback" data-id="${c.id}" aria-label="Chamar no WhatsApp">${I.zap}</button></div>`).join('')}</div><h2>Todos <small>${all.length}</small></h2>` : ''}
   <div class="grupo" id="cliRes" style="margin-top:10px">${list.map(c => { const d = debt(c), l = last(c); return `<div class="linha" data-act="client" data-id="${c.id}" style="cursor:pointer"><div class="cresce"><strong>${esc(c.name)}</strong>${c.planId ? `<span class="tag plano">${esc(plan(c.planId)?.name || '')}</span>` : ''}${d ? `<span class="tag av">deve ${brl(d)}</span>` : ''}<div class="meta">${l === null ? 'Sem visitas' : l === 0 ? 'Veio hoje' : `Última visita há ${l} dias`}</div></div><span class="seta">›</span></div>`; }).join('') || '<div class="vazio">Ninguém com esse nome. Toque em + para cadastrar no agendamento.</div>'}</div>
   <button class="bt cheio leve" style="margin-top:12px" data-act="newClient">Cadastrar cliente</button>`;
 }
@@ -228,8 +239,8 @@ function viewCaixa() {
   const totalFix = S().fixedCosts.reduce((s, x) => s + x.monthly, 0);
   const sec = {
     resumo: () => `  <div class="cartao"><div class="mini">Lucro do mês</div><div class="grande num ${sum.profit >= 0 ? 'pos' : 'neg'}">${brl(sum.profit)}</div>
-    <div class="duas" style="margin-top:10px"><div><div class="mini">Entradas</div><strong class="num">${brl(sum.totalIn)}</strong><div class="mini">Avulsos ${brl(sum.income.own)}<br>Mensalidades ${brl(sum.income.plans)}<br>Repasses ${brl(sum.income.shares)}</div></div>
-    <div><div class="mini">Saídas</div><strong class="num">${brl(sum.totalOut)}</strong><div class="mini">Contas ${brl(sum.out.fixed)}<br>Despesas ${brl(sum.out.expenses)}</div></div></div></div>
+    <div class="duas" style="margin-top:10px"><div><div class="mini">Entradas</div><strong class="num">${brl(sum.totalIn)}</strong><div class="mini">Avulsos ${brl(sum.income.own)}<br>Mensalidades ${brl(sum.income.plans)}<br>Repasses ${brl(sum.income.shares)}<br>Produtos ${brl(sum.income.products)}</div></div>
+    <div><div class="mini">Saídas</div><strong class="num">${brl(sum.totalOut)}</strong><div class="mini">Contas ${brl(sum.out.fixed)}<br>Despesas ${brl(sum.out.expenses)}<br>Custo dos produtos ${brl(sum.out.productCost)}</div></div></div></div>
   ${isCur ? `<h2>Próximos 30 dias</h2><div class="cartao ${fc.net < 0 ? 'alerta' : ''}"><div style="display:flex;justify-content:space-between;align-items:end"><div><div class="mini">Previsão de saldo</div><div class="valor num ${fc.net >= 0 ? 'pos' : 'neg'}" style="font-size:26px">${brl(fc.net)}</div></div><div class="mini" style="text-align:right">Entra ${brl(fc.inflow)}<br>Sai ${brl(fc.outflow)}</div></div>
     ${fc.net < 0 ? '<div class="mini neg" style="margin-top:6px">Vai faltar dinheiro: cobre os atrasados ou segure despesas.</div>' : ''}
     <details><summary>Ver lançamentos previstos</summary>${fc.items.map(i => `<div class="mini" style="display:flex;justify-content:space-between;margin:3px 0"><span>${dataCurta(i.date)} · ${esc(i.label)}</span><span class="num ${i.amount >= 0 ? 'pos' : 'neg'}">${brl(i.amount)}</span></div>`).join('')}</details></div>` : ''}
@@ -347,6 +358,7 @@ function clientSheet(id) {
   <label class="campo"><span>WhatsApp</span><input inputmode="tel" value="${esc(c.phone)}" data-cl="phone"></label>
   <div class="duas"><label class="campo"><span>Plano</span><select data-cl="planId"><option value="">Sem plano</option>${S().plans.map(p => `<option value="${p.id}" ${c.planId === p.id ? 'selected' : ''}>${esc(p.name)} · ${brl(p.price)}</option>`).join('')}</select></label>
     <label class="campo"><span>Dia de vencimento</span><input inputmode="numeric" value="${c.dueDay || ''}" data-cl="dueDay"></label></div>
+  <label class="campo"><span>Aniversário</span><input type="date" value="${esc(/^\d{4}-\d{2}-\d{2}$/.test(c.birthday || '') ? c.birthday : '')}" data-cl="birthday"></label>
   <label class="campo"><span>Observações (corte preferido etc.)</span><textarea data-cl="notes">${esc(c.notes || '')}</textarea></label>
   <button class="bt ouro cheio" data-act="clSave" data-id="${id}">Salvar</button>
   <h2>Histórico</h2>${hist.length ? hist.map(a => `<div class="mini" style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--linha)"><span>${dataCurta(parseLocal(a.start))} ${hhmm(a.start)} · ${esc(service(a.serviceId).name)} · ${esc(firstName(pro(a.proId).name))}</span><span>${a.covered ? 'plano' : brl(a.price)} ${statusTag(a)}</span></div>`).join('') : '<div class="vazio">Sem atendimentos ainda.</div>'}
@@ -358,6 +370,37 @@ function apptSheet(id) {
   sheet(`<h2>${esc(client(a.clientId).name)}</h2><div class="lista">${apptItem(a)}</div>
   ${['scheduled', 'confirmed'].includes(a.status) ? `<h2>Remarcar</h2><div class="duas"><input type="date" value="${a.start.slice(0, 10)}" id="rmD"><input type="time" value="${hhmm(a.start)}" step="${S().settings.slotMin * 60}" id="rmT"></div><button class="bt zap cheio" style="margin-top:8px" data-act="reschedule" data-id="${a.id}">Remarcar e avisar no WhatsApp</button>` : ''}
   <div style="display:flex;gap:6px;margin-top:12px"><button class="bt leve" data-act="client" data-id="${a.clientId}">Ver cliente</button><button class="bt mal" data-act="cancel" data-id="${a.id}">Cancelar horário</button></div>`);
+}
+
+function walkinSheet() {
+  const w = ui.wk;
+  const q = stripAccents(w.name).toLowerCase();
+  const sugs = q.length >= 2 ? S().clients.filter(x => stripAccents(x.name).toLowerCase().includes(q)).slice(0, 4) : [];
+  sheet(`<h2>Chegou alguém agora</h2>
+  <div class="mini">Serviço</div><div class="svc-cards" style="margin-bottom:12px">${S().services.map(x => `<button class="svc-card ${w.sv === x.id ? 'on' : ''}" data-act="wkSvc" data-id="${x.id}"><b>${esc(x.name)}</b><div class="p num">${brl(x.price)}</div></button>`).join('')}</div>
+  <div class="mini">Nome (opcional)</div><input data-wk="name" value="${esc(w.name)}" placeholder="Deixe em branco: entra como Avulso" autocomplete="off">
+  <div id="wkSugs">${sugs.length ? `<div class="sugs">${sugs.map(x => `<button data-act="wkPick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}</div>` : ''}</div>
+  ${w.clientId ? `<div class="mini" style="margin-top:6px">Cliente: <strong>${esc(client(w.clientId).name)}</strong>${coveredFor(client(w.clientId), w.sv, `${ymd(new Date())}T12:00`) ? ' · <span class="tag plano">coberto pelo plano</span>' : ''}</div>` : ''}
+  <div class="mini" style="margin-top:12px">Pagou como</div><div class="chips">${[['pix', 'Pix'], ['dinheiro', 'Dinheiro'], ['cartao', 'Cartão'], ['depois', 'Paga depois']].map(([k, l]) => `<button class="chip ${w.pay === k ? 'on' : ''}" data-act="wkPay" data-id="${k}">${l}</button>`).join('')}</div>
+  <button class="bt ouro cheio" style="margin-top:14px" data-act="wkSave">Registrar ${w.sv ? brl(service(w.sv).price) : ''}</button>`);
+}
+
+function blockSheet() {
+  const b = ui.blk;
+  sheet(`<h2>Bloquear ${esc(dataBR(parseLocal(ui.day + 'T00:00')))} às ${esc(b.time)}</h2>
+  <div class="mini">Motivo</div><div class="chips" style="flex-wrap:wrap">${['Almoço', 'Folga', 'Compromisso', 'Médico', 'Outro'].map(r => `<button class="chip ${b.reason === r ? 'on' : ''}" data-act="blkWhy" data-id="${r}">${r}</button>`).join('')}</div>
+  <div class="mini">Por quanto tempo</div><div class="chips" style="flex-wrap:wrap">${[[30, '30 min'], [60, '1 h'], [120, '2 h'], [240, '4 h'], [0, 'Resto do dia']].map(([v, l]) => `<button class="chip ${b.min === v ? 'on' : ''}" data-act="blkMin" data-id="${v}">${l}</button>`).join('')}</div>
+  <p class="sub">Esse horário some da página do cliente.</p>
+  <button class="bt ouro cheio" data-act="blkSave">Bloquear</button>`);
+}
+function productSheet() {
+  const a = byId(S().appointments, ui.prodFor); if (!a) return;
+  const ps = S().products || [];
+  sheet(`<h2>Vender produto · ${esc(firstName(client(a.clientId).name))}</h2>
+  ${(a.extras || []).length ? `<div class="grupo" style="margin-bottom:10px">${a.extras.map(x => `<div class="linha"><div class="cresce">${esc(x.name)}</div><div class="valor num">${brl(x.price)}</div></div>`).join('')}</div>` : ''}
+  ${ps.length ? `<div class="svc-cards">${ps.map(p => `<button class="svc-card" data-act="prodAdd" data-id="${p.id}"><b>${esc(p.name)}</b><small>lucro ${brl(p.price - (p.cost || 0))}</small><div class="p num">${brl(p.price)}</div></button>`).join('')}</div>` : '<div class="vazio">Cadastre produtos em Ajustes → Produtos.</div>'}
+  <p class="sub">Cada toque registra uma venda paga (Pix) e entra no caixa.</p>
+  <button class="bt leve cheio" data-act="close">Pronto</button>`);
 }
 
 function costsSheet() {
@@ -392,11 +435,25 @@ function settingsSheet() {
   <label class="campo"><span>Nome no Pix (como aparece no banco)</span><input value="${esc(st.pixName)}" data-set="pixName"></label>
   <div class="duas"><label class="campo"><span>Cidade</span><input value="${esc(st.pixCity)}" data-set="pixCity"></label><label class="campo"><span>Sumido após (dias)</span><input inputmode="numeric" value="${st.missingDays}" data-set="missingDays"></label></div>
   <div class="mini" style="margin-top:10px">Dias de atendimento</div><div class="chips">${['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((l, i) => `<button class="chip ${(st.workDays || [0, 1, 2, 3, 4, 5, 6]).includes(i) ? 'on' : ''}" data-act="wday" data-id="${i}">${l}</button>`).join('')}</div>
+  <div class="duas"><label class="campo"><span>Pausa todo dia (ex.: almoço)</span><input type="time" value="${esc(st.breakStart || '')}" data-set="breakStart"></label><label class="campo"><span>Duração (min)</span><input inputmode="numeric" value="${st.breakMin || ''}" placeholder="0 = sem pausa" data-set="breakMin"></label></div>
   <div class="tres"><label class="campo"><span>Abre</span><input inputmode="numeric" value="${st.openHour}" data-set="openHour"></label><label class="campo"><span>Fecha</span><input inputmode="numeric" value="${st.closeHour}" data-set="closeHour"></label><label class="campo"><span>Intervalo (min)</span><input inputmode="numeric" value="${st.slotMin}" data-set="slotMin"></label></div>
 <h2>Barbeiros</h2>  ${S().pros.map(p => `<div class="cartao" style="background:var(--couro)"><div class="duas"><input value="${esc(p.name)}" data-pr="${p.id}" data-k="name"><input inputmode="tel" value="${esc(p.phone || '')}" placeholder="WhatsApp" data-pr="${p.id}" data-k="phone"></div>${p.owner ? '<div class="mini" style="margin-top:6px">Dono do salão</div>' : `<div style="text-align:right"><button class="icone" data-act="del" data-kind="pro" data-id="${p.id}" aria-label="Apagar">✕</button></div><div class="tres" style="margin-top:6px"><select data-pr="${p.id}" data-k="shareType"><option value="percent" ${p.shareType === 'percent' ? 'selected' : ''}>% do faturamento</option><option value="fixed" ${p.shareType === 'fixed' ? 'selected' : ''}>Valor fixo/mês</option></select><input inputmode="decimal" value="${p.shareValue}" data-pr="${p.id}" data-k="shareValue"><input inputmode="numeric" value="${p.dueDay || 5}" data-pr="${p.id}" data-k="dueDay" aria-label="Dia do repasse"></div><div class="mini">Tipo · valor · dia do repasse</div>`}</div>`).join('')}<button class="bt leve" data-act="addPro">Adicionar barbeiro</button>
 `,
-    servicos: () => `<p class="sub">Preço, duração e o material que cada serviço gasta.</p>  ${S().services.map(s => `<div class="cartao" style="background:var(--couro)"><div style="display:flex;gap:6px"><input value="${esc(s.name)}" data-sv="${s.id}" data-k="name"><button class="icone" data-act="del" data-kind="svc" data-id="${s.id}" aria-label="Apagar">✕</button></div><div class="tres" style="margin-top:6px"><input inputmode="decimal" value="${s.price}" data-sv="${s.id}" data-k="price"><input inputmode="numeric" value="${s.durationMin}" data-sv="${s.id}" data-k="durationMin"><input inputmode="decimal" value="${s.materialCost}" data-sv="${s.id}" data-k="materialCost"></div><div class="mini">Preço · minutos · custo extra fixo</div>${mats().length ? `<div class="mini" style="margin-top:8px">Material usado por atendimento (quantidade):</div>${mats().map(m => { const u = (s.materials || []).find(x => x.id === m.id); return `<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><span class="mini" style="flex:1">${esc(m.name)}</span><input style="width:80px" inputmode="decimal" value="${u ? u.qty : 0}" data-svm="${s.id}" data-m="${m.id}"></div>`; }).join('')}<div class="mini" style="margin-top:4px">Material por atendimento: <strong>${brl(materialCostOf(s, mats()))}</strong></div>` : ''}</div>`).join('')}<button class="bt leve" data-act="addSvc">Adicionar serviço</button>
+    servicos: () => `<p class="sub">Preço, duração e o material que cada serviço gasta.</p>  ${S().services.map(s => `<div class="cartao" style="background:var(--couro)"><div style="display:flex;gap:6px"><input value="${esc(s.name)}" data-sv="${s.id}" data-k="name"><button class="icone" data-act="del" data-kind="svc" data-id="${s.id}" aria-label="Apagar">✕</button></div><div class="tres" style="margin-top:6px"><input inputmode="decimal" value="${s.price}" data-sv="${s.id}" data-k="price"><input inputmode="numeric" value="${s.durationMin}" data-sv="${s.id}" data-k="durationMin"><input inputmode="decimal" value="${s.materialCost}" data-sv="${s.id}" data-k="materialCost"></div><div class="mini">Preço · minutos · custo extra fixo</div><label class="mini" style="display:flex;align-items:center;gap:8px;margin-top:6px">Cliente volta em <input style="width:70px" inputmode="numeric" value="${s.returnDays || ''}" placeholder="—" data-sv="${s.id}" data-k="returnDays"> dias</label>${mats().length ? `<div class="mini" style="margin-top:8px">Material usado por atendimento (quantidade):</div>${mats().map(m => { const u = (s.materials || []).find(x => x.id === m.id); return `<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><span class="mini" style="flex:1">${esc(m.name)}</span><input style="width:80px" inputmode="decimal" value="${u ? u.qty : 0}" data-svm="${s.id}" data-m="${m.id}"></div>`; }).join('')}<div class="mini" style="margin-top:4px">Material por atendimento: <strong>${brl(materialCostOf(s, mats()))}</strong></div>` : ''}</div>`).join('')}<button class="bt leve" data-act="addSvc">Adicionar serviço</button>
 `,
+    pagina: () => `<p class="sub">Tudo o que o cliente vê na página de agendamento.</p>
+  <div class="duas"><button class="bt ouro" data-act="bookPreview">Ver como o cliente vê</button><button class="bt leve" data-act="bookLink">Copiar link</button></div>
+  <h2>Avisos no topo</h2>${(st.notices || []).map((n, i) => `<div class="cartao" style="background:var(--couro)"><div style="display:flex;gap:6px"><input value="${esc(n.text)}" placeholder="Ex.: Fechado dia 15 (feriado)" data-nt="${i}" data-k="text"><button class="icone" data-act="delNotice" data-id="${i}" aria-label="Apagar aviso">✕</button></div><div class="duas" style="margin-top:6px;align-items:center"><label class="mini">Sai do ar em<input type="date" value="${esc(n.until || '')}" data-nt="${i}" data-k="until"></label><button class="chip ${n.on !== false ? 'on' : ''}" data-act="togNotice" data-id="${i}">${n.on !== false ? 'Aparecendo' : 'Escondido'}</button></div></div>`).join('') || '<div class="vazio">Nenhum aviso.</div>'}
+  <button class="bt leve" style="margin-top:8px" data-act="addNotice">Adicionar aviso</button>
+  <h2>Serviços na página</h2><div class="grupo">${S().services.map(x => `<div class="linha"><div class="cresce"><strong>${esc(x.name)}</strong><div class="meta">${brl(x.price)} · ${x.durationMin} min</div></div><button class="chip ${x.hideOnline ? '' : 'on'}" data-act="togSvcOnline" data-id="${x.id}">${x.hideOnline ? 'Escondido' : 'Aparece'}</button></div>`).join('')}</div>
+  <h2>Regras</h2>
+  <label class="campo"><span>Marcar com pelo menos (horas de antecedência)</span><input inputmode="numeric" value="${st.minAdvanceH || ''}" placeholder="0 = pode marcar em cima da hora" data-set="minAdvanceH"></label>
+  <label class="campo"><span>Regras para o cliente (atraso, cancelamento)</span><textarea data-set="policy" placeholder="Ex.: Tolerância de 10 min. Para desmarcar, avise com 2 h de antecedência.">${esc(st.policy || '')}</textarea></label>
+  <h2>Contato</h2>
+  <label class="campo"><span>Endereço</span><input value="${esc(st.address || '')}" placeholder="Rua, número, bairro" data-set="address"></label>
+  <label class="campo"><span>Instagram (sem @)</span><input value="${esc(st.instagram || '')}" placeholder="glstyle" data-set="instagram"></label>
+  <p class="sub">Horário de atendimento, dias e pausa ficam na aba Salão. Preços e tempos, na aba Serviços.</p>`,
+    produtos: () => `<p class="sub">O que você vende no balcão. Preço de venda e quanto pagou.</p>${(S().products || []).map(p => `<div class="cartao" style="background:var(--couro)"><div style="display:flex;gap:6px"><input value="${esc(p.name)}" data-pd="${p.id}" data-k="name"><button class="icone" data-act="del" data-kind="prod" data-id="${p.id}" aria-label="Apagar">✕</button></div><div class="duas" style="margin-top:6px"><label class="mini">Vende por R$<input inputmode="decimal" value="${p.price}" data-pd="${p.id}" data-k="price"></label><label class="mini">Pagou R$<input inputmode="decimal" value="${p.cost || 0}" data-pd="${p.id}" data-k="cost"></label></div><div class="mini" style="margin-top:4px">Lucro por unidade: <strong>${brl(p.price - (p.cost || 0))}</strong></div></div>`).join('')}<button class="bt leve" data-act="addProd">Adicionar produto</button>`,
     pacotes: () => `<p class="sub">Preço do plano, se é ilimitado ou por número de visitas, e quais serviços entram.</p>  ${S().plans.map(p => `<div class="cartao" style="background:var(--couro)"><div style="display:flex;gap:6px"><input value="${esc(p.name)}" data-pl="${p.id}" data-k="name"><button class="icone" data-act="del" data-kind="plan" data-id="${p.id}" aria-label="Apagar">✕</button></div><div class="tres" style="margin-top:6px"><input inputmode="decimal" value="${p.price}" data-pl="${p.id}" data-k="price"><select data-pl="${p.id}" data-k="type"><option value="unlimited" ${p.type === 'unlimited' ? 'selected' : ''}>Ilimitado</option><option value="fixed" ${p.type === 'fixed' ? 'selected' : ''}>Nº de visitas</option></select><input inputmode="numeric" value="${p.visitsPerCycle}" data-pl="${p.id}" data-k="visitsPerCycle"></div><div class="mini">Preço · tipo · visitas no mês</div><div class="chips" style="margin-top:6px">${S().services.map(s => `<button class="chip ${p.serviceIds.includes(s.id) ? 'on' : ''}" data-act="plSvc" data-id="${p.id}" data-s="${s.id}">${esc(s.name)}</button>`).join('')}</div></div>`).join('')}<button class="bt leve" data-act="addPlan">Adicionar pacote</button>
 `,
     mensagens: () => `<p class="sub">Textos que vão prontos no WhatsApp. Escreva do seu jeito.</p>  ${Object.entries(st.templates).map(([k, v]) => `<label class="campo"><span>${{ accept: 'Pedido aceito', refuse: 'Pedido recusado', confirm: 'Confirmação de horário (véspera)', renew: 'Renovação do plano (fim do ciclo)', reschedule: 'Horário remarcado', remindLeve: 'Mensalidade (tom leve)', remindFirme: 'Mensalidade atrasada (tom firme)', charge: 'Cobrança de avulso', thanks: 'Agradecimento de pagamento', comeback: 'Cliente sumido', proShare: 'Repasse do associado' }[k] || k}</span><textarea data-tpl="${k}">${esc(v)}</textarea></label>`).join('')}<div class="mini">Variáveis: {link} {nome} {data} {hora} {servico} {valor} {plano} {inicio} {fim} {chave} {pix} {dias} {mes} {salao}</div>
@@ -405,7 +462,7 @@ function settingsSheet() {
   <div class="duas" style="margin-top:8px"><button class="bt leve" data-act="export">Baixar backup</button><button class="bt leve" data-act="exportCopy">Copiar backup</button><label class="bt leve" style="text-align:center">Importar<input type="file" accept="application/json" data-act-file="import" hidden></label></div>
   <button class="bt mal cheio" style="margin-top:12px" data-act="reset">Recomeçar com dados de exemplo</button>`,
   };
-  sheet(`<h2>Ajustes</h2><div class="seg">${[['salao', 'Salão'], ['servicos', 'Serviços'], ['pacotes', 'Pacotes'], ['mensagens', 'Mensagens'], ['backup', 'Backup']].map(([k, l]) => `<button class="${ui.aj === k ? 'on' : ''}" data-act="aj" data-id="${k}">${l}</button>`).join('')}</div>${sec[ui.aj]()}`);
+  sheet(`<h2>Ajustes</h2><div class="seg">${[['salao', 'Salão'], ['pagina', 'Página do cliente'], ['servicos', 'Serviços'], ['produtos', 'Produtos'], ['pacotes', 'Pacotes'], ['mensagens', 'Mensagens'], ['backup', 'Backup']].map(([k, l]) => `<button class="${ui.aj === k ? 'on' : ''}" data-act="aj" data-id="${k}">${l}</button>`).join('')}</div>${sec[ui.aj]()}`);
 }
 
 // ---------- render
@@ -447,7 +504,7 @@ const A = {
   clSave: el => {
     const c = byId(S().clients, el.dataset.id), g = k => document.querySelector(`[data-cl="${k}"]`).value;
     const name = g('name').trim(); if (!name) return toast('Preencha o nome');
-    Object.assign(c, { name, phone: g('phone').trim(), planId: g('planId') || null, dueDay: Math.min(31, Math.max(1, parseInt(g('dueDay')) || 1)), notes: g('notes') });
+    Object.assign(c, { name, phone: g('phone').trim(), planId: g('planId') || null, dueDay: Math.min(31, Math.max(1, parseInt(g('dueDay')) || 1)), notes: g('notes'), birthday: g('birthday') });
     closeSheet(); save(); toast('Cliente salvo');
   },
   clDel: el => { if (!el.dataset.ok) return ask('Apagar este cliente e todo o histórico dele?', 'Apagar', 'clDel', el.dataset.id); const id = el.dataset.id; S().clients = S().clients.filter(c => c.id !== id); S().appointments = S().appointments.filter(a => a.clientId !== id); closeSheet(); save(); },
@@ -505,7 +562,7 @@ const A = {
     const a = document.createElement('a'); a.href = 'https://wa.me/?text=' + encodeURIComponent(msg); a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
   },
   bookLink: () => copy(bookingURL(), 'Link de agendamento copiado'),
-  bookPreview: () => { ui.preview = true; document.body.classList.add('cliente'); bookingPage(bookingURL().split('#agendar=')[1]); $('main').insertAdjacentHTML('beforebegin', '<div id="prevBar" class="faixa-demo" style="max-width:620px;margin:10px auto 0;display:flex;justify-content:space-between;align-items:center">Prévia: é isso que o cliente vê <button class="bt ouro" data-act="endPreview">Voltar ao painel</button></div>'); window.scrollTo(0, 0); },
+  bookPreview: () => { closeSheet(); ui.preview = true; document.body.classList.add('cliente'); bookingPage(bookingURL().split('#agendar=')[1]); $('main').insertAdjacentHTML('beforebegin', '<div id="prevBar" class="faixa-demo" style="max-width:620px;margin:10px auto 0;display:flex;justify-content:space-between;align-items:center">Prévia: é isso que o cliente vê <button class="bt ouro" data-act="endPreview">Voltar ao painel</button></div>'); window.scrollTo(0, 0); },
   endPreview: () => { $('#prevBar')?.remove(); ui.preview = false; document.body.classList.remove('cliente'); $('main').onclick = null; $('main').oninput = null; render(); },
   pasteReq: () => {
     const r = parseBookingRequest(ui.req || ''); if (!r) return toast('Não achei o código do pedido (#GL[…]) na mensagem');
@@ -521,7 +578,7 @@ const A = {
   },
   del: el => {
     const k = el.dataset.kind, id = el.dataset.id, st = S();
-    const lists = { svc: 'services', plan: 'plans', pro: 'pros', mat: 'materials', fixed: 'fixedCosts' };
+    const lists = { svc: 'services', plan: 'plans', pro: 'pros', mat: 'materials', fixed: 'fixedCosts', prod: 'products' };
     const item = st[lists[k]].find(x => x.id === id); if (!item) return;
     if (k === 'svc' && st.services.length < 2) return toast('Precisa ter pelo menos um serviço');
     if (!el.dataset.ok) { const prev = ui.sheet; ask(`Apagar “${item.name}”?`, 'Apagar', 'del', id); document.querySelector('[data-ok="1"]').dataset.kind = k; return; }
@@ -530,7 +587,47 @@ const A = {
     if (k === 'mat') st.services.forEach(sv => { sv.materials = (sv.materials || []).filter(u => u.id !== id); });
     if (k === 'svc') st.plans.forEach(pl => { pl.serviceIds = pl.serviceIds.filter(x => x !== id); });
     if (k === 'pro') st.appointments.forEach(a => { if (a.proId === id && ['scheduled', 'confirmed', 'requested'].includes(a.status)) a.proId = owner().id; });
-    store.save(); toast('Apagado'); if (['svc', 'plan', 'pro'].includes(k)) settingsSheet(); else { closeSheet(); render(); }
+    store.save(); toast('Apagado'); if (['svc', 'plan', 'pro', 'prod'].includes(k)) settingsSheet(); else { closeSheet(); render(); }
+  },
+  block: el => { ui.blk = { time: el.dataset.time, min: 60, reason: 'Almoço' }; blockSheet(); },
+  blkMin: el => { ui.blk.min = Number(el.dataset.id); blockSheet(); },
+  blkWhy: el => { ui.blk.reason = el.dataset.id; blockSheet(); },
+  blkSave: () => {
+    const b = ui.blk, st = S().settings, proId = ui.pro !== 'todos' ? ui.pro : owner().id;
+    const dur = b.min === 0 ? Math.max(30, st.closeHour * 60 - (Number(b.time.slice(0, 2)) * 60 + Number(b.time.slice(3)))) : b.min;
+    (S().blocks = S().blocks || []).push({ id: store.uid(), proId, start: `${ui.day}T${b.time}`, durationMin: dur, reason: b.reason });
+    closeSheet(); save(); toast(`Bloqueado: ${b.reason}`);
+  },
+  unblock: el => { S().blocks = (S().blocks || []).filter(b => b.id !== el.dataset.id); save(); },
+  prod: el => { ui.prodFor = el.dataset.id; productSheet(); },
+  prodAdd: el => {
+    const a = byId(S().appointments, ui.prodFor), pr = byId(S().products || [], el.dataset.id); if (!a || !pr) return;
+    const now = new Date(), iso = `${ymd(now)}T${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+    (a.extras = a.extras || []).push({ productId: pr.id, name: pr.name, price: pr.price });
+    S().payments.push({ id: store.uid(), clientId: a.clientId, amount: pr.price, cost: pr.cost || 0, date: iso, kind: 'product', ref: a.id, method: 'pix', proId: a.proId });
+    save(); productSheet(); toast(`${pr.name} vendido · ${brl(pr.price)}`);
+  },
+  bday: el => { const c = client(el.dataset.id); openWA(c.phone, fill(S().settings.templates.birthday || 'Feliz aniversário, {nome}! 🎉', vars({ nome: firstName(c.name) }))); },
+  addProd: () => { (S().products = S().products || []).push({ id: store.uid(), name: 'Novo produto', price: 30, cost: 15 }); store.save(); settingsSheet(); },
+  addNotice: () => { (S().settings.notices = S().settings.notices || []).push({ text: '', until: '', on: true }); store.save(); settingsSheet(); },
+  delNotice: el => { S().settings.notices.splice(Number(el.dataset.id), 1); store.save(); settingsSheet(); },
+  togNotice: el => { const n = S().settings.notices[Number(el.dataset.id)]; n.on = n.on === false; store.save(); settingsSheet(); },
+  togSvcOnline: el => { const x = service(el.dataset.id); x.hideOnline = !x.hideOnline; store.save(); settingsSheet(); },
+  walkin: () => { ui.wk = { sv: S().services[0].id, name: '', clientId: '', pay: 'pix' }; walkinSheet(); },
+  wkSvc: el => { ui.wk.sv = el.dataset.id; walkinSheet(); },
+  wkPay: el => { ui.wk.pay = el.dataset.id; walkinSheet(); },
+  wkPick: el => { ui.wk.clientId = el.dataset.id; ui.wk.name = client(el.dataset.id).name; walkinSheet(); },
+  wkSave: () => {
+    const w = ui.wk, sv = service(w.sv), now = new Date();
+    const start = `${ymd(now)}T${pad2(now.getHours())}:${pad2(Math.floor(now.getMinutes() / 5) * 5)}`;
+    let c = w.clientId && byId(S().clients, w.clientId);
+    if (!c && w.name.trim().length > 1) { c = { id: store.uid(), name: w.name.trim(), phone: '', planId: null, dueDay: now.getDate(), notes: '', createdAt: ymd(now), lateCount: 0 }; S().clients.push(c); }
+    if (!c) { c = byId(S().clients, 'c_avulso'); if (!c) { c = { id: 'c_avulso', name: 'Avulso', phone: '', planId: null, dueDay: 1, notes: 'Clientes sem nome registrados na hora', createdAt: ymd(now), lateCount: 0 }; S().clients.push(c); } }
+    const covered = coveredFor(c, sv.id, start), paid = covered || w.pay !== 'depois';
+    const a = { id: store.uid(), clientId: c.id, serviceId: sv.id, proId: ui.pro !== 'todos' ? ui.pro : owner().id, start, status: 'done', covered, price: covered ? 0 : sv.price, paid, walkin: true };
+    S().appointments.push(a);
+    if (!covered && paid) S().payments.push({ id: store.uid(), clientId: c.id, amount: sv.price, date: start, kind: 'single', ref: a.id, method: w.pay, proId: a.proId });
+    closeSheet(); save(); toast(covered ? `${firstName(c.name)}: coberto pelo plano` : paid ? `Registrado: ${sv.name} · ${brl(sv.price)}` : `Registrado: ${brl(sv.price)} a receber`);
   },
   wday: el => { const st = S().settings, i = Number(el.dataset.id); const w = new Set(st.workDays || [0, 1, 2, 3, 4, 5, 6]); w.has(i) ? w.delete(i) : w.add(i); st.workDays = [...w].sort(); store.save(); settingsSheet(); render(); },
   addMat: () => { (S().materials = S().materials || []).push({ id: store.uid(), name: 'Novo material', price: 0, yield: 1 }); save(); },
@@ -570,18 +667,21 @@ document.addEventListener('input', e => {
   if (d.input === 'q') { ui.q = t.value; const tmp = document.createElement('div'); tmp.innerHTML = viewClientes(); const fresh = tmp.querySelector('#cliRes'), cur = document.getElementById('cliRes'); if (fresh && cur) cur.replaceWith(fresh); else render(); }
   else if (d.input === 'notif') ui.notif = t.value;
   else if (d.input === 'req') ui.req = t.value;
+  else if (d.wk) { ui.wk[d.wk] = t.value; ui.wk.clientId = ''; const q = stripAccents(t.value).toLowerCase(); const box = document.getElementById('wkSugs'); if (box) { const sg = q.length >= 2 ? S().clients.filter(x => x.id !== 'c_avulso' && stripAccents(x.name).toLowerCase().includes(q)).slice(0, 4) : []; box.innerHTML = sg.length ? `<div class="sugs">${sg.map(x => `<button data-act="wkPick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}</div>` : ''; } }
   else if (d.na) { ui.na[d.na] = t.value; ui.na.force = false; if (d.na === 'q') { const box = document.getElementById('naSugs'); if (box) box.innerHTML = naSugs(); } }
 });
 const numOr = (v, f) => { const n = parseMoney(v); return Number.isFinite(n) ? n : f; };
 document.addEventListener('change', e => {
   const t = e.target, d = t.dataset;
-  if (d.set) { const st = S().settings; st[d.set] = typeof st[d.set] === 'number' || d.set === 'paymentFeePct' ? numOr(t.value || '0', st[d.set] || 0) : t.value; save(); }
+  if (d.set) { const st = S().settings; st[d.set] = typeof st[d.set] === 'number' || ['paymentFeePct', 'breakMin', 'minAdvanceH'].includes(d.set) ? numOr(t.value || '0', st[d.set] || 0) : t.value; save(); }
   else if (d.tpl) { S().settings.templates[d.tpl] = t.value; store.save(); }
   else if (d.fc) { const f = byId(S().fixedCosts, d.fc); f[d.k] = d.k === 'name' ? t.value : (t.value.trim() === '' ? 0 : numOr(t.value, f[d.k])); store.save(); render(); if (document.querySelector('.folha h2')?.textContent === 'Custos do salão') { const y = $('.folha').scrollTop; costsSheet(); $('.folha').scrollTop = y; } }
   else if (d.eq) { const f = byId(S().fixedCosts, d.eq); f[d.k] = t.value.trim() === '' ? 0 : numOr(t.value, f[d.k]); f.monthly = equipMonthly(f.price, f.months); store.save(); render(); const y = $('.folha').scrollTop; costsSheet(); $('.folha').scrollTop = y; }
   else if (d.pr) { const p = pro(d.pr); p[d.k] = ['name', 'phone', 'shareType'].includes(d.k) ? t.value : numOr(t.value, p[d.k]); store.save(); render(); }
   else if (d.sv) { const s = service(d.sv); s[d.k] = d.k === 'name' ? t.value : numOr(t.value, s[d.k]); store.save(); render(); }
   else if (d.pl) { const p = plan(d.pl); p[d.k] = ['name', 'type'].includes(d.k) ? t.value : numOr(t.value, p[d.k]); store.save(); render(); }
+  else if (d.pd) { const pr = byId(S().products, d.pd); pr[d.k] = d.k === 'name' ? t.value : numOr(t.value, pr[d.k]); store.save(); settingsSheet(); render(); }
+  else if (d.nt !== undefined) { const n = S().settings.notices[Number(d.nt)]; n[d.k] = t.value; store.save(); }
   else if (d.mt) { const m = byId(mats(), d.mt); m[d.k] = d.k === 'name' ? t.value : numOr(t.value, m[d.k]); save(); }
   else if (d.svm) { const sv = service(d.svm), q = numOr(t.value, 0); sv.materials = (sv.materials || []).filter(x => x.id !== d.m); if (q > 0) sv.materials.push({ id: d.m, qty: q }); store.save(); settingsSheet(); }
   else if (d.pend !== undefined && t.value) { const ch = findCharge(t.value); if (!ch) { toast('Essa cobrança já foi paga'); render(); return; } ui.pending.splice(Number(d.pend), 1); receive(ch); save(); thanksPrompt(ch); }

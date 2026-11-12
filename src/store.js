@@ -2,7 +2,7 @@
 import { ymd, pad2, addDays, startOfDay, monthKey, cycleRange } from './core.js';
 
 const KEY = 'glstyle.v1';
-export const SEED_VERSION = 2;
+export const SEED_VERSION = 3;
 const REQUIRED = ['settings', 'services', 'plans', 'clients', 'appointments', 'payments', 'pros', 'fixedCosts'];
 export const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
 
@@ -13,12 +13,13 @@ export function seed(today = new Date()) {
   const at = (d, h, m = 0) => `${ymd(d)}T${pad2(h)}:${pad2(m)}`;
   const settings = {
     shopName: 'GL Style', pixKey: '+5575999331990', pixName: 'Guilherme Mendes', pixCity: 'Seabra',
-    openHour: 8, closeHour: 21, slotMin: 30, workDays: [2, 3, 4, 5, 6], missingDays: 25, hoursPerMonth: 242, paymentFeePct: 0,
+    openHour: 8, closeHour: 21, slotMin: 30, workDays: [2, 3, 4, 5, 6], breakStart: '12:00', breakMin: 60, minAdvanceH: 1, instagram: '', policy: 'Tolerância de 10 minutos de atraso. Para desmarcar, avise com pelo menos 2 horas de antecedência.', notices: [{ text: 'Agora dá pra marcar seu horário por aqui! ✂️', until: '', on: true }], missingDays: 25, hoursPerMonth: 242, paymentFeePct: 0,
     templates: {
       confirm: '{nome}, boa noite! Tudo certo para amanhã às {hora}?',
       renew: 'Bom dia, {nome}! Tudo bem?\n\nPassando para te avisar que seu plano chegou ao fim do ciclo. Ele teve início em {inicio} e encerra {fim}.\n\nAgradeço pela confiança e por continuar contando com o nosso trabalho! 🤝\nJá estamos iniciando um novo ciclo e gostaria de saber se podemos confirmar a renovação do seu plano ({plano} — {valor}) para que você continue aproveitando todos os benefícios.\nPosso deixar sua renovação confirmada?\n\nPix: {chave}\n\nUm abraço!',
       accept: '{nome}, confirmado! {data} às {hora} ({servico}) no {salao}. Te espero ✂️',
       refuse: '{nome}, esse horário ({data} às {hora}) não vai dar. Olha os outros livres aqui e me pede de novo: {link}',
+      birthday: 'Fala, {nome}! Feliz aniversário! 🎉 Seu presente tá aqui: corte com 20% de desconto essa semana no {salao}. Bora?',
       reschedule: '{nome}, seu horário mudou para {data} às {hora}. Tudo certo?',
       remindLeve: 'Oi, {nome}! Sua mensalidade do {salao} ({plano}) de {valor} vence {data}. Segue o Pix copia e cola:\n{pix}',
       remindFirme: '{nome}, sua mensalidade do {salao} ({plano}) de {valor} está em aberto desde {data}. Pra continuar usando o plano, faz o Pix por aqui:\n{pix}',
@@ -49,13 +50,19 @@ export function seed(today = new Date()) {
     { id: 'm_luva', name: 'Luvas (caixa)', price: 30, yield: 50 },
     { id: 'm_pig', name: 'Pigmentação / tinta', price: 40, yield: 15 },
   ];
-  const svc = (id, name, durationMin, price, mats) => ({ id, name, durationMin, price, materialCost: 0, materials: mats.map(([m, qty]) => ({ id: m, qty })) });
+  const RET = { s_corte: 15, s_barba: 10, s_cb: 15, s_sel: 30, s_pez: 10 };
+  const svc = (id, name, durationMin, price, mats) => ({ id, name, durationMin, price, materialCost: 0, returnDays: RET[id] || 0, materials: mats.map(([m, qty]) => ({ id: m, qty })) });
   const services = [
     svc('s_corte', 'Corte', 30, 50, [['m_lam', 1], ['m_pom', 1], ['m_toalha', 1], ['m_talco', 1], ['m_desc', 1], ['m_maq', 1]]),
     svc('s_barba', 'Barba', 30, 40, [['m_lam', 1], ['m_gel', 1], ['m_oleo', 1], ['m_toalha', 1], ['m_desc', 1]]),
     svc('s_cb', 'Corte + Barba', 60, 90, [['m_lam', 2], ['m_pom', 1], ['m_gel', 1], ['m_oleo', 1], ['m_toalha', 1], ['m_talco', 1], ['m_desc', 1], ['m_maq', 1]]),
     svc('s_sel', 'Selagem', 90, 120, [['m_selag', 1], ['m_sham', 1], ['m_cond', 1], ['m_luva', 1], ['m_toalha', 2], ['m_desc', 1]]),
     svc('s_pez', 'Pezinho', 15, 15, [['m_lam', 1], ['m_desc', 1], ['m_maq', 1]]),
+  ];
+  const products = [
+    { id: 'pr_pom', name: 'Pomada modeladora', price: 45, cost: 22 },
+    { id: 'pr_oleo', name: 'Óleo de barba', price: 40, cost: 18 },
+    { id: 'pr_sham', name: 'Shampoo', price: 35, cost: 15 },
   ];
   const plans = [
     { id: 'pl_ilim', name: 'Corte Ilimitado', type: 'unlimited', visitsPerCycle: 0, price: 100, serviceIds: ['s_corte', 's_pez'] },
@@ -68,6 +75,7 @@ export function seed(today = new Date()) {
   const clients = names.map((n, i) => ({
     id: 'c' + i, name: n, phone: `7598888${pad2(i)}${pad2(i)}`, notes: i === 3 ? 'Degradê navalhado, nº 1 nas laterais' : '',
     planId: planOf[i], dueDay: dueOf[i], createdAt: ymd(addDays(t, -120)), lateCount: i === 6 ? 2 : 0,
+    birthday: i === 3 ? `1995-${ymd(addDays(t, 2)).slice(5)}` : i === 8 ? `1990-${ymd(addDays(t, 5)).slice(5)}` : '',
   }));
   const appointments = [], payments = [];
   const svcOf = id => services.find(s => s.id === id);
@@ -141,7 +149,7 @@ export function seed(today = new Date()) {
   const billPayments = [{ id: uid(), costId: 'f_alug', month: m, amount: 900, date: `${m}-05` }, { id: uid(), costId: 'f_net', month: m, amount: 100, date: `${m}-10` }];
   const expenses = [{ id: uid(), date: `${m}-03`, name: 'Toalhas novas', amount: 60 }, { id: uid(), date: `${m}-08`, name: 'Pomada (estoque)', amount: 85 }];
   const proPayments = [];
-  return { version: SEED_VERSION, settings, pros, materials, services, plans, clients, appointments, payments, fixedCosts, billPayments, expenses, proPayments };
+  return { version: SEED_VERSION, settings, pros, materials, products, blocks: [], services, plans, clients, appointments, payments, fixedCosts, billPayments, expenses, proPayments };
 }
 
 export function createStore(storage, today = new Date()) {
@@ -166,7 +174,7 @@ export function createStore(storage, today = new Date()) {
     importJSON(s) {
       const obj = JSON.parse(s);
       if (!obj || !REQUIRED.every(k => k in obj)) throw new Error('Arquivo de backup inválido');
-      for (const k of ['billPayments', 'expenses', 'proPayments', 'materials']) obj[k] = obj[k] || [];
+      for (const k of ['billPayments', 'expenses', 'proPayments', 'materials', 'products', 'blocks']) obj[k] = obj[k] || [];
       state = obj; api.save();
     },
   };
