@@ -461,12 +461,93 @@ nav.abas{background:color-mix(in srgb,var(--sup) 92%,transparent);box-shadow:0 0
 .acoes-lado{display:flex;gap:6px}
 .acoes-lado .ib{width:38px;height:38px;border-radius:11px}
 @media (max-width:360px){.acoes-lado .ib{width:34px;height:34px}}
+
+/* ===== sistema final: barbearia clássica, leve e premium ===== */
+:root{
+  --couro:#f4f4f1; --sup:#ffffff; --sup2:#efefeb; --linha:#e3e2dd;
+  --creme:#151515; --mudo:#6c6b66; --verde:#1f4d3a; --verde2:#2b6a50; --latao:#b8862b; --latao2:#8d6620;
+  --ok:#1f7a4d; --mal:#b23a32; --aviso:#a8641a; --warnbg:#fbf4ea;
+  --r1:12px; --r2:18px;
+}
+@media (prefers-color-scheme:dark){:root{--couro:#0f1110;--sup:#171a18;--sup2:#1e2220;--linha:#2a2e2b;--creme:#eeefec;--mudo:#9a9c96;--verde:#3f8f6b;--verde2:#4ea47d;--ok:#4cb882;--mal:#e0675e}}
+body{background:var(--couro)}
+main{padding-left:20px;padding-right:20px}
+h1{font-size:30px}
+.marca{font-size:18px}
+.marca .mono{width:34px;height:34px}
+#ajustes{background:var(--sup);border:1px solid var(--linha)!important;font-size:14px}
+/* um botão, um cartão, um ícone */
+.bt{border-radius:var(--r1);min-height:44px;transition:transform .15s ease-out,background-color .15s,border-color .15s}
+.bt:active{transform:scale(.97)}
+.bt.ok,.bt.ouro,.item .acoes .bt.ok{background:var(--verde);color:#fff;border:0}
+.bt.ok:hover,.bt.ouro:hover{background:var(--verde2)}
+.bt.leve{background:var(--sup);border:1px solid var(--linha);color:var(--creme)}
+.bt.zap{background:var(--verde);color:#fff}
+.ib,.acoes-lado .ib{background:var(--sup);border:1px solid var(--linha)!important;color:var(--creme)!important;border-radius:var(--r1)}
+.ib.ok{color:var(--verde)!important}
+.ib.mal{color:var(--mudo)!important}
+.ib.mal:hover{color:var(--mal)!important}
+.ib.zap{color:var(--ok)!important}
+.ib:hover{border-color:var(--creme)!important}
+.item,.cartao,.grupo,.kpi,.cartao-preto{background:var(--sup);border:1px solid var(--linha)!important;border-radius:var(--r2)}
+.item::before{display:none}
+.item .hora{color:var(--creme);font-weight:800}
+.item.feito{background:transparent;border-style:solid!important;opacity:.75}
+.item.compacto .hora{font-size:17px}
+.tag{font-weight:600}
+.tag::before{content:none}
+.tag.plano{color:var(--latao2)}.tag.ok{color:var(--ok)}.tag.mal{color:var(--mal)}.tag.av{color:var(--aviso)}.tag.mudo{color:var(--mudo)}
+.cartao-preto{padding:18px}
+.cartao-preto .selo{color:var(--verde);border-color:color-mix(in srgb,var(--verde) 35%,transparent);background:color-mix(in srgb,var(--verde) 6%,transparent)}
+.cartao-preto .val{font-size:36px}
+.alerta-cob{border-left:3px solid var(--aviso)!important}
+.chip{border:1px solid var(--linha);background:var(--sup);color:var(--creme)}
+.chip.on,.seg button.on,.dia.on{background:var(--verde);color:#fff;border-color:var(--verde)}
+.dia.on b{color:#fff}
+.seg{background:var(--sup);border:1px solid var(--linha)!important}
+nav.abas{left:0;right:0;bottom:0;border-radius:0;background:var(--sup);box-shadow:0 -1px 0 var(--linha);padding-bottom:env(safe-area-inset-bottom)}
+nav.abas button.on{color:var(--verde)}
+nav.abas button.on svg{color:var(--verde)}
+body{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+.fab{bottom:calc(78px + env(safe-area-inset-bottom));background:var(--verde);color:#fff;box-shadow:0 10px 24px -12px rgba(0,0,0,.45);font-family:var(--corpo);font-weight:400}
+.hero .big,.pos{color:var(--ok)}
+details.grp{border-radius:var(--r2)}
+.faixa-demo{font-size:12.5px}
+@media (min-width:900px){ body:not(.cliente) nav.abas{border-radius:var(--r2);box-shadow:none;border:1px solid var(--linha)} body:not(.cliente) .fab{background:var(--verde)} }
+
+/* página do cliente: comércio local */
+body.cliente{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.cli-hero{text-align:left;padding:26px 0 6px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.cli-hero .mono-g{grid-row:span 2;margin:0;width:56px;height:56px;font-size:19px}
+.cli-hero h1{font-size:30px;margin:0;align-self:end}
+.cli-hero p{grid-column:1/-1;margin-top:10px;font-size:14.5px;line-height:1.5}
+.cli-fatos{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:13.5px;color:var(--mudo)}
+.cli-fatos b{color:var(--creme);font-weight:600}
+.svc-lista{background:var(--sup);border:1px solid var(--linha);border-radius:var(--r2);overflow:hidden}
+.svc-row{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;width:100%;padding:14px 16px;background:none;border:0;border-top:1px solid var(--linha);font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:58px}
+.svc-row:first-child{border-top:0}
+.svc-row .rd{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--linha);display:grid;place-items:center}
+.svc-row.on .rd{border-color:var(--verde)}
+.svc-row.on .rd::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--verde)}
+.svc-row b{font-weight:600;display:block}
+.svc-row small{color:var(--mudo)}
+.svc-row .p{font-family:var(--serif);font-weight:600;font-size:18px}
+.svc-row:hover{background:var(--sup2)}
+.slots-grade{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slots-grade .chip{padding:10px 0;text-align:center;border-radius:var(--r1);font-variant-numeric:tabular-nums}
+@media (min-width:700px){.slots-grade{grid-template-columns:repeat(6,1fr)}}
+.barra-pedido{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--sup);border-top:1px solid var(--linha);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.barra-pedido .in{max-width:600px;margin:auto;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.barra-pedido .res{font-size:13px;color:var(--mudo);line-height:1.35}
+.barra-pedido .res b{color:var(--creme);display:block;font-size:14.5px}
+.barra-pedido .bt{background:var(--verde);color:#fff;border:0;padding:12px 18px;font-size:15px}
+.barra-pedido .bt[disabled]{opacity:.45}
 </style>
 </head>
 <body class="cliente">
 <header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
 <main></main>
-<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTQ3MDQ1NzN9";</script>
+<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ0OTQ5Njc2Nzl9";</script>
 <script>
 // GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
 
@@ -790,6 +871,7 @@ function activeNotices(notices, today) {
   return (notices || []).filter(n => n && n.on !== false && String(n.text || '').trim() && (!n.until || n.until >= t)).map(n => String(n.text).trim());
 }
 
+const diasTxt = wd => { const n = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'], s = [...wd].sort(); const seq = s.every((d, i) => i === 0 || d === s[i - 1] + 1); return s.length === 7 ? 'Todos os dias' : seq ? `${n[s[0]]} a ${n[s[s.length - 1]]}` : s.map(d => n[d]).join(', '); };
 // GL Style — página pública de agendamento (lê os dados do link).
 const bk = { sv: null, pr: null, day: null, time: null, name: '', phone: '' };
 function bookingPage(code) {
@@ -811,15 +893,16 @@ function bookingPage(code) {
   const slots = bk.day ? slotsFor(bk.day, bk.pr) : [];
   if (!slots.includes(bk.time)) bk.time = null;
   const old = Math.round((Date.now() - (D.g || Date.now())) / 3600000);
-  main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<div class="cli-hero"><div class="mono-g">${esc((D.s || 'GL').split(' ')[0].slice(0, 2).toUpperCase())}</div><h1>${esc(D.s)}</h1><p>${D.a ? '📍 ' + esc(D.a) + '<br>' : ''}Escolha e peça seu horário. A confirmação chega pelo WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
+  main.innerHTML = `${window.GL_DEMO && code === window.GL_DEMO ? '<div class="faixa-demo" style="margin-top:12px">Demonstração com horários de exemplo. O pedido vai para o WhatsApp do salão.</div>' : ''}<div class="cli-hero"><div class="mono-g">${esc((D.s || 'GL').split(' ')[0].slice(0, 2).toUpperCase())}</div><h1>${esc(D.s)}</h1><div class="mini" style="align-self:start">Barbearia${D.a ? ' · ' + esc(D.a) : ''}</div>
+  <div class="cli-fatos"><span><b>${Array.isArray(D.wd) ? diasTxt(D.wd) : 'Todos os dias'}</b></span><span><b>${pad2(D.o)}h às ${pad2(D.c)}h</b></span><span>sem cadastro</span></div><p>Escolha o serviço e o horário. A confirmação chega no seu WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
   </p>${D.ig ? `<p><a href="https://instagram.com/${encodeURIComponent(D.ig)}" target="_blank" rel="noopener" style="color:var(--latao2);font-weight:600">@${esc(D.ig)}</a></p>` : ''}</div>
-  ${(D.n || []).map(t => `<div class="aviso-cli">📣 ${esc(t)}</div>`).join('')}<h2>Serviço</h2><div class="svc-cards">${D.sv.map(x => `<button class="svc-card ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}"><b>${esc(x[1])}</b><small>${x[3]} min</small><div class="p num">${brl(x[2])}</div></button>`).join('')}</div>
+  ${(D.n || []).map(t => `<div class="aviso-cli">📣 ${esc(t)}</div>`).join('')}<h2>Serviço</h2><div class="svc-lista">${D.sv.map(x => `<button class="svc-row ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}"><span class="rd"></span><span><b>${esc(x[1])}</b><small>${x[3]} min</small></span><span class="p num">${brl(x[2])}</span></button>`).join('')}</div>
   ${D.pr.length > 1 ? '<h2>Com quem</h2>' : ''}<div class="chips" ${D.pr.length > 1 ? '' : 'hidden'}>${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>
   <h2>Dia</h2><div class="dias">${days.map(d => { const dt = parseLocal(d + 'T00:00'); const n = slotsFor(d, bk.pr).length; return `<button class="dia ${bk.day === d ? 'on' : ''}" data-bk="day" data-id="${esc(d)}" ${n ? '' : 'style="opacity:.4"'}>${dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}<b>${dt.getDate()}</b></button>`; }).join('')}</div>
-  <h2>Horários livres</h2>${!openD(bk.day) ? '<div class="vazio">Fechado nesse dia. Escolha outro.</div>' : slots.length ? `<div class="chips" style="flex-wrap:wrap">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
+  <h2>Horário</h2>${!openD(bk.day) ? '<div class="vazio">Fechado nesse dia. Escolha outro.</div>' : slots.length ? `<div class="slots-grade">${slots.map(h => `<button class="chip ${bk.time === h ? 'on' : ''}" data-bk="time" data-id="${h}">${h}</button>`).join('')}</div>` : '<div class="vazio">Sem horário livre nesse dia. Tente outro dia ou outro profissional.</div>'}
   <h2>Seu nome</h2><input data-bkin="name" value="${esc(bk.name)}" placeholder="Como o Guilherme te conhece" autocomplete="name">
   <p class="mini">Sem cadastro: o pedido sai do seu WhatsApp.</p>
-  <button class="bt zap cheio" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled style="opacity:.5"'}>Pedir ${bk.time ? `${bk.time} de ${dataBR(parseLocal(bk.day + 'T00:00'))}` : 'horário'} pelo WhatsApp</button>
+  <div class="barra-pedido"><div class="in"><div class="res">${bk.time ? `<b>${esc(svc[1])} · ${brl(svc[2])}</b>${dataBR(parseLocal(bk.day + 'T00:00'))} às ${bk.time}` : '<b>Escolha um horário</b>sem cadastro, pelo WhatsApp'}</div><button class="bt" data-bk="send" ${bk.time && bk.name.trim().length > 1 ? '' : 'disabled'}>Pedir horário</button></div></div>
   <p class="mini" style="text-align:center;margin-top:10px">O horário só fica garantido quando o ${esc(D.s)} confirmar.</p>
   ${D.pol ? `<div class="cartao" style="margin-top:14px"><strong>Regras do salão</strong><p class="mini" style="white-space:pre-line;margin:6px 0 0">${esc(D.pol)}</p></div>` : ''}
 `;
@@ -833,7 +916,7 @@ function bookingPage(code) {
     }
     bk[k] = el.dataset.id; bookingPage(code);
   };
-  main.oninput = e => { const k = e.target.dataset.bkin; if (k) { bk[k] = e.target.value; const b = main.querySelector('[data-bk="send"]'); const ok = bk.time && bk.name.trim().length > 1; b.disabled = !ok; b.style.opacity = ok ? '' : '.5'; } };
+  main.oninput = e => { const k = e.target.dataset.bkin; if (k) { bk[k] = e.target.value; const b = main.querySelector('[data-bk="send"]'); b.disabled = !(bk.time && bk.name.trim().length > 1); } };
 }
 
 function bootBooking() { const h = location.hash.replace(/^#(agendar=)?/, ''); bookingPage(h || window.GL_DEMO || ''); }
