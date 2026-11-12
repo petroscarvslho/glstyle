@@ -21,7 +21,7 @@ for (const [tpl, out] of [['painel.html', 'painel.html'], ['cliente.html', 'inde
     for (const p of st.pros) d[day][p.id] = st.appointments.filter(a => a.proId === p.id && a.start.startsWith(day) && !['canceled', 'noshow'].includes(a.status))
       .map(a => { const s0 = core.parseLocal(a.start), m = s0.getHours() * 60 + s0.getMinutes(); return [m, m + svc(a.serviceId).durationMin]; });
   }
-  const data = { s: st.settings.shopName, w: core.normPhone(st.pros[0].phone), o: st.settings.openHour, c: st.settings.closeHour, sl: st.settings.slotMin,
+  const data = { s: st.settings.shopName, a: st.settings.address || '', w: core.normPhone(st.pros[0].phone), o: st.settings.openHour, c: st.settings.closeHour, sl: st.settings.slotMin, wd: st.settings.workDays,
     sv: st.services.map(x => [x.id, x.name, x.price, x.durationMin]), pr: st.pros.map(p => [p.id, p.name.replace(/\s*\(.*\)/, '').split(' ')[0]]), d, g: Date.now() };
   const html = readFileSync(new URL('./dist/index.html', import.meta.url), 'utf8')
     .replace('<script>', () => `<script>window.GL_DEMO=${JSON.stringify(core.encodeAvailability(data))};</script>\n<script>`);

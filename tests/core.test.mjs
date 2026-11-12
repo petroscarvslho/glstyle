@@ -222,3 +222,40 @@ test('R3 cycleStartBefore dá o início certo do ciclo para dueDay 31', () => {
   assert.equal(ymd2(C.cycleRange(31, new Date(2026, 2, 30)).start), '2026-02-28');
   assert.equal(ymd2(C.cycleRange(31, C.addDays(new Date(2026, 2, 31), -1)).start), '2026-02-28');
 });
+
+// ---------- ajustes do Guilherme (dias de funcionamento)
+test('freeSlots: dia fechado não tem horário', () => {
+  const state = { settings: { openHour: 8, closeHour: 21, slotMin: 30, workDays: [2, 3, 4, 5, 6] }, services: [], appointments: [] };
+  assert.deepEqual(C.freeSlots(state, '2026-11-16', 'p', 30), []); // segunda
+  assert.deepEqual(C.freeSlots(state, '2026-11-15', 'p', 30), []); // domingo
+  const ter = C.freeSlots(state, '2026-11-17', 'p', 30);
+  assert.equal(ter[0], '08:00'); assert.equal(ter.at(-1), '20:30'); assert.equal(ter.length, 26);
+});
+test('isOpenDay', () => {
+  assert.equal(C.isOpenDay({ workDays: [2, 3, 4, 5, 6] }, '2026-11-16'), false);
+  assert.equal(C.isOpenDay({ workDays: [2, 3, 4, 5, 6] }, '2026-11-14'), true);
+  assert.equal(C.isOpenDay({}, '2026-11-16'), true);
+});
+test('decodeAvailability aceita/valida workDays', () => {
+  const ok = { s: 'GL', w: '5575999331990', o: 8, c: 21, sl: 30, wd: [2, 3, 4, 5, 6], sv: [['s', 'Corte', 50, 30]], pr: [['p', 'G']], d: {} };
+  assert.deepEqual(C.decodeAvailability(C.encodeAvailability(ok)).wd, [2, 3, 4, 5, 6]);
+  assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, wd: ['x'] })), null);
+});
+
+test('billsStatus ignora custo zerado e itens que não são conta (equipamento/reserva)', () => {
+  const state = { fixedCosts: [{ id: 'a', name: 'Aluguel', monthly: 900, dueDay: 5 }, { id: 'z', name: 'Contador', monthly: 0, dueDay: 10 }, { id: 'e', name: 'Máquina', monthly: 50, bill: false }], billPayments: [] };
+  assert.deepEqual(C.billsStatus(state, '2026-11', new Date(2026, 10, 12)).map(b => b.cost.id), ['a']);
+});
+test('equipMonthly: valor pago ÷ meses de uso', () => {
+  assert.equal(C.equipMonthly(1200, 24), 50);
+  assert.equal(C.equipMonthly(1200, 0), 0);
+});
+test('costSummary conta preenchidos e total mensal', () => {
+  const s = C.costSummary([{ monthly: 900 }, { monthly: 0 }, { monthly: 50, bill: false }]);
+  assert.deepEqual(s, { filled: 2, total: 3, monthly: 950 });
+});
+test('decodeAvailability recusa endereço que não é texto', () => {
+  const ok = { s: 'GL', a: 'Rua X', w: '5575999331990', o: 8, c: 21, sl: 30, sv: [['s', 'Corte', 50, 30]], pr: [['p', 'G']], d: {} };
+  assert.ok(C.decodeAvailability(C.encodeAvailability(ok)));
+  assert.equal(C.decodeAvailability(C.encodeAvailability({ ...ok, a: { x: 1 } })), null);
+});

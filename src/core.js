@@ -160,7 +160,7 @@ export const toneFor = late => (late >= 2 ? 'firme' : 'leve');
 
 export function billsStatus(state, month, today) {
   const [y, m] = month.split('-').map(Number);
-  return (state.fixedCosts || []).map(cost => {
+  return (state.fixedCosts || []).filter(c => c.bill !== false && Number(c.monthly) > 0).map(cost => {
     const due = dayIn(y, m - 1, cost.dueDay || 1);
     const paid = (state.billPayments || []).some(p => p.costId === cost.id && p.month === month);
     return { cost, due, paid, overdue: !paid && startOfDay(today) > due };
@@ -220,8 +220,14 @@ export function monthSummary(state, month) {
 }
 
 // ---------- agendamento pelo cliente
+export function isOpenDay(settings, dateStr) {
+  const wd = settings && settings.workDays;
+  if (!Array.isArray(wd)) return true;
+  return wd.includes(parseLocal(dateStr + 'T12:00').getDay());
+}
 export function freeSlots(state, dateStr, proId, durationMin, now = null) {
   const st = state.settings, out = [];
+  if (!isOpenDay(st, dateStr)) return out;
   const busy = (state.appointments || []).filter(a => a.proId === proId && a.start.startsWith(dateStr) && !['canceled', 'noshow'].includes(a.status))
     .map(a => { const s = parseLocal(a.start); const m = s.getHours() * 60 + s.getMinutes(); const sv = (state.services || []).find(x => x.id === a.serviceId); return [m, m + (sv ? sv.durationMin : st.slotMin)]; });
   const isToday = now && ymd(now) === dateStr, nowM = now ? now.getHours() * 60 + now.getMinutes() : -1;
@@ -244,6 +250,8 @@ export function decodeAvailability(str) {
   if (!o.sv.length || !o.sv.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string' && typeof x[2] === 'number' && pos(x[3]))) return null;
   if (!o.pr.length || !o.pr.every(x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'string')) return null;
   if (!Object.keys(o.d).every(k => /^\d{4}-\d{2}-\d{2}$/.test(k))) return null;
+  if (o.wd !== undefined && !(Array.isArray(o.wd) && o.wd.every(x => Number.isInteger(x) && x >= 0 && x <= 6))) return null;
+  if (o.a !== undefined && typeof o.a !== 'string') return null;
   if (typeof o.w !== 'string' || !/^\d{10,13}$/.test(o.w) || typeof o.s !== 'string') return null;
   return o;
 }
@@ -267,4 +275,10 @@ export function findClientForRequest(clients, name, phone) {
   const same = clients.filter(c => norm(c.name) === n);
   if (p.length >= 12) return same.find(c => normPhone(c.phone) === p) || null; // telefone diferente = outra pessoa
   return same.length === 1 ? same[0] : null; // sem telefone: só se o nome for único
+}
+
+export const equipMonthly = (price, months) => (Number(months) > 0 ? round2(Number(price) / Number(months)) : 0);
+export function costSummary(costs) {
+  const list = costs || [];
+  return { filled: list.filter(c => Number(c.monthly) > 0).length, total: list.length, monthly: round2(list.reduce((t, c) => t + (Number(c.monthly) || 0), 0)) };
 }

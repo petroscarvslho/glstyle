@@ -48,7 +48,25 @@ test('seed começa só com o dono e dados coerentes', () => {
     assert.ok(s.pros.some(p => p.id === a.proId));
   }
   assert.ok(s.appointments.some(a => a.start.startsWith('2026-11-12')));
-  assert.ok(s.fixedCosts.every(c => c.dueDay >= 1));
+  assert.ok(s.fixedCosts.filter(c => c.bill !== false).every(c => c.dueDay >= 1));
   for (const sv of s.services) for (const m of sv.materials) assert.ok(s.materials.some(x => x.id === m.id), m.id);
   assert.ok(s.settings.templates.renew.includes('{inicio}'));
+});
+
+test('seed segue os ajustes do Guilherme', () => {
+  const s = seed(new Date(2026, 10, 12));
+  assert.equal(s.settings.openHour, 8); assert.equal(s.settings.closeHour, 21);
+  assert.deepEqual(s.settings.workDays, [2, 3, 4, 5, 6]);
+  const sv = n => s.services.find(x => x.name === n);
+  assert.equal(sv('Corte').price, 50); assert.equal(sv('Corte').durationMin, 30);
+  assert.equal(sv('Barba').price, 40);
+  assert.equal(sv('Corte + Barba').durationMin, 60);
+  assert.equal(sv('Selagem').price, 120);
+  for (const a of s.appointments) { const d = new Date(a.start.slice(0, 10) + 'T12:00'); assert.ok([2, 3, 4, 5, 6].includes(d.getDay()), 'atendimento em dia fechado: ' + a.start); }
+});
+test('dados salvos de versão antiga são trocados pelo exemplo novo', () => {
+  const m = new Map(); const st = { getItem: k => m.get(k) ?? null, setItem: (k, v) => m.set(k, v), removeItem: k => m.delete(k) };
+  const old = createStore(null).state; old.version = 1; old.settings.closeHour = 19;
+  st.setItem('glstyle.v1', JSON.stringify(old));
+  assert.equal(createStore(st).state.settings.closeHour, 21);
 });
