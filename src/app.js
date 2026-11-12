@@ -88,6 +88,9 @@ function bookingURL() {
 
 // ---------- ícones
 const I = {
+  undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7H4V2"/><path d="M4.5 7A8 8 0 1 1 4 13"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   zap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4.5 19.5l1.2-3.6A8 8 0 1 1 8.4 18.6z"/><path d="M9.2 9.3c.3 2.4 2.2 4.4 4.6 4.9l1.1-1.1 1.8.8-.4 1.6c-3.6.2-7.6-3.6-7.6-7.4l1.6-.5.8 1.8z" stroke-width="1.3"/></svg>',
   x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10M17 7 7 17"/></svg>',
   copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 8V6.5A2 2 0 0 0 13.5 4.5H6.5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2H8"/></svg>',
@@ -106,23 +109,32 @@ function proChips() {
 const fPro = a => ui.pro === 'todos' || a.proId === ui.pro;
 const statusTag = a => ({ requested: '<span class="tag av">pedido</span>', scheduled: '<span class="tag mudo">marcado</span>', confirmed: '<span class="tag ok">confirmado</span>', done: '<span class="tag ok">atendido</span>', noshow: '<span class="tag mal">faltou</span>', canceled: '<span class="tag mal">cancelado</span>' }[a.status] || '');
 
-function apptItem(a, actions = true) {
+function apptItem(a, actions = true, main = true) {
   const c = client(a.clientId), s = service(a.serviceId), p = pro(a.proId);
   const pago = a.covered ? '<span class="tag plano">plano</span>' : (a.paid ? '<span class="tag ok">pago</span>' : (a.status === 'done' ? `<span class="tag av">deve ${brl(a.price)}</span>` : `<span class="mini">${brl(a.price)}</span>`));
   let bts = '';
   if (actions) {
     if (a.status === 'requested') bts = `<button class="bt ok" data-act="accept" data-id="${a.id}">Aceitar pedido</button><button class="ib mal" data-act="refuse" data-id="${a.id}" aria-label="Recusar pedido">${I.x}</button>`;
+    else if ((a.status === 'scheduled' || a.status === 'confirmed') && !main) bts = `<span style="flex:1"></span><button class="ib ok" data-act="done" data-id="${a.id}" aria-label="Marcar atendido">${I.check}</button><button class="ib zap" data-act="confirm" data-id="${a.id}" aria-label="Confirmar no WhatsApp">${I.zap}</button><button class="ib mal" data-act="noshow" data-id="${a.id}" aria-label="Marcar falta">${I.x}</button>`;
     else if (a.status === 'scheduled' || a.status === 'confirmed') bts = `<button class="bt ok" data-act="done" data-id="${a.id}">Atendido</button><button class="ib zap" data-act="confirm" data-id="${a.id}" aria-label="Confirmar no WhatsApp">${I.zap}</button><button class="ib mal" data-act="noshow" data-id="${a.id}" aria-label="Marcar falta">${I.x}</button>`;
     else if (a.status === 'done' && !a.paid && !a.covered) bts = `<button class="bt ouro" data-act="paid" data-id="${a.id}">Recebi ${brl(a.price)}</button><button class="ib zap" data-act="chargeAppt" data-id="${a.id}" aria-label="Cobrar no WhatsApp">${I.zap}</button><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
     else if (a.status === 'done') bts = `<button class="bt leve" data-act="prod" data-id="${a.id}">+ produto${(a.extras || []).length ? ` (${a.extras.length})` : ''}</button><span style="flex:1"></span><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
     else if (a.status === 'noshow') bts = `<span style="flex:1"></span><button class="desfazer" data-act="undo" data-id="${a.id}">Desfazer</button>`;
   }
   const cls = a.status === 'requested' ? 'pedido' : (a.status === 'done' || a.status === 'noshow' ? 'feito' : '');
+  if (actions && ((a.status === 'done' && (a.paid || a.covered)) || a.status === 'noshow')) return `<div class="item compacto feito">
+    <div class="hora">${hhmm(a.start)}</div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)}</div><div class="meta">${esc(s.name)} · ${a.status === 'noshow' ? '<span style="color:var(--mal)">faltou</span>' : `<span style="color:var(--ok)">atendido</span>${a.covered ? ' · plano' : ''}${(a.extras || []).length ? ` · +${a.extras.length} produto` : ''}`}</div></div>
+    <div class="acoes-lado">${a.status === 'done' ? `<button class="ib" data-act="prod" data-id="${a.id}" aria-label="Vender produto">${I.plus}</button>` : ''}<button class="ib" data-act="undo" data-id="${a.id}" aria-label="Desfazer">${I.undo}</button></div></div>`;
+  if (actions && !main && (a.status === 'scheduled' || a.status === 'confirmed')) return `<div class="item compacto">
+    <div class="hora">${hhmm(a.start)}</div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)}</div><div class="meta">${esc(s.name)} · ${a.covered ? 'plano' : brl(a.price)}${a.status === 'confirmed' ? ' · <span style="color:var(--ok)">confirmado</span>' : ''}</div></div>
+    <div class="acoes-lado"><button class="ib ok" data-act="done" data-id="${a.id}" aria-label="Marcar atendido">${I.check}</button><button class="ib zap" data-act="confirm" data-id="${a.id}" aria-label="Confirmar no WhatsApp">${I.zap}</button><button class="ib mal" data-act="noshow" data-id="${a.id}" aria-label="Marcar falta">${I.x}</button></div></div>`;
   return `<div class="item ${cls}">
     <div class="hora">${hhmm(a.start)}</div>
     <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)}</div>
       <div class="meta">${S().pros.length > 1 ? `<span class="dot" style="background:${p.color}"></span>${esc(firstName(p.name))} · ` : ''}${esc(s.name)} · ${s.durationMin} min</div></div>
-    <div style="text-align:right">${statusTag(a)}<div style="margin-top:4px">${pago}</div></div>
+    <div style="text-align:right">${statusTag(a)}${['done', 'noshow'].includes(a.status) && (a.covered || a.paid) ? '' : `<div style="margin-top:4px">${pago}</div>`}</div>
     ${bts ? `<div class="acoes" style="display:flex">${bts}</div>` : ''}</div>`;
 }
 
@@ -145,7 +157,7 @@ function viewHoje() {
   <div class="duas" style="margin-top:12px"><button class="bt ouro" data-act="walkin">⚡ Chegou alguém</button><button class="bt leve" data-act="shareFree">Divulgar livres</button></div>
   <h2>Agenda de hoje <small>${list.filter(a => a.status !== 'requested').length} horários</small></h2>
   ${proChips()}
-  <div class="lista">${list.filter(a => a.status !== 'requested').length ? list.filter(a => a.status !== 'requested').map(a => apptItem(a)).join('') : '<div class="vazio">Nenhum horário hoje. Toque em + para marcar.</div>'}</div>
+  <div class="lista">${list.filter(a => a.status !== 'requested').length ? (() => { const ls = list.filter(a => a.status !== 'requested'); const nx = ls.find(a => ['scheduled', 'confirmed'].includes(a.status)); return ls.map(a => apptItem(a, true, a === nx)).join(''); })() : '<div class="vazio">Nenhum horário hoje. Toque em + para marcar.</div>'}</div>
   ${(() => { const bd = birthdaysSoon(S().clients, t); return bd.length ? `<h2>Aniversários da semana <small>${bd.length}</small></h2><div class="grupo">${bd.map(x => `<div class="linha"><div class="cresce"><strong>🎂 ${esc(x.client.name)}</strong><div class="meta">${x.inDays === 0 ? 'hoje!' : x.inDays === 1 ? 'amanhã' : `em ${x.inDays} dias · ${dataCurta(x.date)}`}</div></div><button class="ib zap" data-act="bday" data-id="${x.client.id}" aria-label="Mandar parabéns">${I.zap}</button></div>`).join('')}</div>` : ''; })()}
   <h2>Confirmar amanhã <small>${amanha.length}</small></h2>
   ${amanha.length ? `<div class="grupo">${amanha.map(a => `<div class="linha"><div class="cresce"><strong>${hhmm(a.start)}</strong> ${esc(client(a.clientId).name)}<div class="meta">${esc(service(a.serviceId).name)}${S().pros.length > 1 ? ' · ' + esc(firstName(pro(a.proId).name)) : ''}${a.remindedAt ? ' · mensagem enviada' : ''}</div></div><button class="${a.remindedAt ? 'ib' : 'ib zap'}" data-act="confirm" data-id="${a.id}" aria-label="${a.remindedAt ? 'Reenviar' : 'Enviar'} confirmação">${I.zap}</button></div>`).join('')}</div>` : '<div class="vazio">Nada pendente para amanhã.</div>'}`;
