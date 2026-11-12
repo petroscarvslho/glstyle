@@ -729,3 +729,17 @@ body:not(.cliente) .seg{display:flex;justify-content:space-between}
 body:not(.cliente) .dias{margin-top:4px}
 body:not(.cliente) .dias .dia{background:none;border:0;box-shadow:none;width:auto;flex:1;min-width:44px;padding:6px 0;border-radius:12px}
 body:not(.cliente) .dias .dia.on{background:var(--verde)}
+/* livre x pausa x ocupado bem diferentes */
+.ag-ocup{background:var(--sup)}
+.ag-livre{background:color-mix(in srgb,var(--ok) 7%,var(--sup))}
+.ag-livre .t{color:var(--ok);font-weight:600;font-size:13px}
+.ag-livre .t::before{content:"+ ";font-weight:700}
+.ag-livre .h{color:color-mix(in srgb,var(--ok) 70%,var(--mudo))}
+.ag-lock{color:var(--ok)}
+.ag-pausa{background:color-mix(in srgb,#d9a441 16%,var(--sup))}
+.ag-pausa .t{color:#8a5a12;font-weight:600}
+.ag-pausa .t::before{content:"☕ "}
+.ag-pausa .h{color:#8a5a12}
+.ag-bloq{background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--mal) 8%,var(--sup)) 0 6px,var(--sup) 6px 12px)}
+.ag-bloq .t{color:var(--mal);font-weight:600}
+@media (prefers-color-scheme:dark){.ag-pausa .t,.ag-pausa .h{color:#e3b866}}
