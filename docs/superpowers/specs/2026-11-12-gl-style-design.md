@@ -51,11 +51,14 @@ Botão flutuante "+" (novo agendamento) em Hoje e Agenda. Cliente por autocomple
 - WhatsApp: link `https://wa.me/55DDDNUMERO?text=...` (abre conversa com texto pronto; dono toca em enviar). Gratuito, oficial.
 - Pix: BR Code estático EMV (campos 00, 26 [GUI br.gov.bcb.pix + chave], 52=0000, 53=986, 54 valor, 58=BR, 59 nome, 60 cidade, 62 txid, 63 CRC16-CCITT-FALSE). Botão "copiar código". Confirmação de recebimento é manual (1 toque).
 
-### 7.1 Módulo opcional (Fase 2): Pix com confirmação automática via Asaas
-- Não existe login seguro/permitido na conta bancária atual dele para ler Pix recebidos.
-- Opção: conta Asaas (sem mensalidade). O app cria cobrança/assinatura Pix pela API; Asaas envia lembretes antes/depois do vencimento e aviso de "pagamento recebido" (e-mail/SMS R$ 0,99 por pacote; WhatsApp R$ 0,55 por mensagem) e chama um webhook (Supabase Edge Function, grátis) que marca "pago" no app sozinho.
-- Custo: taxa por Pix recebido (referência R$ 1,29–1,99). Só ativa se ele quiser pagar; sem o módulo, tudo funciona no modo manual.
-- A demo (Fase 1) mostra esse fluxo simulado: botão "simular Pix recebido".
+### 7.1 Regra: custo zero
+Nada pago (descartados Asaas/gateways e API paga do WhatsApp).
+
+### 7.2 Módulo opcional grátis (Fase 2): Pix confirmado sozinho pela notificação do banco
+- Se o celular dele for Android: app gratuito MacroDroid lê a notificação do banco ("Você recebeu um Pix de NOME, R$ X") e envia para o app (Supabase, grátis). O app casa nome/valor com a cobrança aberta e marca "pago"; se não casar, cai numa lista "Pix a conferir".
+- Alternativa: se o banco manda e-mail de Pix recebido, Google Apps Script (grátis) lê o e-mail e faz o mesmo.
+- Após marcar pago, o app deixa pronta a mensagem "pagamento recebido, obrigado" (1 toque para enviar).
+- A demo (Fase 1) simula: campo "colar notificação do banco" → marca pago automaticamente.
 
 ## 8. Técnica
 - Uma página HTML com JS puro (sem build), CSS próprio, ícones inline. Carrega instantâneo.
