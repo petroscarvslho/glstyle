@@ -51,6 +51,12 @@ Botão flutuante "+" (novo agendamento) em Hoje e Agenda. Cliente por autocomple
 - WhatsApp: link `https://wa.me/55DDDNUMERO?text=...` (abre conversa com texto pronto; dono toca em enviar). Gratuito, oficial.
 - Pix: BR Code estático EMV (campos 00, 26 [GUI br.gov.bcb.pix + chave], 52=0000, 53=986, 54 valor, 58=BR, 59 nome, 60 cidade, 62 txid, 63 CRC16-CCITT-FALSE). Botão "copiar código". Confirmação de recebimento é manual (1 toque).
 
+### 7.1 Módulo opcional (Fase 2): Pix com confirmação automática via Asaas
+- Não existe login seguro/permitido na conta bancária atual dele para ler Pix recebidos.
+- Opção: conta Asaas (sem mensalidade). O app cria cobrança/assinatura Pix pela API; Asaas envia lembretes antes/depois do vencimento e aviso de "pagamento recebido" (e-mail/SMS R$ 0,99 por pacote; WhatsApp R$ 0,55 por mensagem) e chama um webhook (Supabase Edge Function, grátis) que marca "pago" no app sozinho.
+- Custo: taxa por Pix recebido (referência R$ 1,29–1,99). Só ativa se ele quiser pagar; sem o módulo, tudo funciona no modo manual.
+- A demo (Fase 1) mostra esse fluxo simulado: botão "simular Pix recebido".
+
 ## 8. Técnica
 - Uma página HTML com JS puro (sem build), CSS próprio, ícones inline. Carrega instantâneo.
 - Camada `store` (Fase 1: localStorage com try/catch e fallback em memória).
