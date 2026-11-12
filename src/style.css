@@ -743,3 +743,11 @@ body:not(.cliente) .dias .dia.on{background:var(--verde)}
 .ag-bloq{background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--mal) 8%,var(--sup)) 0 6px,var(--sup) 6px 12px)}
 .ag-bloq .t{color:var(--mal);font-weight:600}
 @media (prefers-color-scheme:dark){.ag-pausa .t,.ag-pausa .h{color:#e3b866}}
+/* plano x avulso */
+.tp{display:inline-block;vertical-align:2px;margin-left:6px;font:700 10.5px/1 var(--corpo);letter-spacing:.02em;padding:4px 7px;border-radius:999px}
+.tp-plano{background:color-mix(in srgb,#b8862b 16%,var(--sup));color:#7a5512}
+.tp-avulso{background:var(--sup2);color:var(--mudo)}
+.ag-ocup.eh-plano{box-shadow:inset 3px 0 0 #c99a3b}
+.ag-ocup.eh-avulso{box-shadow:inset 3px 0 0 color-mix(in srgb,var(--mudo) 45%,transparent)}
+body:not(.cliente) .lista .item{position:relative}
+@media (prefers-color-scheme:dark){.tp-plano{color:#e3b866}}

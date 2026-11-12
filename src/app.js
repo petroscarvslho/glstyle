@@ -126,20 +126,21 @@ function apptItem(a, actions = true, main = true) {
   const cls = a.status === 'requested' ? 'pedido' : (a.status === 'done' || a.status === 'noshow' ? 'feito' : '');
   if (actions && ((a.status === 'done' && (a.paid || a.covered)) || a.status === 'noshow')) return `<div class="item compacto feito">
     <div class="hora">${hhmm(a.start)}</div>
-    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)}</div><div class="meta">${esc(s.name)} · ${a.status === 'noshow' ? '<span style="color:var(--mal)">faltou</span>' : `<span style="color:var(--ok)">atendido</span>${a.covered ? ' · plano' : ''}${(a.extras || []).length ? ` · +${a.extras.length} produto` : ''}`}</div></div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div><div class="meta">${esc(s.name)} · ${a.status === 'noshow' ? '<span style="color:var(--mal)">faltou</span>' : `<span style="color:var(--ok)">atendido</span>${(a.extras || []).length ? ` · +${a.extras.length} produto` : ''}`}</div></div>
     <div class="acoes-lado">${a.status === 'done' ? `<button class="ib" data-act="prod" data-id="${a.id}" aria-label="Vender produto">${I.plus}</button>` : ''}<button class="ib" data-act="undo" data-id="${a.id}" aria-label="Desfazer">${I.undo}</button></div></div>`;
   if (actions && !main && (a.status === 'scheduled' || a.status === 'confirmed')) return `<div class="item compacto">
     <div class="hora">${hhmm(a.start)}</div>
-    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)}</div><div class="meta">${esc(s.name)} · ${a.covered ? 'plano' : brl(a.price)}${a.status === 'confirmed' ? ' · <span style="color:var(--ok)">confirmado</span>' : ''}</div></div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div><div class="meta">${esc(s.name)}${a.covered ? '' : ' · ' + brl(a.price)}${a.status === 'confirmed' ? ' · <span style="color:var(--ok)">confirmado</span>' : ''}</div></div>
     <div class="acoes-lado"><button class="ib ok" data-act="done" data-id="${a.id}" aria-label="Marcar atendido">${I.check}</button><button class="ib zap" data-act="confirm" data-id="${a.id}" aria-label="Confirmar no WhatsApp">${I.zap}</button><button class="ib mal" data-act="noshow" data-id="${a.id}" aria-label="Marcar falta">${I.x}</button></div></div>`;
   return `<div class="item ${cls}">
     <div class="hora">${hhmm(a.start)}</div>
-    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)}</div>
+    <div style="min-width:0"><div class="nome" data-act="client" data-id="${c.id}">${esc(c.name)} ${tipoTag(a)}</div>
       <div class="meta">${S().pros.length > 1 ? `<span class="dot" style="background:${p.color}"></span>${esc(firstName(p.name))} · ` : ''}${esc(s.name)} · ${s.durationMin} min</div></div>
     <div style="text-align:right">${statusTag(a)}${['done', 'noshow'].includes(a.status) && (a.covered || a.paid) ? '' : `<div style="margin-top:4px">${pago}</div>`}</div>
     ${bts ? `<div class="acoes" style="display:flex">${bts}</div>` : ''}</div>`;
 }
 
+const tipoTag = a => a.covered ? `<span class="tp tp-plano">Plano</span>` : `<span class="tp tp-avulso">Avulso</span>`;
 function viewHoje() {
   const t = today(), tk = ymd(t);
   const list = S().appointments.filter(a => a.start.startsWith(tk) && a.status !== 'canceled' && fPro(a)).sort((a, b) => a.start.localeCompare(b.start));
@@ -181,7 +182,7 @@ function viewAgenda() {
     const pausa = st.breakStart && m >= b0 && m < b0 + Number(st.breakMin || 0);
     if (pausa && !here.length) return m < b0 + st.slotMin ? `<div class="ag-row ag-pausa"><span class="h num">${hh}</span><span class="t">Pausa · ${Number(st.breakMin || 0)} min</span></div>` : '';
     const out = blk.map(b => `<div class="ag-row ag-bloq"><span class="h num">${hh}</span><span class="t">${esc(b.reason)} · ${b.durationMin ? b.durationMin + ' min' : 'resto do dia'}</span><button class="link-mini" data-act="unblock" data-id="${b.id}">liberar</button></div>`).join('')
-      + here.map((a, i) => `<div class="ag-row ag-ocup st-${a.status}" data-act="appt" data-id="${a.id}"><span class="h num">${i ? '' : hhmm(a.start)}</span><span class="t"><b>${esc(client(a.clientId).name)}</b><small>${esc(service(a.serviceId).name)}${S().pros.length > 1 ? ' · ' + esc(firstName(pro(a.proId).name)) : ''} · ${{ done: 'atendido', confirmed: 'confirmado', noshow: 'faltou', requested: 'pedido' }[a.status] || 'marcado'}</small></span><i class="ag-dot" style="background:${S().pros.length > 1 ? pro(a.proId).color : ''}"></i></div>`).join('');
+      + here.map((a, i) => `<div class="ag-row ag-ocup st-${a.status} ${a.covered ? 'eh-plano' : 'eh-avulso'}" data-act="appt" data-id="${a.id}"><span class="h num">${i ? '' : hhmm(a.start)}</span><span class="t"><b>${esc(client(a.clientId).name)} ${tipoTag(a)}</b><small>${esc(service(a.serviceId).name)}${a.covered ? '' : ' · ' + brl(a.price)}${S().pros.length > 1 ? ' · ' + esc(firstName(pro(a.proId).name)) : ''} · ${{ done: 'atendido', confirmed: 'confirmado', noshow: 'faltou', requested: 'pedido' }[a.status] || 'marcado'}</small></span><i class="ag-dot" style="background:${S().pros.length > 1 ? pro(a.proId).color : ''}"></i></div>`).join('');
     if (out) return out;
     return free ? `<div class="ag-row ag-livre" data-act="new" data-time="${hh}"><span class="h num">${hh}</span><span class="t">livre</span><button class="ag-lock" data-act="block" data-time="${hh}" aria-label="Bloquear ${hh}">${I.lock}</button></div>` : '';
   }).join('');
