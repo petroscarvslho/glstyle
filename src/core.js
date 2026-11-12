@@ -188,7 +188,7 @@ export function forecast30(state, today) {
   const owners = new Set((state.pros || []).filter(p => p.owner).map(p => p.id));
   const singles = (state.payments || []).filter(p => p.kind === 'single' && (!p.proId || owners.has(p.proId)) && parseLocal(p.date) >= from && parseLocal(p.date) < t0)
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  if (singles > 0) items.push({ date: t30, label: 'Avulsos (média 30 dias)', amount: round2(singles) });
+  if (singles > 0) items.push({ date: t30, label: 'Convencionais (média 30 dias)', amount: round2(singles) });
   // contas: vencidas não pagas deste mês entram hoje; próximas dentro de 30 dias
   for (const b of billsStatus(state, monthKey(t0), t0)) {
     if (b.paid) continue;
