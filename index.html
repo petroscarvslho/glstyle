@@ -8,7 +8,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GL Style">
-<title>GL Style · Agende seu horário</title>
+<title>GL Style · Barbearia em Seabra · Agende seu horário</title>
+<meta name="description" content="Barbearia GL Style em Seabra-BA. Corte, barba e selagem. Veja os horários livres e marque pelo WhatsApp, sem cadastro.">
+<link rel="canonical" href="https://petroscarvslho.github.io/glstyle/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="GL Style">
+<meta property="og:title" content="GL Style · Agende seu horário">
+<meta property="og:description" content="Veja os horários livres e marque pelo WhatsApp, sem cadastro. Seabra-BA.">
+<meta property="og:url" content="https://petroscarvslho.github.io/glstyle/">
+<meta property="og:image" content="https://petroscarvslho.github.io/glstyle/share.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="https://petroscarvslho.github.io/glstyle/apple-touch-icon.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BarberShop","name":"GL Style","url":"https://petroscarvslho.github.io/glstyle/","image":"https://petroscarvslho.github.io/glstyle/share.png","address":{"@type":"PostalAddress","addressLocality":"Seabra","addressRegion":"BA","addressCountry":"BR"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"08:00","closes":"21:00"}],"priceRange":"R$"}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d1813'/%3E%3Ctext x='32' y='42' font-family='Arial Narrow,Arial' font-weight='700' font-size='28' text-anchor='middle' fill='%23c99a3b'%3EGL%3C/text%3E%3C/svg%3E">
 <style>:root{
   --couro:#1d1813; --sup:#2a221b; --sup2:#332a21; --linha:#43372b;
@@ -765,12 +778,35 @@ body:not(.cliente) .lista .item{position:relative}
 @media (prefers-color-scheme:dark){.tp-plano{color:#e3b866}}
 .campo-valor{display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:center;margin-top:10px}
 .campo-valor input{margin:0}
+/* ícones de linha (uma família só) */
+.ic{width:1.1em;height:1.1em;flex:none;vertical-align:-.18em}
+.bt .ic{margin-right:6px}
+#ajustes{display:inline-flex;align-items:center;gap:6px}
+#ajustes .ic{margin:0;width:16px;height:16px}
+.gico .ic{width:20px;height:20px}
+.grupo strong .ic{color:var(--latao);margin-right:4px}
+.aviso-cli{display:flex;gap:10px;align-items:flex-start}
+.aviso-cli .ic{color:var(--verde);margin-top:2px}
+.ag-pausa .t::before{content:none}
+.ag-pausa .t{display:flex;align-items:center;gap:6px}
+.ag-pausa .t::after{content:""}
+/* rodapé do cliente */
+.rodape-cli{max-width:1080px;margin:24px auto 0;padding:16px 20px calc(110px + env(safe-area-inset-bottom));font-size:12.5px;color:var(--mudo);text-align:center}
+@media (min-width:760px){.rodape-cli{padding-bottom:32px}}
+/* acessibilidade */
+:focus-visible{outline:2px solid var(--verde);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+.tp{white-space:nowrap}
+.tp-avulso{font-size:10px;padding:3px 6px}
+.tag.plano{margin-left:6px}
+body:not(.cliente) .item .nome{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0}
 </style>
 </head>
 <body class="cliente">
 <header class="top"><div class="poste"></div><div class="top-in"><div class="marca"><b>GL</b> Style</div></div></header>
-<main></main>
-<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTEyIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTEzIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE0Ijp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMTUiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTE2Ijp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0xNyI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTE4Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTQ1MDAxMDc3OTl9";</script>
+<main id="conteudo"><h1>GL Style · Barbearia em Seabra</h1><p class="sub">Carregando os horários…</p></main>
+<footer class="rodape-cli"><p>© 2026 GL Style · Barbearia em Seabra-BA</p></footer>
+<script>window.GL_DEMO="eyJzIjoiR0wgU3R5bGUiLCJhIjoiIiwidyI6IjU1NzU5OTkzMzE5OTAiLCJvIjo4LCJjIjoyMSwic2wiOjMwLCJ3ZCI6WzIsMyw0LDUsNl0sInN2IjpbWyJzX2NvcnRlIiwiQ29ydGUiLDUwLDMwXSxbInNfYmFyYmEiLCJCYXJiYSIsNDAsMzBdLFsic19jYiIsIkNvcnRlICsgQmFyYmEiLDkwLDYwXSxbInNfc2VsIiwiU2VsYWdlbSIsMTIwLDkwXSxbInNfcGV6IiwiUGV6aW5obyIsMTUsMTVdXSwibiI6WyJBZ29yYSBkw6EgcHJhIG1hcmNhciBzZXUgaG9yw6FyaW8gcG9yIGFxdWkhIOKcgu-4jyJdLCJpZyI6IiIsInBvbCI6IlRvbGVyw6JuY2lhIGRlIDEwIG1pbnV0b3MgZGUgYXRyYXNvLiBQYXJhIGRlc21hcmNhciwgYXZpc2UgY29tIHBlbG8gbWVub3MgMiBob3JhcyBkZSBhbnRlY2Vkw6puY2lhLiIsIm1hIjoxLCJwciI6W1sicF9nbCIsIkd1aWxoZXJtZSJdXSwiZCI6eyIyMDI2LTExLTE5Ijp7InBfZ2wiOltbNTQwLDU3MF0sWzYwMCw2MzBdLFs2NjAsNjkwXSxbODQwLDkwMF0sWzkzMCw5OTBdLFsxMDIwLDExMTBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTIwIjp7InBfZ2wiOltbNTQwLDU3MF0sWzYzMCw2NjBdLFsxMTQwLDEyMDBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTIxIjp7InBfZ2wiOltbNjYwLDY5MF0sWzcyMCw3ODBdXX0sIjIwMjYtMTEtMjIiOnsicF9nbCI6W1s3MjAsNzgwXV19LCIyMDI2LTExLTIzIjp7InBfZ2wiOltbNzIwLDc4MF1dfSwiMjAyNi0xMS0yNCI6eyJwX2dsIjpbWzkwMCw5MzBdLFs3MjAsNzgwXV19LCIyMDI2LTExLTI1Ijp7InBfZ2wiOltbNzIwLDc4MF1dfX0sImciOjE3OTUwODc1MTgxNzN9";</script>
 <script>
 // GL Style — lógica pura (sem DOM). Testada em tests/core.test.mjs.
 
@@ -1173,7 +1209,7 @@ function bookingPage(code) {
     <div class="cli-fatos"><span><b>${Array.isArray(D.wd) ? diasTxt(D.wd) : 'Todos os dias'}</b></span><span><b>${pad2(D.o)}h às ${pad2(D.c)}h</b></span><span>sem cadastro</span></div>
     <p>Escolha o serviço e o horário. A confirmação chega no seu WhatsApp.${old >= 24 ? ' Horários de ' + Math.floor(old / 24) + ' dia(s) atrás: podem ter mudado.' : ''}</p>
     <div class="cli-links">${D.a ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(D.a + ' ' + (D.s || ''))}" target="_blank" rel="noopener">Como chegar</a>` : ''}${D.ig ? `<a href="https://instagram.com/${encodeURIComponent(D.ig)}" target="_blank" rel="noopener">@${esc(D.ig)}</a>` : ''}<a href="${waLink(D.w, 'Olá! Tenho uma dúvida.')}" target="_blank" rel="noopener">Falar no WhatsApp</a></div></div>
-    ${(D.n || []).map(t => `<div class="aviso-cli">📣 ${esc(t)}</div>`).join('')}
+    ${(D.n || []).map(t => `<div class="aviso-cli"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg>${esc(t)}</div>`).join('')}
     <h2><span class="passo">1</span>Serviço</h2><div class="svc-lista">${D.sv.map(x => `<button class="svc-row ${bk.sv === x[0] ? 'on' : ''}" data-bk="sv" data-id="${esc(x[0])}"><span class="rd"></span><span><b>${esc(x[1])}</b><small>${x[3]} min</small></span><span class="p num">${brl(x[2])}</span></button>`).join('')}</div>
     ${D.pr.length > 1 ? `<h2>Com quem</h2><div class="chips">${D.pr.map(x => `<button class="chip ${bk.pr === x[0] ? 'on' : ''}" data-bk="pr" data-id="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>` : ''}
   </div>
