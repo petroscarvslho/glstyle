@@ -29,3 +29,6 @@ for (const [tpl, out] of [['painel.html', 'painel.html'], ['cliente.html', 'inde
   writeFileSync(new URL('./dist/cliente-demo.html', import.meta.url), html);
   console.log('dist/cliente-demo.html');
 }
+
+import { readdirSync, copyFileSync } from 'node:fs';
+for (const f of readdirSync(new URL('./public/', import.meta.url))) copyFileSync(new URL('./public/' + f, import.meta.url), new URL('./dist/' + f, import.meta.url));

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /glstyle/painel.html
+Sitemap: https://petroscarvslho.github.io/glstyle/sitemap.xml
